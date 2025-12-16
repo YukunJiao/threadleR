@@ -16,7 +16,22 @@ th_start_threadle(path_to_exe)
 th_set_workdir("../Examples")
 
 # Load a network file into Threadle (will also load a nodeset file)
-# lazeganet <- load_network("lazega","lazega.tsv")
+lazeganet <- th_load_network("lazega","lazega.tsv")
+lazega_nodeset <- th_load_file("lazega_nodeset", "node_set")
+th_inventory()
+
+th_info(lazeganet)
+th_info("lazega_nodeset")
+# Get info about the lazega_nodeset
+th_info(lazega_nodeset)
+
+info <- function(name, format="json") {
+  retval <- .send_command(sprintf("info(name=%s, format=%s)",name, format))
+  if (format =="json")
+    jsonlite::fromJSON(retval)
+  else
+    retval
+}
 
 # Get an inventory of stored objects
 
@@ -32,7 +47,7 @@ n2 <- "Help_with_a_decision"
 n3 <- "1"
 cmd <- sprintf("addlayer(network = %s, layername = %s, mode = %s)",n1,n2,n3)
 .send_command(cmd)
-
+th_info(mynet)
 
 n4 <- "edges.tsv"
 n4 <- "edges_big.tsv"
@@ -46,36 +61,36 @@ cmd <- sprintf("savefile(structure = %s, file = %s, nodesetfile = %s)", n1, n6, 
 .send_command(cmd)
 
 
-iv <- load_network("lazega", "iv_big.tsv") |> system.time()
-inventory()
-info("lazega")
-info("lazega_nodeset")
+iv <- th_load_network("lazega", "iv_big.tsv") |> system.time()
+th_inventory()
+th_info("lazega")
+th_info("lazega_nodeset")
 
 # Get nbr of nodes in the network (can either use the network or nodeset)
-nbr_nodes <- get_nbr_nodes("lazega")
+nbr_nodes <- th_get_nbr_nodes("lazega")
 nbr_nodes
 
 # Get a random starting node
-nodeid <- get_nodeid_by_index("lazega", sample(0:nbr_nodes-1,1))
+nodeid <- th_get_nodeid_by_index("lazega", sample(0:nbr_nodes-1,1))
 nodeid
 
 # Get Office attribute
-office_current <- get_attr("lazega_nodeset",nodeid,"village")
+office_current <- th_get_attr("lazega_nodeset",nodeid,"village")
 office_current
 
 # Get a random alter in the friends layer:
-random_alter_nodeid <- get_random_alter("lazega", 99, layername = "Help_with_a_decision")
+random_alter_nodeid <- th_get_random_alter("lazega", 99, layername = "Help_with_a_decision")
 random_alter_nodeid
 
 # Get office attribute of this
-office_alter <- get_attr("lazega_nodeset", random_alter_nodeid, "caste")
+office_alter <- th_get_attr("lazega_nodeset", random_alter_nodeid, "caste")
 office_alter
 
 th_get_random_node <- function(name) {
   cli <- sprintf("getrandomnode(structure=%s)",name)
   as.numeric(.send_command(cli))
 }
-info("lazega")
+th_info("lazega")
 th_get_random_node("lazega")
 
 
@@ -94,5 +109,5 @@ th_remove_node <- function(name,nodeid) {
 info("lazega")
 th_remove_node("lazega", 1092172)
 
-.stop_threadle()
+th_stop_threadle()
 

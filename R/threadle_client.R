@@ -319,3 +319,121 @@ th_get_random_node <- function(name) {
   cli <- sprintf("getrandomnode(structure=%s)",name)
   as.numeric(.send_command(cli))
 }
+
+
+
+#---
+
+th_help <- function(){
+  
+}
+
+th_exit <- function(){
+  
+}
+
+#---
+
+th_add_aff <- function(network, layername, nodeid, hypername, 
+                       addmissingnode = "true", addmissingaffiliation = "true") {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_add_edge <- function(network, layername, node1id, node2id,
+                        value = 1, addmissingnodes = "true") {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_add_hyper <- function(network, layername, hypername,
+                         nodes = NULL, addmissingnodes = "false") {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_clear_layer <- function(network, layername) {}
+
+th_degree <- function(network, layername, attrname = NULL, direction = "in") {}
+
+th_density <- function(network, layername) {}
+
+th_dichotomize <- function(network, layername,
+                           cond = "ge", threshold = 1,
+                           truevalue = 1, falsevalue = 0,
+                           newlayername = NULL) {}
+
+th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_generate <- function(name, size, p, directed = "true", selfties = "false") {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_get_edge <- function(network, layername, node1id, node2id) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove <- function(structure) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_all <- function() {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_aff <- function(network, layername, nodeid, hypername) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_attr <- function(structure, nodeid, attrname) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_edge <- function(network, layername, node1id, node2id) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_hyper <- function(network, layername, hypername) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_layer <- function(network, layername) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_remove_node <- function(structure, nodeid) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_save_file <- function(structure, file) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_setting <- function(name, value) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_subnet <- function(name, network, nodeset) {
+  cli <- sprintf()
+  .send_command(cli)
+}
+
+th_undefine_attr <- function(structure, attrname) {
+  cli <- sprintf()
+  .send_command(cli)
+}
