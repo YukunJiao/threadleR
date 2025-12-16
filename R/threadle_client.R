@@ -78,6 +78,14 @@ th_stop_threadle <- function() {
     out
 }
 
+#' Set name and structure name
+#' 
+#' @param name description
+.th_name <- function(x) {
+  if (is.character(x) && length(x) == 1) return(x)
+  if (is.list(x) && !is.null(x$name) && is.character(x$name) && length(x$name) == 1) return(x$name)
+  stop("Expected a Threadle structure object (with $name) or a single character name.")
+}
 
 
 #' Set working directory inside the Threadle CLI environment
@@ -104,10 +112,11 @@ th_get_workdir <- function() {
 
 #' View a structure by variable in the Threadle CLI environment
 #'
-#' @param name Name of the object to view.
+#' @param name Name of the structure to view.
 #' @return CLI output.
 #' @export
-th_view <- function(name) {
+th_view <- function(structure) {
+  name <- .th_name(structure)
   .send_command(sprintf("view(structure=%s)", name))
 }
 
@@ -170,7 +179,8 @@ th_load_network <- function(name, file) {
 #' @return Parsed JSON or raw CLI text.
 #' @export
 th_info <- function(structure, format="json") {
-  retval <- .send_command(sprintf("info(structure=%s, format=%s)",structure$name, format))
+  name <- .th_name(structure)
+  retval <- .send_command(sprintf("info(structure=%s, format=%s)",name, format))
   if (format =="json")
     fromJSON(retval)
   else
@@ -238,7 +248,8 @@ th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
 #' @return CLI output.
 #' @export
 th_get_attr <- function(structure, nodeid, attrname) {
-  cli <- sprintf("getattr(structure=%s,nodeid=%d,attrname=%s)",structure$name,nodeid,attrname)
+  name <- .th_name(structure)
+  cli <- sprintf("getattr(structure=%s,nodeid=%d,attrname=%s)",name,nodeid,attrname)
   .send_command(cli)
 }
 
@@ -264,7 +275,8 @@ th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="bi
 #'
 #' @return A numeric value.
 #' @export
-th_get_nbr_nodes <- function(name) {
+th_get_nbr_nodes <- function(structure) {
+  name <- .th_name(structure)
   cli <- sprintf("getnbrnodes(structure=%s)",name)
   as.numeric(.send_command(cli))
 }
@@ -276,7 +288,8 @@ th_get_nbr_nodes <- function(name) {
 #'
 #' @return The node ID.
 #' @export
-th_get_nodeid_by_index <- function(name, index) {
+th_get_nodeid_by_index <- function(structure, index) {
+  name <- .th_name(structure)
   cli <- sprintf("getnodeidbyindex(structure=%s, index=%d)",name, index)
   as.numeric(.send_command(cli))
 }
@@ -305,7 +318,8 @@ th_get_node_alters <- function(name,layername,nodeid,direction="both") {
 #'
 #' @return A node ID (numeric).
 #' @export
-th_get_random_alter <- function(name, nodeid, layername="", direction="both", balanced="false") {
+th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced="false") {
+  name <- .th_name(network)
   cli <- sprintf("getrandomalter(network=%s, nodeid=%d, layername=%s, direction=%s, balanced=%s)",name, nodeid, layername,direction,balanced)
   as.numeric(.send_command(cli))
 }
@@ -315,7 +329,8 @@ th_get_random_alter <- function(name, nodeid, layername="", direction="both", ba
 #' @param name Structure name.
 #' @return A node ID (numeric).
 #' @export
-th_get_random_node <- function(name) {
+th_get_random_node <- function(structure) {
+  name <- .th_name(structure)
   cli <- sprintf("getrandomnode(structure=%s)",name)
   as.numeric(.send_command(cli))
 }
@@ -356,7 +371,11 @@ th_clear_layer <- function(network, layername) {}
 
 th_degree <- function(network, layername, attrname = NULL, direction = "in") {}
 
-th_density <- function(network, layername) {}
+th_density <- function(network, layername) {
+  network <- .th_name(network)
+  cli <- sprintf("density(network = %s, layername = %s)",network,layername)
+  as.numeric(.send_command(cli))
+}
 
 th_dichotomize <- function(network, layername,
                            cond = "ge", threshold = 1,
@@ -414,8 +433,9 @@ th_remove_layer <- function(network, layername) {
 }
 
 th_remove_node <- function(structure, nodeid) {
-  cli <- sprintf()
-  .send_command(cli)
+  name <- .th_name(structure)
+  cli <- sprintf("removenode(structure = %s, nodeid = %d)",name,nodeid)
+  as.numeric(.send_command(cli))
 }
 
 th_save_file <- function(structure, file) {

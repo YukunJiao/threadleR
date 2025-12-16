@@ -15,99 +15,60 @@ th_start_threadle(path_to_exe)
 # Move into examples folder
 th_set_workdir("../Examples")
 
-# Load a network file into Threadle (will also load a nodeset file)
+lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
 lazeganet <- th_load_network("lazega","lazega.tsv")
-lazega_nodeset <- th_load_file("lazega_nodeset", "node_set")
-th_inventory()
-
 th_info(lazeganet)
-th_info("lazega_nodeset")
-# Get info about the lazega_nodeset
-th_info(lazega_nodeset)
-
-info <- function(name, format="json") {
-  retval <- .send_command(sprintf("info(name=%s, format=%s)",name, format))
-  if (format =="json")
-    jsonlite::fromJSON(retval)
-  else
-    retval
-}
-
-# Get an inventory of stored objects
-
-mynodes <- th_load_file("mynodes","iv_nodes.tsv", type = "nodeset")
-
-mynet <- th_create_network("mynet", nodeset = mynodes)
-
-th_info(mynodes)
-th_info(mynet)
-
-n1 <- "mynet"
-n2 <- "Help_with_a_decision"
-n3 <- "1"
-cmd <- sprintf("addlayer(network = %s, layername = %s, mode = %s)",n1,n2,n3)
-.send_command(cmd)
-th_info(mynet)
-
-n4 <- "edges.tsv"
-n4 <- "edges_big.tsv"
-n5 <- "edgelist"
-cmd <- sprintf("importlayer(network = %s, layername = %s, file = %s, format = %s)",n1,n2,n4,n5)
-.send_command(cmd)
-
-n6 <- "mynet_test.tsv"
-n7 <- "mynet_test_nodeset.tsv"
-cmd <- sprintf("savefile(structure = %s, file = %s, nodesetfile = %s)", n1, n6, n7)
-.send_command(cmd)
-
-
-iv <- th_load_network("lazega", "iv_big.tsv") |> system.time()
-th_inventory()
 th_info("lazega")
+th_info(lazeganet_nodeset)
 th_info("lazega_nodeset")
+# require name of structure rather than structure$name
+
+
+# Load a network file into Threadle (will also load a nodeset file)
+th_inventory()
 
 # Get nbr of nodes in the network (can either use the network or nodeset)
-nbr_nodes <- th_get_nbr_nodes("lazega")
+nbr_nodes <- th_get_nbr_nodes(lazeganet)
 nbr_nodes
 
 # Get a random starting node
-nodeid <- th_get_nodeid_by_index("lazega", sample(0:nbr_nodes-1,1))
+nodeid <- th_get_nodeid_by_index(lazeganet, sample(0:nbr_nodes-1,1))
 nodeid
 
 # Get Office attribute
-office_current <- th_get_attr("lazega_nodeset",nodeid,"village")
+office_current <- th_get_attr(lazeganet,nodeid,"Office")
 office_current
 
+th_info("lazega")
+th_info(lazeganet)
+th_info(lazeganet_nodeset)
 # Get a random alter in the friends layer:
-random_alter_nodeid <- th_get_random_alter("lazega", 99, layername = "Help_with_a_decision")
+random_alter_nodeid <- th_get_random_alter(lazeganet, nodeid, layername = "friends")
 random_alter_nodeid
 
 # Get office attribute of this
-office_alter <- th_get_attr("lazega_nodeset", random_alter_nodeid, "caste")
+office_alter <- th_get_attr(lazeganet, random_alter_nodeid, "Gender")
 office_alter
 
-th_get_random_node <- function(name) {
-  cli <- sprintf("getrandomnode(structure=%s)",name)
-  as.numeric(.send_command(cli))
-}
-th_info("lazega")
 th_get_random_node("lazega")
+th_get_random_node("lazega_nodeset")
+th_get_random_node(lazeganet)
+th_get_random_node(lazeganet_nodeset)
 
+th_density(lazeganet_nodeset, "friends")
+th_density(lazeganet, "friends")
+th_density("lazega", "friends")
 
-th_density <- function(name,layer) {
-  cli <- sprintf("density(network = %s, layername = %s)",name,layer)
-  as.numeric(.send_command(cli))
-}
+th_view(lazeganet_nodeset)
+th_view(lazeganet)
+th_view("lazega")
 
-th_density("lazega", "Help_with_a_decision") |> system.time()
+th_info(lazeganet_nodeset)
+th_info(lazeganet)
+th_info("lazega")
+
 # etc - so this should be looped of course, but mechanism is all there for random walker now
+th_info(lazeganet_nodeset)$NbrNodes
+th_remove_node("lazega", 15)
 
-th_remove_node <- function(name,nodeid) {
-  cli <- sprintf("removenode(structure = %s, nodeid = %d)",name,nodeid)
-  as.numeric(.send_command(cli))
-}
-info("lazega")
-th_remove_node("lazega", 1092172)
-
-th_stop_threadle()
-
+.stop_threadle()
