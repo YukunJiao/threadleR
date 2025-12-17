@@ -2,24 +2,32 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_add_hyper}
 \alias{th_add_hyper}
-\title{Add a hyperedge to a specified layer of a network (the hyperedge set of a 2-mode layer).}
+\title{Add a hyperedge to a specified layer of a network.}
 \usage{
 th_add_hyper(
   network,
   layername,
   hypername,
-  nodes = c(1, 2, 3),
+  nodes = c(),
   addmissingnodes = FALSE
 )
 }
 \arguments{
-\item{network}{A `threadle_network` object.}
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
 
-\item{id}{Node ID.}
+\item{layername}{Name of the layer.}
+
+\item{hypername}{Name of the hyperedge.}
+
+\item{nodes}{Vector of node to attach to the hyperedge. If `NULL`,
+creates the hyperedge without adding nodes.}
+
+\item{addmissingnodes}{Logical; if `TRUE`, missing nodes are created and added. Defaults to `FALSE`.}
 }
 \value{
 CLI output.
 }
 \description{
-Add a hyperedge to a specified layer of a network (the hyperedge set of a 2-mode layer).
+`th_add_hyper()` adds a hyperedge to the hyperedge set of a 2-mode layer
 }

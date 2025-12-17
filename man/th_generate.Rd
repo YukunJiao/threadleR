@@ -2,10 +2,25 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_generate}
 \alias{th_generate}
-\title{generate}
+\title{Generate an Erdős–Rényi random network}
 \usage{
 th_generate(name, size, p, directed = TRUE, selfties = FALSE)
 }
+\arguments{
+\item{name}{Name of the new network variable to create.}
+
+\item{size}{Number of nodes.}
+
+\item{p}{Edge probability.}
+
+\item{directed}{Logical; whether the generated network is directed. Defaults to `TRUE`.}
+
+\item{selfties}{Logical; whether self-edges are allowed. Defaults to `FALSE`.}
+}
+\value{
+A `threadle_network`.
+}
 \description{
-generate
+`generate()` creates a random
+network and store it under `name`
 }

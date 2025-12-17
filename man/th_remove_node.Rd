@@ -7,7 +7,8 @@
 th_remove_node(structure, nodeid)
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network` object.}
+\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+string naming a structure in the Threadle CLI environment.}
 
 \item{nodeid}{Node ID.}
 }

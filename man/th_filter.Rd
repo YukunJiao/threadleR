@@ -2,10 +2,26 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_filter}
 \alias{th_filter}
-\title{filter a nodeset to get a new filtered nodeset.}
+\title{Filter a nodeset by an attribute condition}
 \usage{
 th_filter(name, nodeset, attrname, cond, attrvalue)
 }
+\arguments{
+\item{name}{Name of the new nodeset variable}
+
+\item{nodeset}{A `threadle_nodeset` object or a character string giving 
+the name of a nodeset in the Threadle CLI environment.}
+
+\item{attrname}{Attribute name.}
+
+\item{cond}{Condition operator: `"eq"`, `"ne"`, `"gt"`, `"lt"`, `"ge"`, `"le"`,
+`"isnull"`, or `"notnull"`.}
+
+\item{attrvalue}{Attribute value used for the condition.}
+}
+\value{
+A `threadle_nodeset`
+}
 \description{
-filter a nodeset to get a new filtered nodeset.
+`filter()` creates a new nodeset based names and values of attributes.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_dichotomize}
 \alias{th_dichotomize}
-\title{dichotomize}
+\title{Dichotomize a layer}
 \usage{
 th_dichotomize(
   network,
@@ -14,6 +14,27 @@ th_dichotomize(
   newlayername = NULL
 )
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{Name of the layer.}
+
+\item{cond}{Comparison operator: `"eq"`, `"ne"`, `"gt"`, `"lt"`, `"ge"`, or `"le"`.
+Defaults to `"ge"`.}
+
+\item{threshold}{Threshold used with `cond`. Defaults to `1`.}
+
+\item{truevalue}{Value to assign when the condition is `TRUE`. Defaults to `1`.}
+
+\item{falsevalue}{Value to assign when the condition is `FALSE`. Defaults to `0`.}
+
+\item{newlayername}{Optional name for the new layer.}
+}
+\value{
+CLI output.
+}
 \description{
-dichotomize
+`dichotomize()` creates a recoded version of
+a layer based on a threshold rule.
 }

@@ -2,10 +2,20 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_clear_layer}
 \alias{th_clear_layer}
-\title{clear all nodes in one layer}
+\title{Clear all edges in a layer}
 \usage{
 th_clear_layer(network, layername)
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{Name of the layer.}
+}
+\value{
+CLI output.
+}
 \description{
-clear all nodes in one layer
+`th_clear_layer()` removes all edges from the
+specified layer while keeping the layer definition.
 }

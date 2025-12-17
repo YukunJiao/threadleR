@@ -2,10 +2,23 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_degree}
 \alias{th_degree}
-\title{Calculates the degree centrality for the specified layer and network}
+\title{Calculate the degree centrality for a layer}
 \usage{
 th_degree(network, layername, attrname = NULL, direction = "in")
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{layer name.}
+
+\item{attrname}{attribute name.}
+
+\item{direction}{Edge direction: `"in"`, `"out"`, or `"both"`. Defaults to `"in"`.}
+}
+\value{
+CLI output.
+}
 \description{
-Calculates the degree centrality for the specified layer and network
+`th_degree()` computes the degree centrality for the specified network and layer.
 }

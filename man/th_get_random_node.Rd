@@ -13,5 +13,5 @@ th_get_random_node(structure)
 A node ID (numeric).
 }
 \description{
-Get a random node from a structure
+`th_get_random_node()` gets a random node.
 }

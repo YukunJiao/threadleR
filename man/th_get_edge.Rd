@@ -2,10 +2,24 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_get_edge}
 \alias{th_get_edge}
-\title{get edge value}
+\title{Get an edge value}
 \usage{
 th_get_edge(network, layername, node1id, node2id)
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{Name of the layer.}
+
+\item{node1id}{ID of the source node (from).}
+
+\item{node2id}{ID of the destination node (to).}
+}
+\value{
+CLI output.
+}
 \description{
-get edge value
+`getedge()` retrieves the edge value between
+two nodes in the specified layer.
 }

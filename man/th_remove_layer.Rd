@@ -2,10 +2,18 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_remove_layer}
 \alias{th_remove_layer}
-\title{Remove layer}
+\title{Remove a layer from a network}
 \usage{
 th_remove_layer(network, layername)
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+}
+\value{
+CLI output.
+}
 \description{
-Remove layer
+`th_remove_layer()` removes a layer
+(and its ties) from the network.
 }

@@ -2,10 +2,18 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_setting}
 \alias{th_setting}
-\title{setting}
+\title{Set a Threadle backend setting}
 \usage{
 th_setting(name, value)
 }
+\arguments{
+\item{name}{Setting name.}
+
+\item{value}{Setting value (typically `"true"` or `"false"`).}
+}
+\value{
+CLI output.
+}
 \description{
-setting
+`th_setting()` changes setting in the Threadle backend.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_add_aff}
 \alias{th_add_aff}
-\title{Add an affiliation edge (from node to hyperedge) in a network layer}
+\title{Add an affiliation (hyperedge) in a 2-mode layer}
 \usage{
 th_add_aff(
   network,
@@ -13,6 +13,23 @@ th_add_aff(
   addmissingaffiliation = TRUE
 )
 }
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{Name of the layer.}
+
+\item{nodeid}{Node ID.}
+
+\item{hypername}{Name of the hyperedge.}
+
+\item{addmissingnode}{Logical; if `TRUE`, missing nodes are created automatically.}
+
+\item{addmissingaffiliation}{Logical; if `TRUE`, missing affiliations are created automatically.}
+}
+\value{
+CLI output.
+}
 \description{
-Add an affiliation edge (from node to hyperedge) in a network layer
+`th_add_aff()` adds a hyperedge in a 2-mode layer. Being similar to `th_add_hyper`
 }

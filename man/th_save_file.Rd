@@ -2,10 +2,20 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_save_file}
 \alias{th_save_file}
-\title{save a sturcture into a file}
+\title{Save a structure to file}
 \usage{
 th_save_file(structure, file = "")
 }
+\arguments{
+\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+string naming a structure in the Threadle CLI environment.}
+
+\item{file}{Output file path. Defaults to `""`.}
+}
+\value{
+CLI output.
+}
 \description{
-save a sturcture into a file
+`th_save_file` saves a network or nodeset.
+If `file` is `""`, the file name defaults to `<structure-name>.tsv`.
 }

@@ -14,13 +14,22 @@ th_add_edge(
 )
 }
 \arguments{
-\item{network}{A `threadle_nodeset` or `threadle_network` object.}
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
 
-\item{id}{Node ID.}
+\item{layername}{Name of the layer.}
+
+\item{node1id}{the source node (from).}
+
+\item{node2id}{the destination node (to).}
+
+\item{value}{Edge value, defaults to 1.}
+
+\item{addmissingnodes}{Logical; if `TRUE`, missing nodes are created and added. Defaults to `TRUE`.}
 }
 \value{
 CLI output.
 }
 \description{
-Add an edge to a network
+`th_add_edge()` adds an edge between two nodes in a layer.
 }

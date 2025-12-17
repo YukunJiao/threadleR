@@ -14,7 +14,8 @@ th_add_layer(
 )
 }
 \arguments{
-\item{network}{A `threadle_network` object.}
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
 
 \item{layername}{Name of the layer.}
 

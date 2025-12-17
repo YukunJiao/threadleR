@@ -2,10 +2,24 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_check_edge}
 \alias{th_check_edge}
-\title{check edge if existed}
+\title{Check whether an edge exists in a layer}
 \usage{
-th_check_edge(network, layername, nodeid1, nodeid2)
+th_check_edge(network, layername, node1id, node2id)
+}
+\arguments{
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
+
+\item{layername}{Name of the layer.}
+
+\item{node1id}{the source node (from).}
+
+\item{node2id}{the destination node (to).}
+}
+\value{
+CLI output.
 }
 \description{
-check edge if existed
+`th_check_edge()` checks whether an edge between
+two nodes exists in the specified layer.
 }

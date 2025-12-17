@@ -7,7 +7,8 @@
 th_info(structure, format = "json")
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network` object.}
+\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+string naming a structure in the Threadle CLI environment.}
 
 \item{format}{Output format ("json"(default) or "console").}
 }

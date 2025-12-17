@@ -2,22 +2,21 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_density}
 \alias{th_density}
-\title{Graph density}
+\title{Calculate density of a layer}
 \usage{
 th_density(network, layername)
 }
 \arguments{
-\item{network}{A Threadle network object or the name of a network variable.}
+\item{network}{A `threadle_network` object or a character string giving 
+the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer (string or Threadle string variable) for
-which to compute density.}
+\item{layername}{Name of the layer}
 }
 \value{
 A numeric scalar giving the layer density.
 }
 \description{
-Computes the density of a layer in a Threadle network by calling the Threadle
-CLI command `density(network=..., layername=...)`.
+`th_density()` computes the density of a layer in a Threadle network.
 }
 \details{
 #' Density is returned as a numeric scalar, typically defined as the ratio of the

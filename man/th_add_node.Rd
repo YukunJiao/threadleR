@@ -7,7 +7,8 @@
 th_add_node(structure, id)
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network` object.}
+\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+string naming a structure in the Threadle CLI environment.}
 
 \item{id}{Node ID.}
 }

@@ -27,5 +27,5 @@ th_get_random_alter(
 A node ID (numeric).
 }
 \description{
-Get a random alter for a node
+`th_get_random_alter()` get a random alter for a node.
 }
