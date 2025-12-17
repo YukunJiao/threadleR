@@ -195,7 +195,9 @@ th_info <- function(structure, format="json") {
 #' @return CLI output.
 #' @export
 th_add_node <- function(structure, id) {
-  .send_command(sprintf("addnode(structure=%s, id=%d)", structure$name, id))
+  name <- .th_name(structure)
+  cli <- sprintf("addnode(structure=%s, id=%d)", name, id)
+  .send_command(cli)
 }
 
 #' List all objects currently stored as variables in Threadle
@@ -318,7 +320,7 @@ th_get_node_alters <- function(name,layername,nodeid,direction="both") {
 #'
 #' @return A node ID (numeric).
 #' @export
-th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced="false") {
+th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced=FALSE) {
   name <- .th_name(network)
   cli <- sprintf("getrandomalter(network=%s, nodeid=%d, layername=%s, direction=%s, balanced=%s)",name, nodeid, layername,direction,balanced)
   as.numeric(.send_command(cli))
@@ -335,13 +337,25 @@ th_get_random_node <- function(structure) {
   as.numeric(.send_command(cli))
 }
 
-
+#' Remove a node from a network and its nodeset
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param nodeid Node ID.
+#'
+#' @return CLI output.
+#' @export
+th_remove_node <- function(structure, nodeid) {
+  name <- .th_name(structure)
+  cli <- sprintf("removenode(structure = %s, nodeid = %d)",name,nodeid)
+  as.numeric(.send_command(cli))
+}
 
 #---
 
-th_help <- function(){
-  
-}
+# th_help <- function(){
+#   cli <- sprintf("help")
+#   .send_command(cli)
+# }
 
 th_exit <- function(){
   
@@ -349,21 +363,50 @@ th_exit <- function(){
 
 #---
 
+#' Add an affiliation edge (from node to hyperedge) in a network layer
 th_add_aff <- function(network, layername, nodeid, hypername, 
-                       addmissingnode = "true", addmissingaffiliation = "true") {
-  cli <- sprintf()
+                       addmissingnode = TRUE, addmissingaffiliation = TRUE) {
+  name <- .th_name(network)
+  cli <- sprintf("addaff(network=%s, layername=%s, nodeid=%d, hypername=%s, addmissingnode=%s, addmissingaffiliation=%s)",
+                 name, layername, nodeid, hypername, addmissingnode, addmissingaffiliation)
   .send_command(cli)
 }
 
+#' Add an edge to a network
+#'
+#' @param network A `threadle_nodeset` or `threadle_network` object.
+#' @param id Node ID.
+#'
+#' @return CLI output.
+#' @export
 th_add_edge <- function(network, layername, node1id, node2id,
-                        value = 1, addmissingnodes = "true") {
-  cli <- sprintf()
+                        value = 1, addmissingnodes = TRUE) {
+  name <- .th_name(network)
+  cli <- sprintf("addedge(network=%s, layername=%s, %d, %d, value=%d, addmissingnodes=%s)",
+                 name, layername, node1id, node2id, value, addmissingnodes)
   .send_command(cli)
 }
 
+#' Add a hyperedge to a specified layer of a network (the hyperedge set of a 2-mode layer).
+#'
+#' @param network A `threadle_network` object.
+#' @param id Node ID.
+#'
+#' @return CLI output.
+#' @export
 th_add_hyper <- function(network, layername, hypername,
-                         nodes = NULL, addmissingnodes = "false") {
-  cli <- sprintf()
+                         nodes = c(1,2,3), addmissingnodes = FALSE) {
+  name <- .th_name(network)
+  nodes_arg <- ""
+  if (!is.null(nodes)) {
+    nodes <- as.integer(nodes)
+    nodes_str <- paste(nodes, collapse = ";")
+    nodes_arg <- sprintf(", nodes=%s", nodes_str)
+  }
+  cli <- sprintf(
+    "addhyper(network=%s, layername=%s, hypername=%s, nodes = %s, addmissingnodes=%s)",
+    name, layername, hypername, nodes_arg, addmissingnodes
+  )
   .send_command(cli)
 }
 
@@ -371,6 +414,21 @@ th_clear_layer <- function(network, layername) {}
 
 th_degree <- function(network, layername, attrname = NULL, direction = "in") {}
 
+#' Graph density
+#' 
+#' Computes the density of a layer in a Threadle network by calling the Threadle
+#' CLI command `density(network=..., layername=...)`.
+#' 
+#' #' Density is returned as a numeric scalar, typically defined as the ratio of the
+#' number of observed edges to the maximum possible number of edges for a simple
+#' graph (i.e., assuming no multi-edges). The exact treatment of self-loops and
+#' directionality follows Threadle's `density` implementation.
+#'
+#' @param network A Threadle network object or the name of a network variable.
+#' @param layername Name of the layer (string or Threadle string variable) for
+#'   which to compute density.
+#' @return A numeric scalar giving the layer density.
+#' @export
 th_density <- function(network, layername) {
   network <- .th_name(network)
   cli <- sprintf("density(network = %s, layername = %s)",network,layername)
@@ -387,7 +445,7 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
   .send_command(cli)
 }
 
-th_generate <- function(name, size, p, directed = "true", selfties = "false") {
+th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE) {
   cli <- sprintf()
   .send_command(cli)
 }
@@ -417,8 +475,20 @@ th_remove_attr <- function(structure, nodeid, attrname) {
   .send_command(cli)
 }
 
+#' Remove an edge from a network layer
+#' 
+#' Removes an edge between two nodes from a specified layer in a network.
+#'
+#' @param network A network object or the name of a network variable.
+#' @param layername The name of the layer.
+#' @param node1id The ID of the first node.
+#' @param node2id The ID of the second node.
+#' @return Invisibly returns the result of the remove operation.
+#' @export
 th_remove_edge <- function(network, layername, node1id, node2id) {
-  cli <- sprintf()
+  name <- .th_name(network)
+  cli <- sprintf("removeedge(network=%s, layername=%s, %d, %d)",
+                 name, layername, node1id, node2id)
   .send_command(cli)
 }
 
@@ -432,11 +502,7 @@ th_remove_layer <- function(network, layername) {
   .send_command(cli)
 }
 
-th_remove_node <- function(structure, nodeid) {
-  name <- .th_name(structure)
-  cli <- sprintf("removenode(structure = %s, nodeid = %d)",name,nodeid)
-  as.numeric(.send_command(cli))
-}
+
 
 th_save_file <- function(structure, file) {
   cli <- sprintf()

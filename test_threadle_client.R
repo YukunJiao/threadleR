@@ -69,6 +69,52 @@ th_info("lazega")
 
 # etc - so this should be looped of course, but mechanism is all there for random walker now
 th_info(lazeganet_nodeset)$NbrNodes
-th_remove_node("lazega", 15)
+th_remove_node("lazega", 11)
+th_remove_node("lazega", 4)
+th_remove_node(lazeganet_nodeset, 20)
+
+lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
+lazeganet <- th_load_network("lazega","lazega.tsv")
+th_info(lazeganet)
+th_info(lazeganet_nodeset)
+th_view(lazeganet_nodeset)
+
+th_view(lazeganet)
+
+th_add_node(lazeganet, 100)
+
+
+th_add_layer(lazeganet, "test1", mode = 1)
+th_add_edge(lazeganet, "test1", 31, 36)
+
+
+th_add_layer(lazeganet, "test2", mode = 2)
+th_add_aff(lazeganet, "test2", 20, "newaff")
+th_remove_edge(lazeganet, "test", 31, 36)
+th_add_edge(lazeganet, "friends", 1, 100)
+
+th_add_edge("lazega", "test", 1, 70)
+th_add_edge("lazega", "test", 1, 3, 1, "true")
+th_view("lazega")
+
+
+
+
+
+
+th_info(lazeganet)
 
 .stop_threadle()
+
+
+
+th_info(lazeganet)
+
+th_add_hyper(lazeganet, "test", "new1122e111hyper", nodes = c(1,2,32,4,5,7), addmissingnodes = FALSE)
+
+th_info(lazeganet)
+
+#---
+
+setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
+lazega = loadfile("lazega.tsv", "network")
