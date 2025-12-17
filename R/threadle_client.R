@@ -1,7 +1,6 @@
 # R client package for Threadle CLIconsole
 
 library(processx)
-library(jsonlite)
 
 #' Start a Threadle CLI console process
 #'
@@ -173,7 +172,8 @@ th_load_network <- function(name, file) {
 
 #' Retrieve meta information from a Threadle object
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param format Output format ("json"(default) or "console").
 #'
 #' @return Parsed JSON or raw CLI text.
@@ -182,14 +182,15 @@ th_info <- function(structure, format="json") {
   name <- .th_name(structure)
   retval <- .send_command(sprintf("info(structure=%s, format=%s)",name, format))
   if (format =="json")
-    fromJSON(retval)
+    jsonlite::fromJSON(retval)
   else
     retval
 }
 
 #' Add a node to a nodeset (or network)
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param id Node ID.
 #'
 #' @return CLI output.
@@ -209,14 +210,15 @@ th_add_node <- function(structure, id) {
 th_inventory <- function(format = "json") {
   retval <- .send_command(sprintf("i(format=json)"))
   if (format == "json")
-    fromJSON(retval)
+    jsonlite::fromJSON(retval)
   else
     retval
 }
 
 #' Define an attribute for a nodeset (or network)
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param attrname Name of the attribute.
 #' @param attrtype Attribute type ("int","float", "char" or "bool")
 #'
@@ -229,7 +231,8 @@ th_define_attr <- function(structure, attrname, attrtype) {
 
 #' Set the value of a node attribute for a nodeset (or network)
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param nodeid Node ID.
 #' @param attrname Attribute name.
 #' @param attrvalue Value to assign.
@@ -243,7 +246,8 @@ th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
 
 #' Get the value of a node attribute for a nodeset (or network)
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param nodeid Node ID.
 #' @param attrname Attribute name.
 #'
@@ -257,7 +261,8 @@ th_get_attr <- function(structure, nodeid, attrname) {
 
 #' Adds/defines a relational layer in a network
 #'
-#' @param network A `threadle_network` object.
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
 #' @param layername Name of the layer.
 #' @param mode Layer mode (1 or 2).
 #' @param directed Logical; whether ties are directed (only for 1-mode layers).
@@ -267,13 +272,15 @@ th_get_attr <- function(structure, nodeid, attrname) {
 #' @return CLI output.
 #' @export
 th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="binary", selfties=FALSE) {
-  cli <- sprintf("addlayer(network=%s, layername=%s, mode=%d, directed=%s, valuetype=%s, selfties=%s)", network$name, layername, mode, directed,valuetype,selfties)
+  name <- .th_name(network)
+  cli <- sprintf("addlayer(network=%s, layername=%s, mode=%d, directed=%s, valuetype=%s, selfties=%s)", name, layername, mode, directed,valuetype,selfties)
   .send_command(cli)
 }
 
 #' Get the number of nodes in a structure
 #'
-#' @param name Name of the structure (can be a network or nodeset).
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #'
 #' @return A numeric value.
 #' @export
@@ -307,10 +314,12 @@ th_get_nodeid_by_index <- function(structure, index) {
 #' @export
 th_get_node_alters <- function(name,layername,nodeid,direction="both") {
   cli <- sprintf("getnodealters(network=%s, layername=%s,nodeid=%d, direction=%s)",name, layername, nodeid, direction)
-  fromJSON(.send_command(cli))
+  jsonlite::fromJSON(.send_command(cli))
 }
 
 #' Get a random alter for a node
+#' 
+#' `th_get_random_alter()` get a random alter for a node.
 #'
 #' @param name Network name.
 #' @param nodeid Node ID.
@@ -327,6 +336,8 @@ th_get_random_alter <- function(network, nodeid, layername="", direction="both",
 }
 
 #' Get a random node from a structure
+#' 
+#' `th_get_random_node()` gets a random node.
 #'
 #' @param name Structure name.
 #' @return A node ID (numeric).
@@ -339,7 +350,8 @@ th_get_random_node <- function(structure) {
 
 #' Remove a node from a network and its nodeset
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object.
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
 #' @param nodeid Node ID.
 #'
 #' @return CLI output.
@@ -350,32 +362,40 @@ th_remove_node <- function(structure, nodeid) {
   as.numeric(.send_command(cli))
 }
 
-#---
-
-# th_help <- function(){
-#   cli <- sprintf("help")
-#   .send_command(cli)
-# }
-
-th_exit <- function(){
-  
-}
-
-#---
-
-#' Add an affiliation edge (from node to hyperedge) in a network layer
+#' Add an affiliation (hyperedge) in a 2-mode layer
+#' 
+#' `th_add_aff()` adds a hyperedge in a 2-mode layer. Being similar to `th_add_hyper`
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param nodeid Node ID.
+#' @param hypername Name of the hyperedge.
+#' @param addmissingnode Logical; if `TRUE`, missing nodes are created automatically.
+#' @param addmissingaffiliation Logical; if `TRUE`, missing affiliations are created automatically.
+#'
+#' @return CLI output.
+#' @export
 th_add_aff <- function(network, layername, nodeid, hypername, 
                        addmissingnode = TRUE, addmissingaffiliation = TRUE) {
   name <- .th_name(network)
   cli <- sprintf("addaff(network=%s, layername=%s, nodeid=%d, hypername=%s, addmissingnode=%s, addmissingaffiliation=%s)",
                  name, layername, nodeid, hypername, addmissingnode, addmissingaffiliation)
   .send_command(cli)
+  invisible(name)
 }
 
 #' Add an edge to a network
+#' 
+#' `th_add_edge()` adds an edge between two nodes in a layer.
 #'
-#' @param network A `threadle_nodeset` or `threadle_network` object.
-#' @param id Node ID.
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param node1id the source node (from).
+#' @param node2id the destination node (to).
+#' @param value Edge value, defaults to 1.
+#' @param addmissingnodes Logical; if `TRUE`, missing nodes are created and added. Defaults to `TRUE`.
 #'
 #' @return CLI output.
 #' @export
@@ -387,44 +407,81 @@ th_add_edge <- function(network, layername, node1id, node2id,
   .send_command(cli)
 }
 
-#' Add a hyperedge to a specified layer of a network (the hyperedge set of a 2-mode layer).
+#' Add a hyperedge to a specified layer of a network.
 #'
-#' @param network A `threadle_network` object.
-#' @param id Node ID.
+#' `th_add_hyper()` adds a hyperedge to the hyperedge set of a 2-mode layer
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param hypername Name of the hyperedge.
+#' @param nodes Vector of node to attach to the hyperedge. If `NULL`,
+#'   creates the hyperedge without adding nodes.
+#' @param addmissingnodes Logical; if `TRUE`, missing nodes are created and added. Defaults to `FALSE`.
 #'
 #' @return CLI output.
 #' @export
 th_add_hyper <- function(network, layername, hypername,
-                         nodes = c(1,2,3), addmissingnodes = FALSE) {
+                         nodes = c(), addmissingnodes = FALSE) {
   name <- .th_name(network)
   nodes_arg <- ""
   if (!is.null(nodes)) {
-    nodes <- as.integer(nodes)
-    nodes_str <- paste(nodes, collapse = ";")
-    nodes_arg <- sprintf(", nodes=%s", nodes_str)
+    nodes_arg <- paste(nodes, collapse = ";")
   }
   cli <- sprintf(
     "addhyper(network=%s, layername=%s, hypername=%s, nodes = %s, addmissingnodes=%s)",
     name, layername, hypername, nodes_arg, addmissingnodes
   )
+  return(cli)
   .send_command(cli)
 }
 
-#' check edge if existed
-th_check_edge <- function(network, layername, nodeid1, nodeid2) {
+#' Check whether an edge exists in a layer
+#' 
+#' `th_check_edge()` checks whether an edge between
+#' two nodes exists in the specified layer.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param node1id the source node (from).
+#' @param node2id the destination node (to).
+#'
+#' @return CLI output.
+#' @export
+th_check_edge <- function(network, layername, node1id, node2id) {
   name <- .th_name(network)
-  cli <- sprintf("checkedge(network=%s, layername=%s, %d, %d)", name, layername, nodeid1, nodeid2)
+  cli <- sprintf("checkedge(network=%s, layername=%s, %d, %d)", name, layername, node1id, node2id)
   .send_command(cli)
 }
 
-#' clear all nodes in one layer
+#' Clear all edges in a layer
+#' 
+#' `th_clear_layer()` removes all edges from the
+#' specified layer while keeping the layer definition.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @return CLI output.
+#' @export
 th_clear_layer <- function(network, layername) {
   name <- .th_name(network)
   cli <- sprintf("clearlayer(network=%s, layername=%s)", name, layername)
   .send_command(cli)
 }
 
-#' Calculates the degree centrality for the specified layer and network
+#' Calculate the degree centrality for a layer
+#' 
+#' `th_degree()` computes the degree centrality for the specified network and layer.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername layer name.
+#' @param attrname attribute name.
+#' @param direction Edge direction: `"in"`, `"out"`, or `"both"`. Defaults to `"in"`.
+#' @return CLI output.
+#' @export
 th_degree <- function(network, layername, attrname = NULL, direction = "in") {
   name <- .th_name(network)
   attr_part <- if (!is.null(attrname)) attrname else ""
@@ -435,19 +492,18 @@ th_degree <- function(network, layername, attrname = NULL, direction = "in") {
   .send_command(cli)
 }
 
-#' Graph density
+#' Calculate density of a layer
 #' 
-#' Computes the density of a layer in a Threadle network by calling the Threadle
-#' CLI command `density(network=..., layername=...)`.
+#' `th_density()` computes the density of a layer in a Threadle network.
 #' 
 #' #' Density is returned as a numeric scalar, typically defined as the ratio of the
 #' number of observed edges to the maximum possible number of edges for a simple
 #' graph (i.e., assuming no multi-edges). The exact treatment of self-loops and
 #' directionality follows Threadle's `density` implementation.
 #'
-#' @param network A Threadle network object or the name of a network variable.
-#' @param layername Name of the layer (string or Threadle string variable) for
-#'   which to compute density.
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer
 #' @return A numeric scalar giving the layer density.
 #' @export
 th_density <- function(network, layername) {
@@ -456,7 +512,22 @@ th_density <- function(network, layername) {
   as.numeric(.send_command(cli))
 }
 
-#' dichotomize
+#' Dichotomize a layer
+#' 
+#' `dichotomize()` creates a recoded version of
+#' a layer based on a threshold rule.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param cond Comparison operator: `"eq"`, `"ne"`, `"gt"`, `"lt"`, `"ge"`, or `"le"`.
+#'   Defaults to `"ge"`.
+#' @param threshold Threshold used with `cond`. Defaults to `1`.
+#' @param truevalue Value to assign when the condition is `TRUE`. Defaults to `1`.
+#' @param falsevalue Value to assign when the condition is `FALSE`. Defaults to `0`.
+#' @param newlayername Optional name for the new layer.
+#' @return CLI output.
+#' @export
 th_dichotomize <- function(network, layername,
                            cond = "ge", threshold = 1,
                            truevalue = 1, falsevalue = 0,
@@ -471,7 +542,19 @@ th_dichotomize <- function(network, layername,
   .send_command(cli)
 }
 
-#' filter a nodeset to get a new filtered nodeset.
+#' Filter a nodeset by an attribute condition
+#' 
+#' `filter()` creates a new nodeset based names and values of attributes.
+#' 
+#' @param name Name of the new nodeset variable
+#' @param nodeset A `threadle_nodeset` object or a character string giving 
+#' the name of a nodeset in the Threadle CLI environment.
+#' @param attrname Attribute name.
+#' @param cond Condition operator: `"eq"`, `"ne"`, `"gt"`, `"lt"`, `"ge"`, `"le"`,
+#'   `"isnull"`, or `"notnull"`.
+#' @param attrvalue Attribute value used for the condition.
+#' @return A `threadle_nodeset`
+#' @export
 th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
   nodeset_name <- .th_name(nodeset)
   cli <- sprintf(
@@ -483,7 +566,19 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
 }
 
 
-#' generate
+#' Generate an Erdős–Rényi random network
+#' 
+#' `generate()` creates a random
+#' network and store it under `name`
+#' 
+#' @param name Name of the new network variable to create.
+#' @param size Number of nodes.
+#' @param p Edge probability.
+#' @param directed Logical; whether the generated network is directed. Defaults to `TRUE`.
+#' @param selfties Logical; whether self-edges are allowed. Defaults to `FALSE`.
+#' 
+#' @return A `threadle_network`.
+#' @export
 th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE) {
   cli <- sprintf(
     "%s = generate(type=er, size=%d, p=%s, directed=%s, selfties=%s, newname=%s)",
@@ -493,7 +588,18 @@ th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE) {
   structure(list(name = name), class = "threadle_network")
 }
 
-#' get edge value
+#' Get an edge value
+#' 
+#' `getedge()` retrieves the edge value between
+#' two nodes in the specified layer.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param node1id ID of the source node (from).
+#' @param node2id ID of the destination node (to).
+#' @return CLI output.
+#' @export
 th_get_edge <- function(network, layername, node1id, node2id) {
   name <- .th_name(network)
   cli <- sprintf(
@@ -503,20 +609,42 @@ th_get_edge <- function(network, layername, node1id, node2id) {
   .send_command(cli)
 }
 
-# Remove something
-th_remove <- function(structure) {
-  name <- .th_name(structure)
-  cli <- sprintf("remove(structure=%s)", name)
-  .send_command(cli)
-}
+#' Remove a structure
+#' 
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' 
+#' @return CLI output.
+#' @export
+# th_remove <- function(structure) {
+#   name <- .th_name(structure)
+#   cli <- sprintf("remove(structure=%s)", name)
+#   .send_command(cli)
+# }
 
-# Remove everything!
-th_remove_all <- function() {
-  cli <- sprintf("removeall()")
-  .send_command(cli)
-}
+#' Remove all structures
+#' 
+#' `removeall()` removes all stored variables.
+#' 
+#' @return CLI output.
+#' @export
+# th_remove_all <- function() {
+#   cli <- sprintf("removeall()")
+#   .send_command(cli)
+# }
 
-#' Remove affiliation
+#' Remove an affiliation (node -> hyperedge) from a layer
+#' 
+#' `th_remove_aff()` removes an affiliation between
+#' a node and a hyperedge in the specified layer.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param nodeid ID of the node.
+#' @param hypername Name of the hyperedge.
+#' @return CLI output.
+#' @export
 th_remove_aff <- function(network, layername, nodeid, hypername) {
   name <- .th_name(network)
   cli <- sprintf(
@@ -526,18 +654,31 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
   .send_command(cli)
 }
 
-#' remove an attribute
+#' Remove an attribute value from a node
+#' 
+#' `th_remove_attr()` removes an attribute value for
+#' a given node.
+#' 
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param nodeid ID of the node.
+#' @param attrname Attribute name.
+#' 
+#' @return CLI output.
+#' @export
 th_remove_attr <- function(structure, nodeid, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("removeattr(structure=%s, nodeid=%d, attrname=%s)", name, nodeid, attrname)
   .send_command(cli)
 }
 
-#' Remove an edge from a network layer
+#' Remove an edge from a layer
 #' 
-#' Removes an edge between two nodes from a specified layer in a network.
+#' `th_remove_edge` removes an edge between two
+#' nodes in the specified layer.
 #'
-#' @param network A network object or the name of a network variable.
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
 #' @param layername The name of the layer.
 #' @param node1id The ID of the first node.
 #' @param node2id The ID of the second node.
@@ -550,7 +691,17 @@ th_remove_edge <- function(network, layername, node1id, node2id) {
   .send_command(cli)
 }
 
-#' Remove hyperedge
+#' Remove a hyperedge from a 2-mode layer
+#' 
+#' `th_remove_hyper()` remove a hyperedge from the
+#' specified layer.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer.
+#' @param hypername Name of the hyperedge.
+#' @return CLI output.
+#' @export
 th_remove_hyper <- function(network, layername, hypername) {
   name <- .th_name(network)
   cli <- sprintf(
@@ -560,7 +711,15 @@ th_remove_hyper <- function(network, layername, hypername) {
   .send_command(cli)
 }
 
-#' Remove layer
+#' Remove a layer from a network
+#' 
+#' `th_remove_layer()` removes a layer
+#' (and its ties) from the network.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @return CLI output.
+#' @export
 th_remove_layer <- function(network, layername) {
   name <- .th_name(network)
   cli <- sprintf("removelayer(network=%s, layername=%s)", network$name, layername)
@@ -568,7 +727,16 @@ th_remove_layer <- function(network, layername) {
 }
 
 
-#' save a sturcture into a file
+#' Save a structure to file
+#' 
+#' `th_save_file` saves a network or nodeset.
+#' If `file` is `""`, the file name defaults to `<structure-name>.tsv`.
+#' 
+#' @param structure A `threadle_nodeset` or `threadle_network`, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param file Output file path. Defaults to `""`.
+#' @return CLI output.
+#' @export
 th_save_file <- function(structure, file = "") {
   name <- .th_name(structure)
   if (!nzchar(file)) file <- paste0(name, ".tsv")
@@ -576,13 +744,35 @@ th_save_file <- function(structure, file = "") {
   .send_command(cli)
 }
 
-#' setting
+#' Set a Threadle backend setting
+#' 
+#' `th_setting()` changes setting in the Threadle backend.
+#'
+#' @param name Setting name.
+#' @param value Setting value (typically `"true"` or `"false"`).
+#'
+#' @return CLI output.
+#' @export
 th_setting <- function(name, value) {
   cli <- sprintf("setting(name=%s, value=%s)", name, value)
   .send_command(cli)
 }
 
-#' subnet
+#' Create a subnet from a network and a nodeset
+#' 
+#' `th_subnet()` constructs a new network induced
+#' by the nodes in `nodeset` and stores it under `name`.
+#' 
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network.
+#' 
+#' @param name Name of the new network variable to create.
+#' @param network A `threadle_network` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @param nodeset A `threadle_nodeset` object or a character string giving 
+#' the name of a network in the Threadle CLI environment.
+#' @return CLI output.
+#' @export
 th_subnet <- function(name, network, nodeset) {
   network_name <- .th_name(network)
   nodeset_name <- .th_name(nodeset)
@@ -591,9 +781,24 @@ th_subnet <- function(name, network, nodeset) {
   structure(list(name = name), class = "threadle_network")
 }
 
-#' undefine_attr
+#' Undefine an attribute on a structure
+#' 
+#' `th_undefine_attr()` removes an attribute
+#' from a nodeset or network.
+#' 
+#' @param attrname Attribute name.
+#' 
+#' @return CLI output.
+#' @export
 th_undefine_attr <- function(structure, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("undefineattr(structure=%s, attrname=%s)", name, attrname)
   .send_command(cli)
 }
+
+# th_help <- function(){
+#   cli <- sprintf("help")
+#   .send_command(cli)
+# }
+
+# th_exit <- function() {}

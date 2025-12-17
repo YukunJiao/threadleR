@@ -89,7 +89,8 @@ th_add_edge(lazeganet, "test1", 31, 36)
 
 
 th_add_layer(lazeganet, "test2", mode = 2)
-th_add_aff(lazeganet, "test2", 20, "newaff")
+th_info(lazeganet)
+th_add_aff(lazeganet, "test2", 30, "newaff")
 th_remove_edge(lazeganet, "test", 31, 36)
 th_add_edge(lazeganet, "friends", 1, 100)
 
@@ -103,7 +104,7 @@ th_view("lazega")
 
 
 th_info(lazeganet)
-
+th_inventory()
 
 
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
@@ -154,8 +155,6 @@ th_view(mynet_nodeset)
 
 th_remove_attr(mynet, 123, "gender")
 
-th_remove_aff(mynet, )
-
 th_check_edge(mynet, "work", 123, 345)
 th_check_edge(mynet, "kinship", 345, 456)
 tt <- th_degree(mynet, "kinship", attrname = "kinshihp_degree")
@@ -164,13 +163,17 @@ tt <- th_degree(mynet, "kinship", attrname = "kinshihp_degree")
 th_inventory()
 th_info(mynet)
 th_remove_aff(mynet, "work", 789, "ica")
-
+th_remove_all()
 th_save_file(mynet, "testtt.tsv")
 th_remove("testlemiao")
+th_info("testlemiao")
 th_dichotomize
 th_view(mynet)
 th_remove_hyper(mynet, "trade_test", "")
-th_add_hyper(mynet, "work", "LiU", nodes = c(789, 234,345, 123))
+th_info(mynet)
+th_add_hyper(mynet, "work", "LiU", nodes = c(1,2,3))
+th_add_hyper(mynet, "work", "LiU", nodes = "")
+th_add_hyper(mynet, "work", "LiU", nodes = c())
 th_save_file(mynet, "testtt.tsv")
 
 th_remove_hyper(mynet, "work", "LiU")
@@ -183,7 +186,7 @@ th_clear_layer(lazeganet, "test1")
 th_view(lazeganet)
 
 th_setting("verbose", TRUE)
-th_setting("verbose", FALSE)
+# th_setting("verbose", FALSE)
 th_view(mynet)
 
 th_subnet("ceshi", mynet, )
@@ -193,8 +196,4 @@ th_info(mynet_nodeset)
 th_undefine_attr(mynet_nodeset, "weight")
 #---
 
-setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
-mynet = loadfile("mynet.tsv", "network")
-lazega = loadfile("lazega.tsv", "network")
-
-.stop_threadle()
+th_stop_threadle()
