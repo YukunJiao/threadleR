@@ -104,17 +104,97 @@ th_view("lazega")
 
 th_info(lazeganet)
 
-.stop_threadle()
 
 
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_network("mynet", "mynet.tsv")
+th_info(mynet)
+th_view(mynet_nodeset)
+th_view(mynet)
 
-th_info(lazeganet)
+sub_ns <- th_filter(name="sub_nodeset", nodeset=mynet_nodeset, attrname="gender", cond="eq", attrvalue="f")
+th_view(sub_ns)
+
+th_setting
+th_subnet("mynet_sub", mynet, sub_ns)
+th_view("mynet_sub")
+nbr_nodes <- th_get_nbr_nodes(mynet)
+nodeid <- th_get_nodeid_by_index(mynet, sample(0:nbr_nodes-1,1))
+random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
+random_alter_nodeid
+th_get_edge(mynet, "trade", 456, 567)
+
+th_get_edge(mynet, "trade", 123, 456)
+
+th_get_edge(mynet, "trade", 890, 234)
+th_get_edge(mynet, "trade", 890, 789)
+
+th_dichotomize(mynet, "trade", cond = "ge", threshold = 1000, truevalue = 1, newlayername = "trade_test")
+th_view(mynet)
+th_get_edge(mynet, "trade_test-1", 890, 234)
+th_get_edge(mynet, "trade_test-1", 890, 789)
+th_view(mynet_nodeset)
+th_filter("tttestmeow", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
+th_info("tttestmeow")
+th_view("tttestmeow")
+th_inventory()
+
+th_generate("testlemiao", 5, 2)
+th_view("testlemiao")
+th_inventory()
+th_save_file("testlemiao", "testlemiao.tsv")
+th_save_file("testlemiao_nodeset", "testlemiao.tsv")
+
+th_save_file("testlemiao", "")
+th_save_file("testlemiao_nodeset")
+th_save_file
+
+th_view(mynet)
+th_view(mynet_nodeset)
+
+th_remove_attr(mynet, 123, "gender")
+
+th_remove_aff(mynet, )
+
+th_check_edge(mynet, "work", 123, 345)
+th_check_edge(mynet, "kinship", 345, 456)
+tt <- th_degree(mynet, "kinship", attrname = "kinshihp_degree")
+
+
+th_inventory()
+th_info(mynet)
+th_remove_aff(mynet, "work", 789, "ica")
+
+th_save_file(mynet, "testtt.tsv")
+th_remove("testlemiao")
+th_dichotomize
+th_view(mynet)
+th_remove_hyper(mynet, "trade_test", "")
+th_add_hyper(mynet, "work", "LiU", nodes = c(789, 234,345, 123))
+th_save_file(mynet, "testtt.tsv")
+
+th_remove_hyper(mynet, "work", "LiU")
+th_info(mynet)
+
+th_remove_layer(mynet, "kinship")
 
 th_add_hyper(lazeganet, "test", "new1122e111hyper", nodes = c(1,2,32,4,5,7), addmissingnodes = FALSE)
+th_clear_layer(lazeganet, "test1")
+th_view(lazeganet)
 
-th_info(lazeganet)
+th_setting("verbose", TRUE)
+th_setting("verbose", FALSE)
+th_view(mynet)
 
+th_subnet("ceshi", mynet, )
+
+th_setting
+th_info(mynet_nodeset)
+th_undefine_attr(mynet_nodeset, "weight")
 #---
 
 setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
+mynet = loadfile("mynet.tsv", "network")
 lazega = loadfile("lazega.tsv", "network")
+
+.stop_threadle()

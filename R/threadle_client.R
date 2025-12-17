@@ -410,9 +410,30 @@ th_add_hyper <- function(network, layername, hypername,
   .send_command(cli)
 }
 
-th_clear_layer <- function(network, layername) {}
+#' check edge if existed
+th_check_edge <- function(network, layername, nodeid1, nodeid2) {
+  name <- .th_name(network)
+  cli <- sprintf("checkedge(network=%s, layername=%s, %d, %d)", name, layername, nodeid1, nodeid2)
+  .send_command(cli)
+}
 
-th_degree <- function(network, layername, attrname = NULL, direction = "in") {}
+#' clear all nodes in one layer
+th_clear_layer <- function(network, layername) {
+  name <- .th_name(network)
+  cli <- sprintf("clearlayer(network=%s, layername=%s)", name, layername)
+  .send_command(cli)
+}
+
+#' Calculates the degree centrality for the specified layer and network
+th_degree <- function(network, layername, attrname = NULL, direction = "in") {
+  name <- .th_name(network)
+  attr_part <- if (!is.null(attrname)) attrname else ""
+  cli <- sprintf(
+    "degree(network=%s, layername=%s, attrname=%s, direction=%s)",
+    name, layername, attr_part, direction
+  )
+  .send_command(cli)
+}
 
 #' Graph density
 #' 
@@ -435,43 +456,80 @@ th_density <- function(network, layername) {
   as.numeric(.send_command(cli))
 }
 
+#' dichotomize
 th_dichotomize <- function(network, layername,
                            cond = "ge", threshold = 1,
                            truevalue = 1, falsevalue = 0,
-                           newlayername = NULL) {}
+                           newlayername = NULL) {
+  name <- .th_name(network)
+  newlayer_arg <- if (!is.null(newlayername)) newlayername else ""
+  cli <- sprintf(
+    "dichotomize(network=%s, layername=%s, cond=%s, threshold=%s, truevalue=%s, falsevalue=%s, newlayername = %s)",
+    name, layername, cond, threshold,
+    truevalue, falsevalue, newlayer_arg
+  )
+  .send_command(cli)
+}
 
+#' filter a nodeset to get a new filtered nodeset.
 th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
-  cli <- sprintf()
+  nodeset_name <- .th_name(nodeset)
+  cli <- sprintf(
+    "%s = filter(nodeset=%s, attrname=%s, cond=%s, attrvalue=%s)",
+    name, nodeset_name, attrname, cond, attrvalue
+  )
   .send_command(cli)
+  structure(list(name = name), class = "threadle_nodeset")
 }
 
+
+#' generate
 th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE) {
-  cli <- sprintf()
+  cli <- sprintf(
+    "%s = generate(type=er, size=%d, p=%s, directed=%s, selfties=%s, newname=%s)",
+    name, size, as.character(p), directed, selfties, name
+  )
   .send_command(cli)
+  structure(list(name = name), class = "threadle_network")
 }
 
+#' get edge value
 th_get_edge <- function(network, layername, node1id, node2id) {
-  cli <- sprintf()
+  name <- .th_name(network)
+  cli <- sprintf(
+    "getedge(network=%s, layername=%s, %d, %d)",
+    name, layername, node1id, node2id
+  )
   .send_command(cli)
 }
 
+# Remove something
 th_remove <- function(structure) {
-  cli <- sprintf()
+  name <- .th_name(structure)
+  cli <- sprintf("remove(structure=%s)", name)
   .send_command(cli)
 }
 
+# Remove everything!
 th_remove_all <- function() {
-  cli <- sprintf()
+  cli <- sprintf("removeall()")
   .send_command(cli)
 }
 
+#' Remove affiliation
 th_remove_aff <- function(network, layername, nodeid, hypername) {
-  cli <- sprintf()
+  name <- .th_name(network)
+  cli <- sprintf(
+    "removeaff(network=%s, layername=%s, nodeid=%d, hypername=%s)",
+    name, layername, nodeid, hypername
+  )
   .send_command(cli)
 }
 
+#' remove an attribute
 th_remove_attr <- function(structure, nodeid, attrname) {
-  cli <- sprintf()
+  name <- .th_name(structure)
+  cli <- sprintf("removeattr(structure=%s, nodeid=%d, attrname=%s)", name, nodeid, attrname)
   .send_command(cli)
 }
 
@@ -492,34 +550,50 @@ th_remove_edge <- function(network, layername, node1id, node2id) {
   .send_command(cli)
 }
 
+#' Remove hyperedge
 th_remove_hyper <- function(network, layername, hypername) {
-  cli <- sprintf()
+  name <- .th_name(network)
+  cli <- sprintf(
+    "removehyper(network=%s, layername=%s, hypername=%s)",
+    name, layername, hypername
+  )
   .send_command(cli)
 }
 
+#' Remove layer
 th_remove_layer <- function(network, layername) {
-  cli <- sprintf()
+  name <- .th_name(network)
+  cli <- sprintf("removelayer(network=%s, layername=%s)", network$name, layername)
   .send_command(cli)
 }
 
 
-
-th_save_file <- function(structure, file) {
-  cli <- sprintf()
+#' save a sturcture into a file
+th_save_file <- function(structure, file = "") {
+  name <- .th_name(structure)
+  if (!nzchar(file)) file <- paste0(name, ".tsv")
+  cli <- sprintf("savefile(structure=%s, file=\"%s\")", name, file)
   .send_command(cli)
 }
 
+#' setting
 th_setting <- function(name, value) {
-  cli <- sprintf()
+  cli <- sprintf("setting(name=%s, value=%s)", name, value)
   .send_command(cli)
 }
 
+#' subnet
 th_subnet <- function(name, network, nodeset) {
-  cli <- sprintf()
+  network_name <- .th_name(network)
+  nodeset_name <- .th_name(nodeset)
+  cli <- sprintf("%s = subnet(network=%s, nodeset=%s)", name, network_name, nodeset_name)
   .send_command(cli)
+  structure(list(name = name), class = "threadle_network")
 }
 
+#' undefine_attr
 th_undefine_attr <- function(structure, attrname) {
-  cli <- sprintf()
+  name <- .th_name(structure)
+  cli <- sprintf("undefineattr(structure=%s, attrname=%s)", name, attrname)
   .send_command(cli)
 }
