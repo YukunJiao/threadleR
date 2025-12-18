@@ -10,7 +10,7 @@ th_remove_hyper(network, layername, hypername)
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer.}
+\item{layername}{Layer name.}
 
 \item{hypername}{Name of the hyperedge.}
 }

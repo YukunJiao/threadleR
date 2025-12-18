@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_remove_aff}
 \alias{th_remove_aff}
-\title{Remove a structure}
+\title{Remove an affiliation (node -> hyperedge) from a layer}
 \usage{
 th_remove_aff(network, layername, nodeid, hypername)
 }
@@ -10,22 +10,16 @@ th_remove_aff(network, layername, nodeid, hypername)
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer.}
+\item{layername}{Layer name.}
 
-\item{nodeid}{ID of the node.}
+\item{nodeid}{Node ID.}
 
 \item{hypername}{Name of the hyperedge.}
-
-\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
-string naming a structure in the Threadle CLI environment.}
 }
 \value{
 CLI output.
-
-CLI output.
-
-CLI output.
 }
 \description{
-Remove a structure
+`th_remove_aff()` removes an affiliation between
+a node and a hyperedge in the specified layer.
 }

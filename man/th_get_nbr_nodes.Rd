@@ -7,7 +7,7 @@
 th_get_nbr_nodes(structure)
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+\item{structure}{A `threadle_nodeset` or `threadle_network` object, or a character
 string naming a structure in the Threadle CLI environment.}
 }
 \value{

@@ -10,11 +10,11 @@ th_remove_edge(network, layername, node1id, node2id)
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{The name of the layer.}
+\item{layername}{Layer name.}
 
-\item{node1id}{The ID of the first node.}
+\item{node1id}{The source node (from).}
 
-\item{node2id}{The ID of the second node.}
+\item{node2id}{The destination node (to).}
 }
 \value{
 Invisibly returns the result of the remove operation.

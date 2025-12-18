@@ -7,7 +7,7 @@
 th_save_file(structure, file = "")
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+\item{structure}{A `threadle_nodeset` or `threadle_network` object, or a character
 string naming a structure in the Threadle CLI environment.}
 
 \item{file}{Output file path. Defaults to `""`.}

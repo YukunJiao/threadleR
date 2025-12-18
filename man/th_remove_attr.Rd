@@ -7,10 +7,10 @@
 th_remove_attr(structure, nodeid, attrname)
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+\item{structure}{A `threadle_nodeset` or `threadle_network` object, or a character
 string naming a structure in the Threadle CLI environment.}
 
-\item{nodeid}{ID of the node.}
+\item{nodeid}{Node ID.}
 
 \item{attrname}{Attribute name.}
 }

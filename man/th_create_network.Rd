@@ -10,7 +10,8 @@ th_create_network(name, nodeset, label = NULL)
 \arguments{
 \item{name}{Name of the assigned variable in the Threadle CLI environment.}
 
-\item{nodeset}{A `threadle_nodeset` object.}
+\item{nodeset}{A `threadle_nodeset` object or a character string giving 
+the name of a nodeset in the Threadle CLI environment.}
 
 \item{label}{Optional internal name of network in Threadle.}
 }

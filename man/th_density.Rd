@@ -10,7 +10,7 @@ th_density(network, layername)
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer}
+\item{layername}{Layer name.}
 }
 \value{
 A numeric scalar giving the layer density.
@@ -19,7 +19,7 @@ A numeric scalar giving the layer density.
 `th_density()` computes the density of a layer in a Threadle network.
 }
 \details{
-#' Density is returned as a numeric scalar, typically defined as the ratio of the
+Density is returned as a numeric scalar, typically defined as the ratio of the
 number of observed edges to the maximum possible number of edges for a simple
 graph (i.e., assuming no multi-edges). The exact treatment of self-loops and
 directionality follows Threadle's `density` implementation.

@@ -7,10 +7,10 @@
 th_define_attr(structure, attrname, attrtype)
 }
 \arguments{
-\item{structure}{A `threadle_nodeset` or `threadle_network`, or a character
+\item{structure}{A `threadle_nodeset` or `threadle_network` object, or a character
 string naming a structure in the Threadle CLI environment.}
 
-\item{attrname}{Name of the attribute.}
+\item{attrname}{Attribute name.}
 
 \item{attrtype}{Attribute type ("int","float", "char" or "bool")}
 }

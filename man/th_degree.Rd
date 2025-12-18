@@ -10,7 +10,7 @@ th_degree(network, layername, attrname = NULL, direction = "in")
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{layer name.}
+\item{layername}{Layer name.}
 
 \item{attrname}{attribute name.}
 

@@ -17,7 +17,7 @@ th_add_aff(
 \item{network}{A `threadle_network` object or a character string giving 
 the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer.}
+\item{layername}{Layer name.}
 
 \item{nodeid}{Node ID.}
 
