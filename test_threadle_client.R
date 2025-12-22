@@ -4,7 +4,7 @@
 # setwd("C:/Users/pekpi/Nextcloud/Work/Academic/Individual projects/PopnetEngine software reasoning/R testing")
 
 # Load the "library" with functions for communicating
-source("R/threadle_client.R")
+devtools::load_all()
 
 # path to the exe file
 path_to_exe <-"../bin/Debug/net8.0/Threadle.CLIconsole"
@@ -17,10 +17,16 @@ th_set_workdir("../Examples")
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
 lazeganet <- th_load_network("lazega","lazega.tsv")
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_network("mynet", "mynet.tsv")
+
 th_info(lazeganet)
 th_info("lazega")
 th_info(lazeganet_nodeset)
 th_info("lazega_nodeset")
+
+th_info(mynet)
+
 # require name of structure rather than structure$name
 
 
@@ -107,8 +113,8 @@ th_info(lazeganet)
 th_inventory()
 
 
-mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
-mynet <- th_load_network("mynet", "mynet.tsv")
+mytestnet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mytestnet <- th_load_network("mynet", "mynet.tsv")
 th_info(mynet)
 th_view(mynet_nodeset)
 th_view(mynet)
@@ -119,10 +125,26 @@ th_view(sub_ns)
 th_setting
 th_subnet("mynet_sub", mynet, sub_ns)
 th_view("mynet_sub")
+
 nbr_nodes <- th_get_nbr_nodes(mynet)
-nodeid <- th_get_nodeid_by_index(mynet, sample(0:nbr_nodes-1,1))
+nodeid <- th_get_nodeid_by_index(mynet, sample(0:(nbr_nodes-1),1))
+nodeid <- th_get_nodeid_by_index(mynet, sample(-10:-1,1))
+nodeid <- "123"
+nodeid <- 0
+nodeid <- numeric(0)
+
 random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
 random_alter_nodeid
+
+name <- "mynet"
+nodeid <- ""
+layername <- "trade"
+direction <- "both"
+balanced <- FALSE
+th_get_random_alter(mynet, nodeid = 123, layername = "")
+th_info(mynet)
+sprintf("getrandomalter(network=%s, nodeid=%d, layername=%s, direction=%s, balanced=%s)",name, nodeid, layername,direction,balanced)
+
 th_get_edge(mynet, "trade", 456, 567)
 
 th_get_edge(mynet, "trade", 123, 456)
@@ -143,8 +165,11 @@ th_inventory()
 th_generate("testlemiao", 5, 2)
 th_view("testlemiao")
 th_inventory()
-th_save_file("testlemiao", "testlemiao.tsv")
-th_save_file("testlemiao_nodeset", "testlemiao.tsv")
+th_info(mytestnet)
+th_save_file("mytestnet")
+th_save_file("mytestnet_nodeset", "")
+
+th_save_file("mytestnet", file = "nodes.bin.gz")
 
 th_save_file("testlemiao", "")
 th_save_file("testlemiao_nodeset")
@@ -163,9 +188,9 @@ tt <- th_degree(mynet, "kinship", attrname = "kinshihp_degree")
 th_inventory()
 th_info(mynet)
 th_remove_aff(mynet, "work", 789, "ica")
-th_remove_all()
+
 th_save_file(mynet, "testtt.tsv")
-th_remove("testlemiao")
+
 th_info("testlemiao")
 th_dichotomize
 th_view(mynet)
@@ -186,14 +211,27 @@ th_clear_layer(lazeganet, "test1")
 th_view(lazeganet)
 
 th_setting("verbose", TRUE)
+th_setting("verbose", FALSE)
 # th_setting("verbose", FALSE)
 th_view(mynet)
 
-th_subnet("ceshi", mynet, )
 
 th_setting
-th_info(mynet_nodeset)
+th_info(mynet, "json")
 th_undefine_attr(mynet_nodeset, "weight")
 #---
 
 th_stop_threadle()
+
+setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
+mynet = loadfile("mynet.tsv", "network")
+lazega = loadfile("lazega.tsv", "network")
+
+mytestnet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mytestnet <- th_load_network("mynet", "mynet.tsv")
+
+th_save_file(mytestnet)
+th_save_file(mytestnet, file = "test.tsv.gz")
+th_save_file(mytestnet_nodeset, file = "tdd.bin.gz")
+
+shQuote("123", "cmd2")
