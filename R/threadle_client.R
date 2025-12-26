@@ -2,6 +2,21 @@
 
 library(processx)
 
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+
+.th_stop_if_fail <- function(resp) {
+  if (is.null(resp) || is.null(resp$Success)) {
+    stop("Invalid JSON response from Threadle.", call. = FALSE)
+  }
+  if (!isTRUE(resp$Success)) {
+    stop(sprintf("[%s] %s",
+                 resp$Code %||% "Error",
+                 resp$Message %||% "Threadle error"),
+         call. = FALSE)
+  }
+  invisible(resp)
+}
+
 #' Start a Threadle CLI console process
 #'
 #' Launches the Threadle.CLIconsole executable and stores the process handle
@@ -15,7 +30,7 @@ th_start_threadle <- function(path = "Threadle.CLIconsole.exe") {
   if (exists(".threadle_proc", envir=.GlobalEnv)) {
     stop("'.threadle_proc' process already running.")
   }
-  proc <- process$new(path, args=c("--silent","--endmarker"), stdin="|", stdout="|", stderr = "|")
+  proc <- process$new(path, args=c("--silent","--endmarker", "--json"), stdin="|", stdout="|", stderr = "|")
   #proc <- process$new(path, args=c("--endmarker"), stdin="|", stdout="|", stderr = "|")
   assign(".threadle_proc", proc, envir=.GlobalEnv)
   invisible(proc)
@@ -54,32 +69,40 @@ th_stop_threadle <- function() {
 #' @return A character vector with output lines.
 #' @keywords internal
 .send_command <- function(cmd) {
-  if (length(cmd) == 0) return(character(0)) # cmd <- character(0)
-  if (!nzchar(cmd)) return(character(0))
-  #print(cmd)
-  proc <- get(".threadle_proc", envir=.GlobalEnv)
-  proc$write_input(paste0(cmd,"\n"))
-  #print("ok, sent")
+  if (length(cmd) == 0) return(NULL)
+  if (!nzchar(cmd)) return(NULL)
+
+  proc <- get(".threadle_proc", envir = .GlobalEnv)
+  proc$write_input(paste0(cmd, "\n"))
+
   out <- character()
   repeat {
     new <- proc$read_output_lines()
-    # print(new)
-    if (length(new) > 0) {
-      # cat("RAW new:\n")
-      # dput(new)
 
+    if (length(new) > 0) {
       out <- c(out, new)
-      #out
-      if (any(new %in% c("__END__", "> __END__"))) {
-        out <- out[!(out %in% c("__END__", "> __END__"))]  # drop the marker
-        break
+
+      for (line in new) {
+        s <- sub("^\\s*>\\s*", "", line)
+        s <- trimws(s)
+
+        if (grepl("^\\{.*\\}$", s)) {
+          resp <- tryCatch(
+            jsonlite::fromJSON(s, simplifyVector = TRUE),
+            error = function(e) NULL
+          )
+          if (!is.null(resp)) {
+            if (isTRUE(getOption("threadle.debug_raw", FALSE))) {
+              attr(resp, "raw_lines") <- out
+            }
+            return(resp)
+          }
+        }
       }
     } else {
-      Sys.sleep(0.01)  # small pause between polls
+      Sys.sleep(0.01)
     }
   }
-  if (length(out)>0)
-    out
 }
 
 #' Set name and structure name
@@ -112,6 +135,21 @@ th_stop_threadle <- function() {
   nodeid
 }
 
+#' Call the Threadle function
+.th_call <- function(cmd,
+                     return = getOption("threadle.return", "payload"),
+                     .print_message = getOption("threadle.print_message", TRUE)) {
+  return <- match.arg(return)
+  resp <- .send_command(cmd)
+  .th_stop_if_fail(resp)
+
+  if (.print_message && !is.null(resp$Message) && nzchar(resp$Message)) {
+    message(resp$Message)
+  }
+
+  if (return == "payload") resp$Payload else resp
+}
+
 #' Set working directory inside the Threadle CLI environment
 #'
 #' @param dir Path to the directory.
@@ -120,7 +158,7 @@ th_stop_threadle <- function() {
 #' set_workdir("~/data")
 #' @export
 th_set_workdir <- function(dir) {
-  .send_command(sprintf("setwd(dir=\"%s\")", dir))
+  invisible(.th_call(sprintf("setwd(dir=\"%s\")", dir)))
 }
 
 
@@ -129,8 +167,8 @@ th_set_workdir <- function(dir) {
 #' @return The working directory as returned by Threadle.
 #' @export
 th_get_workdir <- function() {
-  .send_command(sprintf("getwd()"))
-  #out <- .send_command(sprintf("getwd()"))
+  .th_call(sprintf("getwd()"))
+  #out <- .th_call(sprintf("getwd()"))
   #out[1]
 }
 
@@ -141,7 +179,7 @@ th_get_workdir <- function() {
 #' @export
 th_view <- function(structure) {
   name <- .th_name(structure)
-  .send_command(sprintf("view(structure=%s)", name))
+  .th_call(sprintf("view(structure=%s)", name))
 }
 
 #' Create a new nodeset in Threadle and assign it to variable 'name' in the Threadle CLI environment
@@ -150,7 +188,7 @@ th_view <- function(structure) {
 #' @return A `threadle_nodeset` object.
 #' @export
 th_create_nodeset <- function(name) {
-  .send_command(sprintf("%s = createnodeset()", name))
+  .th_call(sprintf("%s = createnodeset()", name))
   structure(list(name=name), class="threadle_nodeset")
 }
 
@@ -167,7 +205,7 @@ th_create_nodeset <- function(name) {
 th_create_network <- function(name, nodeset, label = NULL) {
   nodeset_name <- .th_name(nodeset)
   label_arg <- if (!is.null(label)) sprintf(",name=%s", label) else ""
-  .send_command(sprintf("%s = createnetwork(nodeset=%s%s)", name, nodeset_name, label_arg))
+  .th_call(sprintf("%s = createnetwork(nodeset=%s%s)", name, nodeset_name, label_arg))
   structure(list(name = name), class = "threadle_network")
 }
 
@@ -180,7 +218,7 @@ th_create_network <- function(name, nodeset, label = NULL) {
 #' @return An object with class corresponding to the loaded type.
 #' @export
 th_load_file <- function(name, file, type) {
-  .send_command(sprintf("%s = loadfile(file=\"%s\", type=%s)",name, file, type))
+  .th_call(sprintf("%s = loadfile(file=\"%s\", type=%s)",name, file, type))
   structure(list(name=name), class=paste0("threadle_",type))
 }
 
@@ -192,7 +230,7 @@ th_load_file <- function(name, file, type) {
 #' @return A `threadle_network` object.
 #' @export
 th_load_network <- function(name, file) {
-  .send_command(sprintf("%s = loadfile(file=\"%s\", type=network)",name, file))
+  .th_call(sprintf("%s = loadfile(file=\"%s\", type=network)",name, file))
   structure(list(name=name, nodeset=paste0(name,"_nodeset"), class="threadle_network"))
   #structure(list(name=paste0(name,"_nodeset"), class="threadle_nodeset"))
 }
@@ -205,14 +243,10 @@ th_load_network <- function(name, file) {
 #'
 #' @return Parsed JSON or raw CLI text.
 #' @export
-th_info <- function(structure, format="json") {
+th_info <- function(structure, format = "json") {
   name <- .th_name(structure)
-  retval <- .send_command(sprintf("info(structure=%s, format=%s)",name, format))
-  print(retval)
-  if (format =="json")
-    jsonlite::fromJSON(retval)
-  else
-    retval
+  cmd <- sprintf("info(structure=%s, format=%s)", name, format)
+  .th_call(cmd)
 }
 
 #' Add a node to a nodeset (or network)
@@ -226,7 +260,7 @@ th_info <- function(structure, format="json") {
 th_add_node <- function(structure, id) {
   name <- .th_name(structure)
   cli <- sprintf("addnode(structure=%s, id=%d)", name, id)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' List all objects currently stored as variables in Threadle
@@ -236,11 +270,12 @@ th_add_node <- function(structure, id) {
 #' @return Parsed JSON or raw text.
 #' @export
 th_inventory <- function(format = "json") {
-  retval <- .send_command(sprintf("i(format=json)"))
-  if (format == "json")
-    jsonlite::fromJSON(retval)
-  else
-    retval
+  retval <- .th_call(sprintf("i(format=json)"))
+  retval
+  # if (format == "json")
+  #   jsonlite::fromJSON(retval)
+  # else
+  #   retval
 }
 
 #' Define an attribute for a nodeset (or network)
@@ -254,7 +289,7 @@ th_inventory <- function(format = "json") {
 #' @export
 th_define_attr <- function(structure, attrname, attrtype) {
   cli <- sprintf("defineattr(structure=%s, attrname=%s, attrtype=%s)", structure$name, attrname, attrtype)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Set the value of a node attribute for a nodeset (or network)
@@ -269,7 +304,7 @@ th_define_attr <- function(structure, attrname, attrtype) {
 #' @export
 th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
   cli <- sprintf("setattr(structure=%s,nodeid=%d,attrname=%s,attrvalue=%s)",structure$name,nodeid,attrname, attrvalue)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Get the value of a node attribute for a nodeset (or network)
@@ -284,7 +319,7 @@ th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
 th_get_attr <- function(structure, nodeid, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("getattr(structure=%s,nodeid=%d,attrname=%s)",name,nodeid,attrname)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Adds/defines a relational layer in a network
@@ -302,7 +337,7 @@ th_get_attr <- function(structure, nodeid, attrname) {
 th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="binary", selfties=FALSE) {
   name <- .th_name(network)
   cli <- sprintf("addlayer(network=%s, layername=%s, mode=%d, directed=%s, valuetype=%s, selfties=%s)", name, layername, mode, directed,valuetype,selfties)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' Get the number of nodes in a structure
@@ -315,7 +350,8 @@ th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="bi
 th_get_nbr_nodes <- function(structure) {
   name <- .th_name(structure)
   cli <- sprintf("getnbrnodes(structure=%s)",name)
-  as.numeric(.send_command(cli))
+  print(cli)
+  .th_call(cli)
 }
 
 #' Get a node ID by index
@@ -328,7 +364,7 @@ th_get_nbr_nodes <- function(structure) {
 th_get_nodeid_by_index <- function(structure, index) {
   name <- .th_name(structure)
   cli <- sprintf("getnodeidbyindex(structure=%s, index=%d)",name, index)
-  as.numeric(.send_command(cli))
+  as.numeric(.th_call(cli))
 }
 
 #' Get alters of a node within a network layer
@@ -342,7 +378,7 @@ th_get_nodeid_by_index <- function(structure, index) {
 #' @export
 th_get_node_alters <- function(name,layername,nodeid,direction="both") {
   cli <- sprintf("getnodealters(network=%s, layername=%s,nodeid=%d, direction=%s)",name, layername, nodeid, direction)
-  jsonlite::fromJSON(.send_command(cli))
+  jsonlite::fromJSON(.th_call(cli))
 }
 
 #' Get a random alter for a node
@@ -359,9 +395,10 @@ th_get_node_alters <- function(name,layername,nodeid,direction="both") {
 #' @export
 th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced=FALSE) {
   name <- .th_name(network)
-  nodeid <- .th_normalize_nodeid(nodeid)
+  # nodeid <- .th_normalize_nodeid(nodeid)
   cli <- sprintf("getrandomalter(network=%s, nodeid=%d, layername=%s, direction=%s, balanced=%s)",name, nodeid, layername,direction,balanced)
-  as.numeric(.send_command(cli))
+  .th_call(cli)
+  # as.numeric()
 }
 
 #' Get a random node from a structure
@@ -374,7 +411,7 @@ th_get_random_alter <- function(network, nodeid, layername="", direction="both",
 th_get_random_node <- function(structure) {
   name <- .th_name(structure)
   cli <- sprintf("getrandomnode(structure=%s)",name)
-  as.numeric(.send_command(cli))
+  as.numeric(.th_call(cli))
 }
 
 #' Remove a node from a network and its nodeset
@@ -390,7 +427,7 @@ th_get_random_node <- function(structure) {
 th_remove_node <- function(structure, nodeid) {
   name <- .th_name(structure)
   cli <- sprintf("removenode(structure = %s, nodeid = %d)",name,nodeid)
-  as.numeric(.send_command(cli))
+  .th_call(cli)
 }
 
 #' Add an affiliation (hyperedge) in a 2-mode layer
@@ -412,7 +449,7 @@ th_add_aff <- function(network, layername, nodeid, hypername,
   name <- .th_name(network)
   cli <- sprintf("addaff(network=%s, layername=%s, nodeid=%d, hypername=%s, addmissingnode=%s, addmissingaffiliation=%s)",
                  name, layername, nodeid, hypername, addmissingnode, addmissingaffiliation)
-  .send_command(cli)
+  .th_call(cli)
   invisible(name)
 }
 
@@ -435,7 +472,7 @@ th_add_edge <- function(network, layername, node1id, node2id,
   name <- .th_name(network)
   cli <- sprintf("addedge(network=%s, layername=%s, %d, %d, value=%d, addmissingnodes=%s)",
                  name, layername, node1id, node2id, value, addmissingnodes)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' Add a hyperedge to a specified layer of a network.
@@ -464,7 +501,7 @@ th_add_hyper <- function(network, layername, hypername,
     name, layername, hypername, nodes_arg, addmissingnodes
   )
   return(cli)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Check whether an edge exists in a layer
@@ -483,7 +520,7 @@ th_add_hyper <- function(network, layername, hypername,
 th_check_edge <- function(network, layername, node1id, node2id) {
   name <- .th_name(network)
   cli <- sprintf("checkedge(network=%s, layername=%s, %d, %d)", name, layername, node1id, node2id)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Clear all edges in a layer
@@ -499,7 +536,7 @@ th_check_edge <- function(network, layername, node1id, node2id) {
 th_clear_layer <- function(network, layername) {
   name <- .th_name(network)
   cli <- sprintf("clearlayer(network=%s, layername=%s)", name, layername)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' Calculate the degree centrality for a layer
@@ -520,7 +557,7 @@ th_degree <- function(network, layername, attrname = NULL, direction = "in") {
     "degree(network=%s, layername=%s, attrname=%s, direction=%s)",
     name, layername, attr_part, direction
   )
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Calculate density of a layer
@@ -540,7 +577,7 @@ th_degree <- function(network, layername, attrname = NULL, direction = "in") {
 th_density <- function(network, layername) {
   network <- .th_name(network)
   cli <- sprintf("density(network = %s, layername = %s)",network,layername)
-  as.numeric(.send_command(cli))
+  as.numeric(.th_call(cli))
 }
 
 #' Dichotomize a layer
@@ -570,7 +607,7 @@ th_dichotomize <- function(network, layername,
     name, layername, cond, threshold,
     truevalue, falsevalue, newlayer_arg
   )
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' Filter a nodeset by an attribute condition
@@ -592,7 +629,7 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
     "%s = filter(nodeset=%s, attrname=%s, cond=%s, attrvalue=%s)",
     name, nodeset_name, attrname, cond, attrvalue
   )
-  .send_command(cli)
+  .th_call(cli)
   structure(list(name = name), class = "threadle_nodeset")
 }
 
@@ -615,7 +652,7 @@ th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE) {
     "%s = generate(type=er, size=%d, p=%s, directed=%s, selfties=%s, newname=%s)",
     name, size, as.character(p), directed, selfties, name
   )
-  .send_command(cli)
+  .th_call(cli)
   structure(list(name = name), class = "threadle_network")
 }
 
@@ -637,7 +674,7 @@ th_get_edge <- function(network, layername, node1id, node2id) {
     "getedge(network=%s, layername=%s, %d, %d)",
     name, layername, node1id, node2id
   )
-  .send_command(cli)
+  .th_call(cli)
 }
 
 
@@ -659,7 +696,7 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
     "removeaff(network=%s, layername=%s, nodeid=%d, hypername=%s)",
     name, layername, nodeid, hypername
   )
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Remove an attribute value from a node
@@ -677,7 +714,7 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
 th_remove_attr <- function(structure, nodeid, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("removeattr(structure=%s, nodeid=%d, attrname=%s)", name, nodeid, attrname)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Remove an edge from a layer
@@ -696,7 +733,7 @@ th_remove_edge <- function(network, layername, node1id, node2id) {
   name <- .th_name(network)
   cli <- sprintf("removeedge(network=%s, layername=%s, %d, %d)",
                  name, layername, node1id, node2id)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 #' Remove a hyperedge from a 2-mode layer
@@ -716,7 +753,7 @@ th_remove_hyper <- function(network, layername, hypername) {
     "removehyper(network=%s, layername=%s, hypername=%s)",
     name, layername, hypername
   )
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Remove a layer from a network
@@ -731,7 +768,7 @@ th_remove_hyper <- function(network, layername, hypername) {
 th_remove_layer <- function(network, layername) {
   name <- .th_name(network)
   cli <- sprintf("removelayer(network=%s, layername=%s)", network$name, layername)
-  .send_command(cli)
+  invisible(.th_call(cli))
 }
 
 
@@ -749,8 +786,7 @@ th_save_file <- function(structure, file = "") {
   name <- .th_name(structure)
   if (!nzchar(file)) file <- paste0(name, ".tsv")
   cli <- sprintf("savefile(structure=%s, file=%s)", name, shQuote(file, "cmd2"))
-  .send_command(cli)
-  print(cli)
+  invisible(.th_call(cli))
 }
 
 #' Set a Threadle backend setting
@@ -765,7 +801,7 @@ th_save_file <- function(structure, file = "") {
 th_setting <- function(name, value) {
   cli <- sprintf("setting(name=%s, value=%s)", name, value)
   print(cli)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 #' Create a subnet from a network and a nodeset
@@ -787,7 +823,7 @@ th_subnet <- function(name, network, nodeset) {
   network_name <- .th_name(network)
   nodeset_name <- .th_name(nodeset)
   cli <- sprintf("%s = subnet(network=%s, nodeset=%s)", name, network_name, nodeset_name)
-  .send_command(cli)
+  .th_call(cli)
   structure(list(name = name), class = "threadle_network")
 }
 
@@ -803,12 +839,12 @@ th_subnet <- function(name, network, nodeset) {
 th_undefine_attr <- function(structure, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("undefineattr(structure=%s, attrname=%s)", name, attrname)
-  .send_command(cli)
+  .th_call(cli)
 }
 
 # th_help <- function(){
 #   cli <- sprintf("help")
-#   .send_command(cli)
+#   .th_call(cli)
 # }
 
 # th_exit <- function() {}
@@ -824,7 +860,7 @@ th_undefine_attr <- function(structure, attrname) {
 # th_remove <- function(structure) {
 #   name <- .th_name(structure)
 #   cli <- sprintf("remove(structure=%s)", name)
-#   .send_command(cli)
+#   .th_call(cli)
 # }
 
 #' Remove all structures
@@ -835,5 +871,5 @@ th_undefine_attr <- function(structure, attrname) {
 
 # th_remove_all <- function() {
 #   cli <- sprintf("removeall()")
-#   .send_command(cli)
+#   .th_call(cli)
 # }
