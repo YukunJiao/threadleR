@@ -21,11 +21,13 @@ options(threadle.return = "payload")
 options(threadle.print_message = FALSE)
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
-lazeganet <- th_load_network("lazega","lazega.tsv")
+lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
+lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")
+mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
 mynet$name
-mynet
+mynet_nodeset$name
 
 th_info("lazega")
 th_info(lazeganet)
@@ -53,7 +55,7 @@ th_info("lazega")
 th_info(lazeganet)
 th_info(lazeganet_nodeset)
 # Get a random alter in the friends layer:
-random_alter_nodeid <- th_get_random_alter(lazeganet, nodeid, layername = "friends")
+random_alter_nodeid <- th_get_random_alter("lazega", nodeid, layername = "friends")
 random_alter_nodeid
 
 # Get office attribute of this
@@ -81,7 +83,7 @@ th_remove_node("lazega", 4)
 th_remove_node(lazeganet_nodeset, 20)
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
-lazeganet <- th_load_network("lazega","lazega.tsv")
+lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
 th_info(lazeganet)
 th_info(lazeganet_nodeset)
 
@@ -107,12 +109,10 @@ th_info(lazeganet)
 
 th_inventory()
 
-.th_call("i(format=json)")
-
-mytestnet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
-mytestnet <- th_load_network("mynet", "mynet.tsv")
-th_info(mytestnet)
+mytestnet_nodeset <- th_load_file("mytest_nodeset", "mytestnet_nodeset.tsv", type = "nodeset")
+mytestnet <- th_load_network("mytest", "mytestnet.tsv")
 th_info(mynet_nodeset)
+th_info(mynet)
 
 # ERROR
 # sub_ns <- th_filter(name="sub_nodeset", nodeset=mynet_nodeset, attrname="gender", cond="eq", attrvalue="f")
@@ -121,52 +121,57 @@ th_info(mynet_nodeset)
 # ERROR
 # th_subnet("mynet_sub", mynet, "sub_nodeset")
 
-nbr_nodes <- th_get_nbr_nodes(mynet)
-nodeid <- th_get_nodeid_by_index(mynet, sample(0:(nbr_nodes-1),1))
-nodeid <- 123
+nbr_nodes <- th_get_nbr_nodes(mytestnet)
+nodeid <- th_get_nodeid_by_index(mytestnet, sample(0:(nbr_nodes-1),1))
 # nodeid <- 0
 # nodeid <- numeric(0)
-
-random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
+th_info(mytestnet)
+random_alter_nodeid <- th_get_random_alter(mytestnet, nodeid, layername = "trade")
 random_alter_nodeid
 
-th_get_random_node(mynet)
+th_get_random_node(mytestnet)
 
 
-name <- "mynet"
+name <- "mytestnet"
 nodeid <- ""
 layername <- "trade"
 direction <- "both"
 balanced <- FALSE
-th_get_random_alter(mynet, nodeid = 123, layername = "")
-th_info(mynet)
+th_get_random_alter(mytestnet, nodeid = 456, layername = "")
+th_info(mytestnet)
 
-th_get_edge(mynet, "trade", 456, 567)
+th_get_edge(mytestnet, "trade", 456, 567)
 
-th_get_edge(mynet, "trade", 123, 456)
+th_get_edge(mytestnet, "trade", 123, 456)
 
-th_get_edge(mynet, "trade", 890, 234)
-th_get_edge(mynet, "trade", 890, 789)
+th_get_edge(mytestnet, "trade", 890, 234)
+th_get_edge(mytestnet, "trade", 890, 789)
 
-th_dichotomize(mynet, "trade", cond = "ge", threshold = 1000, truevalue = 1, newlayername = "trade_test")
+th_dichotomize(mytestnet, "trade", cond = "ge", threshold = 1000, truevalue = 1, newlayername = "trade_test")
 
-th_get_edge(mynet, "trade_test", 890, 234)
-th_get_edge(mynet, "trade_test", 890, 789)
-th_info(mynet_nodeset)
-th_info(mynet)
-th_filter("testmeow", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
+th_get_edge(mytestnet, "trade_test", 890, 234)
+th_get_edge(mytestnet, "trade_test", 890, 789)
+th_info(mytestnet_nodeset)
+th_info(mytestnet)
+
+mytestnet_nodeset <- th_load_file("mytest_nodeset", "mytestnet_nodeset.tsv", type = "nodeset")
+mytestnet <- th_load_network("mytest", "mytestnet.tsv")
+th_filter("testmeow", nodeset = mytestnet_nodeset, "gender", cond = "eq", attrvalue = "o")
 th_info("testmeow")
 .send_command("testmeow = filter(nodeset=mynet_nodeset, attrname=gender, cond=eq, attrvalue=o)")
 th_inventory()
-
+getwd()
 
 mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mytestnet <- th_load_network("mytestnet", "mynet.tsv")
-th_generate("testlemiao", 5, 2)
+mytestnet_nodeset$name
+mytestnet$name
+th_generate("testlemiao", 5, 2, type = "network")
 th_inventory()
 th_info(mytestnet)
-th_save_file("mytestnet")
 th_save_file("mytestnet_nodeset", "")
+th_save_file("mytestnet")
+
 
 th_save_file("testlemiao_nodeset")
 th_save_file("testlemiao", "")
@@ -175,35 +180,45 @@ th_save_file("testlemiao", "nodes.bin.gz")
 
 th_info(mynet)
 th_info(mynet_nodeset)
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_file("mynet", "mynet.tsv", "network")
 
-th_remove_attr(mynet, 345, "gender")
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_network("mynet", "mynet.tsv")
+th_info(mynet)
+th_remove_attr("mynet", 123, "gender")
 
 th_check_edge(mynet, "trade", 123, 345)
 th_check_edge(mynet, "kinship", 345, 456)
 
 tt <- th_degree(mynet, "kinship", attrname = "kinship_degree")
+th_degree(mynet, "kinship", attrname = NULL)
+th_degree(mynet, "work", attrname = "")
 
-
+th_info(mynet)
+th_info(mynet_nodeset)
 th_inventory()
 th_info(mynet)
-th_remove_aff(mynet, "trade_test", 789, "ica")
+th_remove_aff(mynet, "work", 789, "ica")
 
 th_save_file(mynet, "testtt.tsv")
 
 options(threadle.return = "response")
 th_add_hyper(mynet, "work", "LiU", nodes = "")
 th_add_hyper(mynet, "work", "LiU", nodes = c())
+th_add_hyper(mynet, "work", "LiU", nodes = 123)
 th_add_hyper(mynet, "work", "LiU", nodes = c(123,456))
 th_save_file(mynet, "testtt.tsv")
 
 th_remove_hyper(mynet, "work", "LiU")
 th_info(mynet)
 th_remove_layer(mynet, "work")
-th_remove_layer(lazeganet, "test")
+th_info(lazeganet)
+th_remove_layer(lazeganet, "test1")
 th_add_layer(lazeganet, "test", mode = 2)
 th_add_hyper(lazeganet, "test", "test_name", nodes = c(1,2,32,4,5,7), addmissingnodes = FALSE)
 th_info(lazeganet)
-th_clear_layer(lazeganet, "test1")
+th_clear_layer(lazeganet, "test2")
 
 th_add_layer(lazeganet, "test2", mode = 2)
 th_remove_layer(lazeganet, "test2")
@@ -219,6 +234,13 @@ th_undefine_attr(mynet_nodeset, "gender")
 #---
 
 th_stop_threadle()
+
+{"Assign":null,"Command":"setwd","Args":{"dir":"/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples"}}
+{"Assign":null,"Command":"i","Args":null}
+{"Assign":"mytest_nodeset","Command":"loadfile","Args":{"file":"mytestnet_nodeset.tsv","type":"nodeset"}}
+{"Assign":"mytest","Command":"loadfile","Args":{"name":"mytest","file":"mytestnet.tsv","type":"network"}}
+{"Assign":null,"Command":"i","Args":null}
+
 
 setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
 mynet_nodeset = loadfile("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
