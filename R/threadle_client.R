@@ -220,6 +220,7 @@ th_create_network <- function(name, nodeset, label = NULL) {
 th_load_file <- function(name, file, type) {
   .th_call(sprintf("%s = loadfile(file=\"%s\", type=%s)",name, file, type))
   structure(list(name=name), class=paste0("threadle_",type))
+  print(sprintf("%s = loadfile(file=\"%s\", type=%s)",name, file, type))
 }
 
 #' Load a network structure from a file
@@ -350,7 +351,6 @@ th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="bi
 th_get_nbr_nodes <- function(structure) {
   name <- .th_name(structure)
   cli <- sprintf("getnbrnodes(structure=%s)",name)
-  print(cli)
   .th_call(cli)
 }
 
@@ -500,8 +500,7 @@ th_add_hyper <- function(network, layername, hypername,
     "addhyper(network=%s, layername=%s, hypername=%s, nodes = %s, addmissingnodes=%s)",
     name, layername, hypername, nodes_arg, addmissingnodes
   )
-  return(cli)
-  .th_call(cli)
+  invisible(.th_call(cli))
 }
 
 #' Check whether an edge exists in a layer
@@ -629,6 +628,7 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
     "%s = filter(nodeset=%s, attrname=%s, cond=%s, attrvalue=%s)",
     name, nodeset_name, attrname, cond, attrvalue
   )
+  print(cli)
   .th_call(cli)
   structure(list(name = name), class = "threadle_nodeset")
 }
@@ -714,7 +714,7 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
 th_remove_attr <- function(structure, nodeid, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("removeattr(structure=%s, nodeid=%d, attrname=%s)", name, nodeid, attrname)
-  .th_call(cli)
+  invisible(.th_call(cli))
 }
 
 #' Remove an edge from a layer
@@ -753,7 +753,7 @@ th_remove_hyper <- function(network, layername, hypername) {
     "removehyper(network=%s, layername=%s, hypername=%s)",
     name, layername, hypername
   )
-  .th_call(cli)
+  invisible(.th_call(cli))
 }
 
 #' Remove a layer from a network
@@ -839,7 +839,7 @@ th_subnet <- function(name, network, nodeset) {
 th_undefine_attr <- function(structure, attrname) {
   name <- .th_name(structure)
   cli <- sprintf("undefineattr(structure=%s, attrname=%s)", name, attrname)
-  .th_call(cli)
+  invisible(.th_call(cli))
 }
 
 # th_help <- function(){
