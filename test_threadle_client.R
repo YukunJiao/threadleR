@@ -22,10 +22,15 @@ options(threadle.print_message = FALSE)
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
 lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
+th_info(lazeganet)
 lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
+th_info(lazeganet)
+th_info(lazeganet_nodeset)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")
+th_info(mynet)
 mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
+th_info(mynet)
 mynet$name
 mynet_nodeset$name
 
@@ -109,8 +114,8 @@ th_info(lazeganet)
 
 th_inventory()
 
-mytestnet_nodeset <- th_load_file("mytest_nodeset", "mytestnet_nodeset.tsv", type = "nodeset")
-mytestnet <- th_load_network("mytest", "mytestnet.tsv")
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_network("mynet", "mynet.tsv")
 th_info(mynet_nodeset)
 th_info(mynet)
 
@@ -121,69 +126,60 @@ th_info(mynet)
 # ERROR
 # th_subnet("mynet_sub", mynet, "sub_nodeset")
 
-nbr_nodes <- th_get_nbr_nodes(mytestnet)
-nodeid <- th_get_nodeid_by_index(mytestnet, sample(0:(nbr_nodes-1),1))
+nbr_nodes <- th_get_nbr_nodes(mynet)
+nodeid <- th_get_nodeid_by_index(mynet, sample(0:(nbr_nodes-1),1))
 # nodeid <- 0
 # nodeid <- numeric(0)
-th_info(mytestnet)
-random_alter_nodeid <- th_get_random_alter(mytestnet, nodeid, layername = "trade")
+th_info(mynet)
+random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
 random_alter_nodeid
 
-th_get_random_node(mytestnet)
+th_get_random_node(mynet)
 
 
-name <- "mytestnet"
-nodeid <- ""
-layername <- "trade"
-direction <- "both"
-balanced <- FALSE
-th_get_random_alter(mytestnet, nodeid = 456, layername = "")
-th_info(mytestnet)
+th_get_random_alter(mynet, nodeid = 456, layername = "")
+th_info(mynet)
 
-th_get_edge(mytestnet, "trade", 456, 567)
+th_get_edge(mynet, "trade", 456, 567)
 
-th_get_edge(mytestnet, "trade", 123, 456)
+th_get_edge(mynet, "trade", 123, 456)
 
-th_get_edge(mytestnet, "trade", 890, 234)
-th_get_edge(mytestnet, "trade", 890, 789)
+th_get_edge(mynet, "trade", 890, 234)
+th_get_edge(mynet, "trade", 890, 789)
 
-th_dichotomize(mytestnet, "trade", cond = "ge", threshold = 1000, truevalue = 1, newlayername = "trade_test")
+th_dichotomize(mynet, "trade", cond = "ge", threshold = 1000, truevalue = 1, newlayername = "trade_test")
 
-th_get_edge(mytestnet, "trade_test", 890, 234)
-th_get_edge(mytestnet, "trade_test", 890, 789)
-th_info(mytestnet_nodeset)
-th_info(mytestnet)
+th_get_edge(mynet, "trade_test", 890, 234)
+th_get_edge(mynet, "trade_test", 890, 789)
+th_get_edge(mynet, "trade_test", 890, 123)
+th_info(mynet_nodeset)
+th_info(mynet)
 
-mytestnet_nodeset <- th_load_file("mytest_nodeset", "mytestnet_nodeset.tsv", type = "nodeset")
-mytestnet <- th_load_network("mytest", "mytestnet.tsv")
-th_filter("testmeow", nodeset = mytestnet_nodeset, "gender", cond = "eq", attrvalue = "o")
+th_filter("testmeow", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
 th_info("testmeow")
-.send_command("testmeow = filter(nodeset=mynet_nodeset, attrname=gender, cond=eq, attrvalue=o)")
 th_inventory()
 getwd()
 
-mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
-mytestnet <- th_load_network("mytestnet", "mynet.tsv")
-mytestnet_nodeset$name
-mytestnet$name
-th_generate("testlemiao", 5, 2, type = "network")
+
+th_generate("test", 5, 2, type = "network")
 th_inventory()
-th_info(mytestnet)
+th_info(mynet)
+mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mytestnet <- th_load_file("mytestnet", "mynet.tsv", "network")
+
 th_save_file("mytestnet_nodeset", "")
 th_save_file("mytestnet")
 
 
-th_save_file("testlemiao_nodeset")
-th_save_file("testlemiao", "")
-th_save_file("testlemiao", "nodes.bin.gz")
+th_save_file("testmeow_nodeset")
+th_save_file("testmeow", "")
+th_save_file("testmeow", "nodes.bin.gz")
 # th_save_file("mytestnet", file = "nodes.bin.gz")
 
 th_info(mynet)
 th_info(mynet_nodeset)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_file("mynet", "mynet.tsv", "network")
-
-mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")
 th_info(mynet)
 th_remove_attr("mynet", 123, "gender")
@@ -214,7 +210,8 @@ th_remove_hyper(mynet, "work", "LiU")
 th_info(mynet)
 th_remove_layer(mynet, "work")
 th_info(lazeganet)
-th_remove_layer(lazeganet, "test1")
+th_add_layer(lazeganet, "test1", mode = 2)
+th_remove_layer(lazeganet, "test2")
 th_add_layer(lazeganet, "test", mode = 2)
 th_add_hyper(lazeganet, "test", "test_name", nodes = c(1,2,32,4,5,7), addmissingnodes = FALSE)
 th_info(lazeganet)
@@ -233,25 +230,39 @@ th_info(mynet_nodeset)
 th_undefine_attr(mynet_nodeset, "gender")
 #---
 
+th_get_workdir()
 th_stop_threadle()
 
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
+th_filter("test_nodeset", nodeset = "mynet_nodeset", "gender", cond = "eq", attrvalue = "o")
+
 {"Assign":null,"Command":"setwd","Args":{"dir":"/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples"}}
-{"Assign":null,"Command":"i","Args":null}
-{"Assign":"mytest_nodeset","Command":"loadfile","Args":{"file":"mytestnet_nodeset.tsv","type":"nodeset"}}
-{"Assign":"mytest","Command":"loadfile","Args":{"name":"mytest","file":"mytestnet.tsv","type":"network"}}
+{"Assign":"mynet_nodeset","Command":"loadfile","Args":{"file":"mynet_nodesetfile.tsv","type":"nodeset"}}
+{"Assign":"mynet","Command":"loadfile","Args":{"file":"mynet.tsv","type":"network"}}
 {"Assign":null,"Command":"i","Args":null}
 
+{"Assign":"test_nodeset","Command":"filter","Args":{"nodeset":"mynet_nodesetfile","attrname":"gender","cond":"eq","attrvalue":"o"}}
+{"Assign":"test_nodeset","Command":"filter","Args":{"nodeset":"mynet_nodeset","attrname":"gender","cond":"eq","attrvalue":"o"}}
+{"Assign":null,"Command":"i","Args":null}
+
+
+
+th_filter("test_nodeset", nodeset = "mynet_nodeset", "gender", cond = "eq", attrvalue = "o")
+th_inventory()
+th_info("testmeow_nodeset")
 
 setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")
 mynet_nodeset = loadfile("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet = loadfile("mynet.tsv", "network")
 
+
 lazega = loadfile("lazega.tsv", "network")
 
-mytestnet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
-mytestnet <- th_load_network("mynet", "mynet.tsv")
+
 
 test = filter(nodeset=mynet_nodeset, attrname=gender, cond=eq, attrvalue=o)
+
 th_save_file(mytestnet)
 th_save_file(mytestnet, file = "test.tsv.gz")
 th_save_file(mytestnet_nodeset, file = "tdd.bin.gz")
