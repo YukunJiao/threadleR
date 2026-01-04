@@ -528,6 +528,7 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
 #'   \item{`type = "er"`}{Erdős–Rényi. Provide `p` (edge probability / density).}
 #'   \item{`type = "ws"`}{Watts–Strogatz. Provide `k` (even mean degree) and
 #'   `beta` (rewiring probability in [0,1]). The layer must be symmetric.}
+#'   \item{`type = "bt"`}{Barabási–Albert. Provide `m` (number of edges each new node attaches; must be >= 1 and typically < number of nodes).}
 #' }
 #'
 #' @param network Name of the new network variable to create.
@@ -539,7 +540,7 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
 #'
 #' @return Invisibly returns the CLI response.
 #' @export
-th_generate <- function(network, layername, type, p, k, beta) {
+th_generate <- function(network, layername, type, p, k, beta, m) {
   args <- .th_args(environment())
   cmd <- "generate"
   assign <- NULL
