@@ -18,7 +18,7 @@ th_set_workdir("../Examples")
 
 options(threadle.return = "response")
 options(threadle.return = "payload")
-options(threadle.print_message = FALSE)
+options(threadle.print_message = TRUE)
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
 lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
@@ -34,6 +34,10 @@ th_info(mynet)
 mynet$name
 mynet_nodeset$name
 
+th_inventory()
+th_create_nodeset("test")
+th_info("test")
+th_remove("test")
 th_info("lazega")
 th_info(lazeganet)
 th_info("lazega_nodeset")
@@ -48,6 +52,9 @@ th_inventory()
 nbr_nodes <- th_get_nbr_nodes(lazeganet)
 nbr_nodes
 
+th_info(lazeganet)
+th_get_node_alters(lazeganet, "friends", 23, direction = "out")
+
 # Get a random starting node
 nodeid <- th_get_nodeid_by_index(lazeganet, sample(0:nbr_nodes-1,1))
 nodeid
@@ -56,13 +63,21 @@ nodeid
 office_current <- th_get_attr(lazeganet,nodeid,"Office")
 office_current
 
+th_inventory()
+
+th_create_network("lazega_nodeset", "sss")
+
+th_define_attr('testdddd', "gendeasdassasdasdaadrsss")
+th_info("testdddd")
+th_create_nodeset("testdddd")
+
 th_info("lazega")
 th_info(lazeganet)
 th_info(lazeganet_nodeset)
 # Get a random alter in the friends layer:
-random_alter_nodeid <- th_get_random_alter("lazega", nodeid, layername = "friends")
+random_alter_nodeid <- th_get_random_alter("lazega", nodeid, layername = "friends", balanced = "fff")
 random_alter_nodeid
-
+th_get_workdir()
 # Get office attribute of this
 office_alter <- th_get_attr(lazeganet, random_alter_nodeid, "Gender")
 office_alter
@@ -96,8 +111,8 @@ th_info(lazeganet_nodeset)
 th_add_node(lazeganet, 100)
 
 
-th_add_layer(lazeganet, "test1", mode = 1)
-th_add_edge(lazeganet, "test1", 31, 36)
+th_add_layer(lazeganet, "test122", mode = 1, valuetype = "binarys", selfties = "test")
+th_add_edge(lazeganet, "test1", 31, 35, addmissingnodes = "ttt")
 
 
 th_add_layer(lazeganet, "test2", mode = 2)
@@ -134,6 +149,8 @@ th_info(mynet)
 random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
 random_alter_nodeid
 
+th_import_layer
+
 th_get_random_node(mynet)
 
 
@@ -155,8 +172,8 @@ th_get_edge(mynet, "trade_test", 890, 123)
 th_info(mynet_nodeset)
 th_info(mynet)
 
-th_filter("testmeow", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
-th_info("testmeow")
+th_filter("test123", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
+th_info("test123")
 th_inventory()
 th_info(mynet)
 getwd()
@@ -190,8 +207,9 @@ th_check_edge(mynet, "kinship", 345, 456)
 
 tt <- th_degree(mynet, "kinship", attrname = "kinship_degree")
 th_degree(mynet, "kinship", attrname = NULL)
-th_degree(mynet, "work", attrname = "")
-
+th_degree(mynet, "trade", attrname = "")
+th_degree(mynet, "work", attrname = "weight")
+th_filter
 th_info(mynet)
 th_info(mynet_nodeset)
 th_inventory()
