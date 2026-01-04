@@ -13,7 +13,7 @@ th_add_hyper(
 )
 }
 \arguments{
-\item{network}{A `threadle_network` object or a character string giving 
+\item{network}{A `threadle_network` object or a character string giving
 the name of a network in the Threadle CLI environment.}
 
 \item{layername}{Layer name.}

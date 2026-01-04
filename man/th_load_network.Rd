@@ -4,7 +4,7 @@
 \alias{th_load_network}
 \title{Load a network structure from a file}
 \usage{
-th_load_network(name, file)
+th_load_network(name, file, type = "network")
 }
 \arguments{
 \item{name}{Name for the network object.}

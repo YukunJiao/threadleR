@@ -9,10 +9,10 @@ th_subnet(name, network, nodeset)
 \arguments{
 \item{name}{Name of the new network variable to create.}
 
-\item{network}{A `threadle_network` object or a character string giving 
+\item{network}{A `threadle_network` object or a character string giving
 the name of a network in the Threadle CLI environment.}
 
-\item{nodeset}{A `threadle_nodeset` object or a character string giving 
+\item{nodeset}{A `threadle_nodeset` object or a character string giving
 the name of a network in the Threadle CLI environment.}
 }
 \value{

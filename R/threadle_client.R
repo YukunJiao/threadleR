@@ -1,17 +1,34 @@
 # R client package for Threadle CLIconsole
 
-library(processx)
-
-#' Set name and structure name
+#' Coerce Threadle structure inputs to a backend name
 #'
-#' @param x description
+#' Internal helper to normalize inputs that can be either:
+#' a single character string (already a backend variable name),
+#' or a Threadle structure object (a list with a scalar character `$name`).
+#'
+#' @param x A single character name, or a Threadle structure object with `$name`.
+#' @return A length-1 character string giving the backend variable name.
+#' @keywords internal
 .th_name <- function(x) {
   if (is.character(x) && length(x) == 1) return(x)
   if (is.list(x) && !is.null(x$name) && is.character(x$name) && length(x$name) == 1) return(x$name)
   stop("Expected a Threadle structure object (with $name) or a single character name.")
 }
 
+#' Collect wrapper arguments for backend calls
 #'
+#' Internal helper that collects arguments from a wrapper's environment and
+#' prepares them for sending to the Threadle backend.
+#'
+#' It keeps only the wrapper's formal arguments (optionally dropping some),
+#' extracts their current values from `env`,
+#' normalizes known structure parameters (`name`, `network`, `structure`)
+#' to backend names via `.th_name()`.
+#'
+#' @param env An environment, usually `environment()` from the wrapper.
+#' @param drop Character vector of argument names to drop.
+#' @return A named list of arguments suitable for `.th_json_cmd()`.
+#' @keywords internal
 .th_args <- function(env, drop = character()) {
   fmls <- names(formals(sys.function(sys.parent())))
   keep <- setdiff(fmls, drop)
@@ -23,7 +40,16 @@ library(processx)
   args
 }
 
-#' json cmd
+#' Build a JSON command DTO for the Threadle CLI backend
+#'
+#' Internal helper that constructs the JSON object sent to the Threadle CLI
+#' process.
+#'
+#' @param command Command name (character scalar).
+#' @param args Named list of arguments, or `NULL`.
+#' @param assign Optional backend variable name to assign output to, or `NULL`.
+#' @return A JSON string.
+#' @keywords internal
 .th_json_cmd <- function(command, args = NULL, assign = NULL) {
   dto <- list(
     Assign  = if (!is.null(assign)) as.character(assign) else NULL,
@@ -41,8 +67,24 @@ library(processx)
   jsonlite::toJSON(dto, auto_unbox = TRUE, null = "null")
 }
 
+#' Null-coalescing operator
+#'
+#' Returns `a` if it is not `NULL`, otherwise returns `b`.
+#'
+#' @param a First value.
+#' @param b Fallback value.
+#' @return `a` if non-`NULL`, else `b`.
+#' @keywords internal
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+#' Stop if backend response indicates failure
+#'
+#' Validates that the backend response is a structured JSON object with a
+#' logical `Success` field and throws an R error when `Success` is not `TRUE`.
+#'
+#' @param resp Parsed JSON response (a list) from `.send_command()`.
+#' @return Invisibly returns `resp` when successful.
+#' @keywords internal
 .th_stop_if_fail <- function(resp) {
   if (is.null(resp) || is.null(resp$Success)) {
     stop("Invalid JSON response from Threadle.", call. = FALSE)
@@ -56,56 +98,13 @@ library(processx)
   invisible(resp)
 }
 
-#' Start a Threadle CLI console process
+#' Send a command to the Threadle CLI
 #'
-#' Launches the Threadle.CLIconsole executable and stores the process handle
-#' in the global environment as `.threadle_proc`. The process is started with
-#' silent mode and an end marker to delimit responses.
+#' Internal helper function used by all wrappers. Sends a JSON command and
+#' waits for a complete one-line JSON response.
 #'
-#' @param path Path to the Threadle CLI executable.
-#' @return Invisibly returns the `processx` process object.
-#' @export
-th_start_threadle <- function(path = "Threadle.CLIconsole.exe") {
-  if (exists(".threadle_proc", envir=.GlobalEnv)) {
-    stop("'.threadle_proc' process already running.")
-  }
-  proc <- process$new(path, args=c("--json", "--silent"), stdin="|", stdout="|", stderr = "|")
-  #proc <- process$new(path, args=c("--endmarker"), stdin="|", stdout="|", stderr = "|")
-  assign(".threadle_proc", proc, envir=.GlobalEnv)
-  invisible(proc)
-}
-
-#' Stop the running Threadle CLI console process
-#'
-#' Terminates the Threadle process previously started with `.start_threadle()`.
-#'
-#' @return None; prints status messages.
-#' @export
-th_stop_threadle <- function() {
-  if (exists(".threadle_proc", envir=.GlobalEnv)) {
-    proc <- get(".threadle_proc", envir=.GlobalEnv)
-
-    if (proc$is_alive()) {
-      proc$kill()
-      message("'.threadle_proc' process terminated.")
-    }
-    else {
-      message("'.threadle_proc' process is already not running.")
-    }
-    rm(".threadle_proc", envir = .GlobalEnv)
-  }
-  else {
-    message("No '.threadle_proc' process found.")
-  }
-}
-
-#' Send a command to the Threadle CLI backend
-#'
-#' Internal helper function used by all wrappers. Sends a command string and
-#' waits for the `__END__` marker, returning all intermediate output lines.
-#'
-#' @param cmd A character string containing the CLI command to send.
-#' @return A character vector with output lines.
+#' @param cmd A JSON command string to send to the Threadle CLI process.
+#' @return A parsed JSON response as a list.
 #' @keywords internal
 .send_command <- function(cmd) {
   if (length(cmd) == 0) return(NULL)
@@ -144,28 +143,19 @@ th_stop_threadle <- function() {
   }
 }
 
-#' Nodeid error
+#' Call a Threadle CLI command and handle the response
 #'
-#' @param name description
-.th_normalize_nodeid <- function(nodeid) {
-  if (length(nodeid) != 1) stop("`nodeid` must be length 1.", call. = FALSE)
-  if (is.character(nodeid)) {
-    if (!nzchar(nodeid) || !grepl("^[0-9]+$", nodeid)) {
-      stop("`nodeid` must be an integer (or a numeric string like \"123\").", call. = FALSE)
-    }
-    nodeid <- as.integer(nodeid)
-  } else if (is.numeric(nodeid)) {
-    if (is.na(nodeid)) stop("`nodeid` cannot be NA.", call. = FALSE)
-    if (nodeid %% 1 != 0) stop("`nodeid` must be an integer.", call. = FALSE)
-    if (nodeid < 0) stop("`nodeid` must be >= 0.", call. = FALSE)
-    nodeid <- as.integer(nodeid)
-  } else {
-    stop("`nodeid` must be numeric or character.", call. = FALSE)
-  }
-  nodeid
-}
-
-#' Call the Threadle function
+#' Internal helper for wrappers. Builds a JSON DTO, sends it to the running
+#' Threadle CLI process, checks success, and returns either the payload
+#' or the full response.
+#'
+#' @param cmd Command name (character scalar).
+#' @param args Named list of command arguments, or `NULL`.
+#' @param assign Optional backend variable name to assign the result to, or `NULL`.
+#' @param return What to return: `"payload"` (default) or `"response"`.
+#' @param .print_message Logical; if `TRUE`, print `resp$Message` when present.
+#' @return If `return = "payload"`, returns `resp$Payload`; otherwise returns the full response.
+#' @keywords internal
 .th_call <- function(cmd,
                      args = NULL,
                      assign = NULL,
@@ -184,36 +174,47 @@ th_stop_threadle <- function() {
   if (return == "payload") resp$Payload else resp
 }
 
-#' Set working directory inside the Threadle CLI environment
+#' Start a Threadle CLI process
 #'
-#' @param dir Path to the directory.
-#' @return CLI output as a character vector.
-#' @examples
-#' set_workdir("~/data")
+#' Launches the Threadle CLI process executable and stores the process handle
+#' in the global environment as `.threadle_proc`. The process is started with
+#' silent mode and an end marker to delimit responses.
+#'
+#' @param path Path to the Threadle CLI executable.
+#' @return Invisibly returns the `processx` process object.
 #' @export
-th_set_workdir <- function(dir) {
-  invisible(.th_call(cmd = "setwd", args = list(dir = dir)))
+th_start_threadle <- function(path = "Threadle.CLIconsole.exe") {
+  if (exists(".threadle_proc", envir=.GlobalEnv)) {
+    stop("'.threadle_proc' process already running.")
+  }
+  proc <- processx::process$new(path, args=c("--json", "--silent"), stdin="|", stdout="|", stderr = "|")
+  #proc <- processx::process$new(path, args=c("--endmarker"), stdin="|", stdout="|", stderr = "|")
+  assign(".threadle_proc", proc, envir=.GlobalEnv)
+  invisible(proc)
 }
 
-
-#' Get the current working directory from Threadle CLI
+#' Stop the running Threadle CLI process
 #'
-#' @return The working directory as returned by Threadle.
-#' @export
-th_get_workdir <- function() {
-  .th_call(cmd = "getwd")
-  #out <- .th_call(sprintf("getwd()"))
-  #out[1]
-}
-
-#' View a structure by variable in the Threadle CLI environment
+#' Terminates the Threadle process previously started with `.start_threadle()`.
 #'
-#' @param name Name of the structure to view.
-#' @return CLI output.
+#' @return None; prints status messages.
 #' @export
-th_view <- function(structure) {
-  name <- .th_name(structure)
-  .th_call(cmd = "view", structure = name)
+th_stop_threadle <- function() {
+  if (exists(".threadle_proc", envir=.GlobalEnv)) {
+    proc <- get(".threadle_proc", envir=.GlobalEnv)
+
+    if (proc$is_alive()) {
+      proc$kill()
+      message("'.threadle_proc' process terminated.")
+    }
+    else {
+      message("'.threadle_proc' process is already not running.")
+    }
+    rm(".threadle_proc", envir = .GlobalEnv)
+  }
+  else {
+    message("No '.threadle_proc' process found.")
+  }
 }
 
 #' Create a new nodeset in Threadle and assign it to variable 'name' in the Threadle CLI environment
@@ -224,40 +225,6 @@ th_view <- function(structure) {
 th_create_nodeset <- function(name) {
   .th_call("createnodeset", assign = name)
   structure(list(name=name), class="threadle_nodeset")
-}
-
-#' Create a new network in Threadle and assign it to variable 'name' in the Threadle CLI environment
-#' Create a new network in Threadle
-#'
-#' @param name Name of the assigned variable in the Threadle CLI environment.
-#' @param nodeset A `threadle_nodeset` object or a character string giving
-#' the name of a nodeset in the Threadle CLI environment.
-#' @param label Optional internal name of network in Threadle.
-#'
-#' @return A `threadle_network` object.
-#' @export
-th_create_network <- function(name, nodeset, label = NULL) {
-  name <- .th_name(name)
-  nodeset <- .th_name(nodeset)
-  label <- if (!is.null(label)) sprintf(",name=%s", label) else ""
-  .th_call(cmd = "createnetwork", args = list(name, nodeset, label))
-  structure(list(name = name), class = "threadle_network")
-}
-
-#' Load a file into Threadle and assigns the structure(s) to the provided variable name in the Threadle CLI environment
-#'
-#' @param name Name of the assigned variable in the Threadle CLI environment.
-#' @param file File path.
-#' @param type Type of structure ("network" or "nodeset").
-#'
-#' @return An object with class corresponding to the loaded type.
-#' @export
-th_load_file <- function(name, file, type) {
-  args <- .th_args(environment(), drop = "name")
-  cmd <- "loadfile"
-  assign <- name
-  .th_call(cmd = cmd, args = args, assign = assign)
-  structure(list(name=name), class=paste0("threadle_",type))
 }
 
 #' Load a network structure from a file
@@ -275,207 +242,42 @@ th_load_network <- function(name, file, type = "network") {
   structure(list(name=name), class=paste0("threadle_",type))
 }
 
-#' Retrieve meta information from a Threadle object
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param format Output format ("json"(default) or "console").
-#'
-#' @return Parsed JSON or raw CLI text.
+#' Help from Threadle backend (CLI), not R package documentation.
 #' @export
-th_info <- function(structure, format = "json") {
-  cmd <- "info"
-  args <- list(structure = .th_name(structure), format = format)
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
-
-#' Add a node to a nodeset (or network)
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param id Node ID.
-#'
-#' @return CLI output.
-#' @export
-th_add_node <- function(structure, id) {
+th_cli_help <- function(arg0 = NULL, file = NULL){
   args <- .th_args(environment())
-  cmd <- "addnode"
-  assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
-}
-
-#' List all objects currently stored as variables in Threadle
-#'
-#' @param format Output format ("json"(default) or console").
-#'
-#' @return Parsed JSON or raw text.
-#' @export
-th_inventory <- function() {
-  cmd <- "i"
-  args <- NULL
+  args <- Filter(Negate(is.null), args)
+  cmd <- "help"
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
 }
 
-#' Define an attribute for a nodeset (or network)
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param attrname Attribute name.
-#' @param attrtype Attribute type ("int","float", "char" or "bool")
-#'
-#' @return CLI output.
-#' @export
-th_define_attr <- function(structure, attrname, attrtype) {
-  cmd <- "defineattr"
-  args <- list(structure = .th_name(structure), attrname = attrname, attrtype = attrtype)
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
+# th_exit <- function() {}
 
-#' Set the value of a node attribute for a nodeset (or network)
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param nodeid Node ID.
-#' @param attrname Attribute name.
-#' @param attrvalue Value to assign.
-#'
-#' @return CLI output.
-#' @export
-th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
-  cli <- sprintf("setattr(structure=%s,nodeid=%d,attrname=%s,attrvalue=%s)",structure$name,nodeid,attrname, attrvalue)
-  .th_call(cli)
-}
 
-#' Get the value of a node attribute for a nodeset (or network)
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param nodeid Node ID.
-#' @param attrname Attribute name.
-#'
-#' @return CLI output.
-#' @export
-th_get_attr <- function(structure, nodeid, attrname) {
-  args <- .th_args(environment())
-  cmd <- "getattr"
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
-
-#' Adds/defines a relational layer in a network
-#'
-#' @param network A `threadle_network` object or a character string giving
-#' the name of a network in the Threadle CLI environment.
-#' @param layername Layer name.
-#' @param mode Layer mode (1 or 2).
-#' @param directed Logical; whether ties are directed (only for 1-mode layers).
-#' @param valuetype "binary" or "valued" (only for 1-mode layers).
-#' @param selfties Logical; whether self-ties are allowed (only for 1-mode layers).
-#'
-#' @return CLI output.
-#' @export
-th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="binary", selfties=FALSE) {
-  args <- .th_args(environment())
-  cmd <- "addlayer"
-  assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
-}
-
-#' Get the number of nodes in a structure
+#' Remove a structure
 #'
 #' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
 #'   string naming a structure in the Threadle CLI environment.
 #'
-#' @return A numeric value.
-#' @export
-th_get_nbr_nodes <- function(structure) {
-  cmd <- "getnbrnodes"
-  args <- list(structure = .th_name(structure))
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
+#' @return CLI output.
 
-#' Get a node ID by index
-#'
-#' @param name Name of the structure (can be network or nodeset).
-#' @param index Numeric index.
-#'
-#' @return The node ID.
-#' @export
-th_get_nodeid_by_index <- function(structure, index) {
-  cmd <- "getnodeidbyindex"
-  args <- list(structure = .th_name(structure), index = index)
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
+# th_remove <- function(structure) {
+#   name <- .th_name(structure)
+#   cli <- sprintf("remove(structure=%s)", name)
+#   .th_call(cli)
+# }
 
-#' Get alters of a node within a network layer
+#' Remove all structures
 #'
-#' @param name Name of the network.
-#' @param layername Layer to query.
-#' @param nodeid Node ID.
-#' @param direction Tie direction ("both", "in", "out").
-#'
-#' @return Parsed JSON list of alters.
-#' @export
-th_get_node_alters <- function(name,layername,nodeid,direction="both") {
-  cli <- sprintf("getnodealters(network=%s, layername=%s,nodeid=%d, direction=%s)",name, layername, nodeid, direction)
-  jsonlite::fromJSON(.th_call(cli))
-}
-
-#' Get a random alter for a node
-#'
-#' `th_get_random_alter()` get a random alter for a node.
-#'
-#' @param name Network name.
-#' @param nodeid Node ID.
-#' @param layername Optional layer. If left blank, will pick from all layers
-#' @param direction Direction ("both"(default), "in", "out").
-#' @param balanced Whether selection should be balanced for multiple layers.
-#'
-#' @return A node ID (numeric).
-#' @export
-th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced=FALSE) {
-  args <- as.list(environment())
-  args$network <- .th_name(args$network)
-  cmd <- "getrandomalter"
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
-
-#' Get a random node from a structure
-#'
-#' `th_get_random_node()` gets a random node.
-#'
-#' @param name Structure name.
-#' @return A node ID (numeric).
-#' @export
-th_get_random_node <- function(structure) {
-  args <- .th_args(environment())
-  cmd <- "getrandomnode"
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
-
-#' Remove a node from a network and its nodeset
-#'
-#' `th_remove_node()` removes a node from a structure.
-#'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#' @param nodeid Node ID.
+#' `removeall()` removes all stored variables.
 #'
 #' @return CLI output.
-#' @export
-th_remove_node <- function(structure, nodeid) {
-  args <- .th_args(environment())
-  cmd <- "removenode"
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
-}
+
+# th_remove_all <- function() {
+#   cli <- sprintf("removeall()")
+#   .th_call(cli)
+# }
 
 #' Add an affiliation (hyperedge) in a 2-mode layer
 #'
@@ -544,6 +346,40 @@ th_add_hyper <- function(network, layername, hypername,
   .th_call(cmd = cmd, args = args, assign = NULL)
 }
 
+#' Adds/defines a relational layer in a network
+#'
+#' @param network A `threadle_network` object or a character string giving
+#' the name of a network in the Threadle CLI environment.
+#' @param layername Layer name.
+#' @param mode Layer mode (1 or 2).
+#' @param directed Logical; whether ties are directed (only for 1-mode layers).
+#' @param valuetype "binary" or "valued" (only for 1-mode layers).
+#' @param selfties Logical; whether self-ties are allowed (only for 1-mode layers).
+#'
+#' @return CLI output.
+#' @export
+th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype="binary", selfties=FALSE) {
+  args <- .th_args(environment())
+  cmd <- "addlayer"
+  assign <- NULL
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+}
+
+#' Add a node to a nodeset (or network)
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param id Node ID.
+#'
+#' @return CLI output.
+#' @export
+th_add_node <- function(structure, id) {
+  args <- .th_args(environment())
+  cmd <- "addnode"
+  assign <- NULL
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+}
+
 #' Check whether an edge exists in a layer
 #'
 #' `th_check_edge()` checks whether an edge between
@@ -577,6 +413,51 @@ th_check_edge <- function(network, layername, node1id, node2id) {
 th_clear_layer <- function(network, layername) {
   args <- .th_args(environment())
   cmd <- "clearlayer"
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Create a new network in Threadle
+#'
+#' Create a new network in Threadle and assign it to variable 'name' in the Threadle CLI environment
+#'
+#' @param name Name of the assigned variable in the Threadle CLI environment.
+#' @param nodeset A `threadle_nodeset` object or a character string giving
+#' the name of a nodeset in the Threadle CLI environment.
+#' @param label Optional internal name of network in Threadle.
+#'
+#' @return A `threadle_network` object.
+#' @export
+th_create_network <- function(name, nodeset, label = NULL) {
+  name <- .th_name(name)
+  nodeset <- .th_name(nodeset)
+  label <- if (!is.null(label)) sprintf(",name=%s", label) else ""
+  .th_call(cmd = "createnetwork", args = list(name, nodeset, label))
+  structure(list(name = name), class = "threadle_network")
+}
+
+#' Create a new nodeset in Threadle and assign it to variable 'name' in the Threadle CLI environment
+#'
+#' @param name Name of the R variable to assign in the CLI environment.
+#' @return A `threadle_nodeset` object.
+#' @export
+th_create_nodeset <- function(name) {
+  .th_call("createnodeset", assign = name)
+  structure(list(name=name), class="threadle_nodeset")
+}
+
+#' Define an attribute for a nodeset (or network)
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param attrname Attribute name.
+#' @param attrtype Attribute type ("int","float", "char" or "bool")
+#'
+#' @return CLI output.
+#' @export
+th_define_attr <- function(structure, attrname, attrtype) {
+  cmd <- "defineattr"
+  args <- list(structure = .th_name(structure), attrname = attrname, attrtype = attrtype)
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
 }
@@ -643,7 +524,7 @@ th_dichotomize <- function(network, layername,
   args <- .th_args(environment())
   cmd <- "dichotomize"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Filter a nodeset by an attribute condition
@@ -667,7 +548,6 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
   structure(list(name = name), class = "threadle_nodeset")
 }
 
-
 #' Generate an Erdős–Rényi random network
 #'
 #' `generate()` creates a random
@@ -681,10 +561,26 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
 #'
 #' @return A `threadle_network`.
 #' @export
-th_generate <- function(name, size, p, directed = TRUE, selfties = FALSE, type = "network") {
+th_generate <- function(network, layername, type = "er", p) {
   args <- .th_args(environment())
   cmd <- "generate"
-  assign <- name
+  assign <- NULL
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+}
+
+#' Get the value of a node attribute for a nodeset (or network)
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param nodeid Node ID.
+#' @param attrname Attribute name.
+#'
+#' @return CLI output.
+#' @export
+th_get_attr <- function(structure, nodeid, attrname) {
+  args <- .th_args(environment())
+  cmd <- "getattr"
+  assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
 }
 
@@ -707,6 +603,155 @@ th_get_edge <- function(network, layername, node1id, node2id) {
   .th_call(cmd = cmd, args = args, assign = assign)
 }
 
+#' Get the number of nodes in a structure
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#'
+#' @return A numeric value.
+#' @export
+th_get_nbr_nodes <- function(structure) {
+  cmd <- "getnbrnodes"
+  args <- list(structure = .th_name(structure))
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Get alters of a node within a network layer
+#'
+#' @param name Name of the network.
+#' @param layername Layer to query.
+#' @param nodeid Node ID.
+#' @param direction Tie direction ("both", "in", "out").
+#'
+#' @return Parsed JSON list of alters.
+#' @export
+th_get_node_alters <- function(name,layername,nodeid,direction="both") {
+  cli <- sprintf("getnodealters(network=%s, layername=%s,nodeid=%d, direction=%s)",name, layername, nodeid, direction)
+  jsonlite::fromJSON(.th_call(cli))
+}
+
+#' Get a node ID by index
+#'
+#' @param name Name of the structure (can be network or nodeset).
+#' @param index Numeric index.
+#'
+#' @return The node ID.
+#' @export
+th_get_nodeid_by_index <- function(structure, index) {
+  cmd <- "getnodeidbyindex"
+  args <- list(structure = .th_name(structure), index = index)
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Get a random alter for a node
+#'
+#' `th_get_random_alter()` get a random alter for a node.
+#'
+#' @param name Network name.
+#' @param nodeid Node ID.
+#' @param layername Optional layer. If left blank, will pick from all layers
+#' @param direction Direction ("both"(default), "in", "out").
+#' @param balanced Whether selection should be balanced for multiple layers.
+#'
+#' @return A node ID (numeric).
+#' @export
+th_get_random_alter <- function(network, nodeid, layername="", direction="both", balanced=FALSE) {
+  args <- as.list(environment())
+  args$network <- .th_name(args$network)
+  cmd <- "getrandomalter"
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Get a random node from a structure
+#'
+#' `th_get_random_node()` gets a random node.
+#'
+#' @param name Structure name.
+#' @return A node ID (numeric).
+#' @export
+th_get_random_node <- function(structure) {
+  args <- .th_args(environment())
+  cmd <- "getrandomnode"
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Get the current working directory from Threadle CLI
+#'
+#' @return The working directory as returned by Threadle.
+#' @export
+th_get_workdir <- function() {
+  .th_call(cmd = "getwd")
+  #out <- .th_call(sprintf("getwd()"))
+  #out[1]
+}
+
+#' Import a layer into a network
+#'
+#' @param name description
+#'
+th_import_layer <- function() {
+  cmd <- "importlayer"
+  .th_call(cmd = cmd)
+}
+
+#' Retrieve meta information from a Threadle object
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param format Output format ("json"(default) or "console").
+#'
+#' @return Parsed JSON or raw CLI text.
+#' @export
+th_info <- function(structure, format = "json") {
+  cmd <- "info"
+  args <- list(structure = .th_name(structure), format = format)
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' List all objects currently stored as variables in Threadle
+#'
+#' @param format Output format ("json"(default) or console").
+#'
+#' @return Parsed JSON or raw text.
+#' @export
+th_inventory <- function() {
+  cmd <- "i"
+  args <- NULL
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Load a file into Threadle and assigns the structure(s) to the provided variable name in the Threadle CLI environment
+#'
+#' @param name Name of the assigned variable in the Threadle CLI environment.
+#' @param file File path.
+#' @param type Type of structure ("network" or "nodeset").
+#'
+#' @return An object with class corresponding to the loaded type.
+#' @export
+th_load_file <- function(name, file, type) {
+  args <- .th_args(environment(), drop = "name")
+  cmd <- "loadfile"
+  assign <- name
+  .th_call(cmd = cmd, args = args, assign = assign)
+  structure(list(name=name), class=paste0("threadle_",type))
+}
+
+#' Remove all structures
+#'
+#' `removeall()` removes all stored variables.
+#'
+#' @return CLI output.
+
+# th_remove_all <- function() {
+#   cli <- sprintf("removeall()")
+#   .th_call(cli)
+# }
 
 #' Remove an affiliation (node -> hyperedge) from a layer
 #'
@@ -799,6 +844,22 @@ th_remove_layer <- function(network, layername) {
   .th_call(cmd = cmd, args = args, assign = assign)
 }
 
+#' Remove a node from a network and its nodeset
+#'
+#' `th_remove_node()` removes a node from a structure.
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param nodeid Node ID.
+#'
+#' @return CLI output.
+#' @export
+th_remove_node <- function(structure, nodeid) {
+  args <- .th_args(environment())
+  cmd <- "removenode"
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
+}
 
 #' Save a structure to file
 #'
@@ -818,6 +879,21 @@ th_save_file <- function(structure, file = "") {
   invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
+#' Set the value of a node attribute for a nodeset (or network)
+#'
+#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
+#'   string naming a structure in the Threadle CLI environment.
+#' @param nodeid Node ID.
+#' @param attrname Attribute name.
+#' @param attrvalue Value to assign.
+#'
+#' @return CLI output.
+#' @export
+th_set_attr <- function(structure, nodeid, attrname, attrvalue) {
+  cli <- sprintf("setattr(structure=%s,nodeid=%d,attrname=%s,attrvalue=%s)",structure$name,nodeid,attrname, attrvalue)
+  .th_call(cli)
+}
+
 #' Set a Threadle backend setting
 #'
 #' `th_setting()` changes setting in the Threadle backend.
@@ -832,6 +908,17 @@ th_setting <- function(name, value) {
   cmd <- "setting"
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
+}
+
+#' Set working directory inside the Threadle CLI environment
+#'
+#' @param dir Path to the directory.
+#' @return CLI output as a character vector.
+#' @examples
+#' set_workdir("~/data")
+#' @export
+th_set_workdir <- function(dir) {
+  invisible(.th_call(cmd = "setwd", args = list(dir = dir)))
 }
 
 #' Create a subnet from a network and a nodeset
@@ -873,34 +960,12 @@ th_undefine_attr <- function(structure, attrname) {
   .th_call(cmd = cmd, args = args, assign = assign)
 }
 
-# th_help <- function(){
-#   cli <- sprintf("help")
-#   .th_call(cli)
-# }
-
-# th_exit <- function() {}
-
-
-#' Remove a structure
+#' View a structure by variable in the Threadle CLI environment
 #'
-#' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
-#'   string naming a structure in the Threadle CLI environment.
-#'
+#' @param name Name of the structure to view.
 #' @return CLI output.
-
-# th_remove <- function(structure) {
-#   name <- .th_name(structure)
-#   cli <- sprintf("remove(structure=%s)", name)
-#   .th_call(cli)
-# }
-
-#' Remove all structures
-#'
-#' `removeall()` removes all stored variables.
-#'
-#' @return CLI output.
-
-# th_remove_all <- function() {
-#   cli <- sprintf("removeall()")
-#   .th_call(cli)
-# }
+#' @export
+th_view <- function(structure) {
+  name <- .th_name(structure)
+  .th_call(cmd = "view", structure = name)
+}

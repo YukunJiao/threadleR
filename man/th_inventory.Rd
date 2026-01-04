@@ -4,7 +4,7 @@
 \alias{th_inventory}
 \title{List all objects currently stored as variables in Threadle}
 \usage{
-th_inventory(format = "json")
+th_inventory()
 }
 \arguments{
 \item{format}{Output format ("json"(default) or console").}

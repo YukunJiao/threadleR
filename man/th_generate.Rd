@@ -4,14 +4,14 @@
 \alias{th_generate}
 \title{Generate an Erdős–Rényi random network}
 \usage{
-th_generate(name, size, p, directed = TRUE, selfties = FALSE)
+th_generate(network, layername, type = "er", p)
 }
 \arguments{
+\item{p}{Edge probability.}
+
 \item{name}{Name of the new network variable to create.}
 
 \item{size}{Number of nodes.}
-
-\item{p}{Edge probability.}
 
 \item{directed}{Logical; whether the generated network is directed. Defaults to `TRUE`.}
 

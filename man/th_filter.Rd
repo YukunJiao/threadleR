@@ -9,7 +9,7 @@ th_filter(name, nodeset, attrname, cond, attrvalue)
 \arguments{
 \item{name}{Name of the new nodeset variable}
 
-\item{nodeset}{A `threadle_nodeset` object or a character string giving 
+\item{nodeset}{A `threadle_nodeset` object or a character string giving
 the name of a nodeset in the Threadle CLI environment.}
 
 \item{attrname}{Attribute name.}

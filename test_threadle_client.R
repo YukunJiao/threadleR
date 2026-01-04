@@ -158,10 +158,11 @@ th_info(mynet)
 th_filter("testmeow", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o")
 th_info("testmeow")
 th_inventory()
+th_info(mynet)
 getwd()
 
 
-th_generate("test", 5, 2, type = "network")
+th_generate(network = "mynet", layername = "kinship", p = 2)
 th_inventory()
 th_info(mynet)
 mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")

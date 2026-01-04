@@ -2,13 +2,19 @@
 % Please edit documentation in R/threadle_client.R
 \name{.th_name}
 \alias{.th_name}
-\title{Set name and structure name}
+\title{Coerce Threadle structure inputs to a backend name}
 \usage{
 .th_name(x)
 }
 \arguments{
-\item{name}{description}
+\item{x}{A single character name, or a Threadle structure object with `$name`.}
+}
+\value{
+A length-1 character string giving the backend variable name.
 }
 \description{
-Set name and structure name
+Internal helper to normalize inputs that can be either:
+a single character string (already a backend variable name),
+or a Threadle structure object (a list with a scalar character `$name`).
 }
+\keyword{internal}
