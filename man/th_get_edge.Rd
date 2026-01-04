@@ -12,14 +12,14 @@ the name of a network in the Threadle CLI environment.}
 
 \item{layername}{Layer name.}
 
-\item{node1id}{The source node (from).}
+\item{node1id}{Node ID of the first vertex in the dyad.}
 
-\item{node2id}{The destination node (to).}
+\item{node2id}{Node ID of the second vertex in the dyad.}
 }
 \value{
 CLI output.
 }
 \description{
-`getedge()` retrieves the edge value between
+`th_get_edge()` retrieves the edge value between
 two nodes in the specified layer.
 }

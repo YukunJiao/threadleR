@@ -6,9 +6,6 @@
 \usage{
 th_inventory()
 }
-\arguments{
-\item{format}{Output format ("json"(default) or console").}
-}
 \value{
 Parsed JSON or raw text.
 }

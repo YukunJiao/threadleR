@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_stop_threadle}
 \alias{th_stop_threadle}
-\title{Stop the running Threadle CLI console process}
+\title{Stop the running Threadle CLI process}
 \usage{
 th_stop_threadle()
 }

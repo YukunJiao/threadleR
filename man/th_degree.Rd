@@ -4,7 +4,12 @@
 \alias{th_degree}
 \title{Calculate the degree centrality for a layer}
 \usage{
-th_degree(network, layername, attrname = NULL, direction = "in")
+th_degree(
+  network,
+  layername,
+  attrname = NULL,
+  direction = c("in", "out", "both")
+)
 }
 \arguments{
 \item{network}{A `threadle_network` object or a character string giving

@@ -8,20 +8,21 @@ th_get_random_alter(
   network,
   nodeid,
   layername = "",
-  direction = "both",
+  direction = c("both", "in", "out"),
   balanced = FALSE
 )
 }
 \arguments{
+\item{network}{Network name.}
+
 \item{nodeid}{Node ID.}
 
 \item{layername}{Optional layer. If left blank, will pick from all layers}
 
 \item{direction}{Direction ("both"(default), "in", "out").}
 
-\item{balanced}{Whether selection should be balanced for multiple layers.}
-
-\item{name}{Network name.}
+\item{balanced}{Whether selection should be balanced for multiple layers.
+Must be `TRUE` or `FALSE`. Defaults to `FALSE`.}
 }
 \value{
 A node ID (numeric).

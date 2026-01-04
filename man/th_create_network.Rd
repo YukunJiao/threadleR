@@ -2,23 +2,19 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_create_network}
 \alias{th_create_network}
-\title{Create a new network in Threadle and assign it to variable 'name' in the Threadle CLI environment
-Create a new network in Threadle}
+\title{Create a new network in Threadle}
 \usage{
-th_create_network(name, nodeset, label = NULL)
+th_create_network(nodeset, name)
 }
 \arguments{
-\item{name}{Name of the assigned variable in the Threadle CLI environment.}
-
 \item{nodeset}{A `threadle_nodeset` object or a character string giving
 the name of a nodeset in the Threadle CLI environment.}
 
-\item{label}{Optional internal name of network in Threadle.}
+\item{name}{Name of the assigned variable in the Threadle CLI environment.}
 }
 \value{
 A `threadle_network` object.
 }
 \description{
 Create a new network in Threadle and assign it to variable 'name' in the Threadle CLI environment
-Create a new network in Threadle
 }

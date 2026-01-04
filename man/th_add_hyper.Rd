@@ -9,7 +9,7 @@ th_add_hyper(
   layername,
   hypername,
   nodes = c(),
-  addmissingnodes = FALSE
+  addmissingnodes = TRUE
 )
 }
 \arguments{

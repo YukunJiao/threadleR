@@ -4,7 +4,11 @@
 \alias{th_define_attr}
 \title{Define an attribute for a nodeset (or network)}
 \usage{
-th_define_attr(structure, attrname, attrtype)
+th_define_attr(
+  structure,
+  attrname,
+  attrtype = c("int", "char", "float", "bool")
+)
 }
 \arguments{
 \item{structure}{A `threadle_nodeset` or `threadle_network` object, or a character

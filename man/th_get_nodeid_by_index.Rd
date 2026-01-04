@@ -7,9 +7,9 @@
 th_get_nodeid_by_index(structure, index)
 }
 \arguments{
-\item{index}{Numeric index.}
+\item{structure}{Name of the structure (can be network or nodeset).}
 
-\item{name}{Name of the structure (can be network or nodeset).}
+\item{index}{Numeric index.}
 }
 \value{
 The node ID.

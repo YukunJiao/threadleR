@@ -2,25 +2,35 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_generate}
 \alias{th_generate}
-\title{Generate an Erdős–Rényi random network}
+\title{Generate a random network layer}
 \usage{
-th_generate(network, layername, type = "er", p)
+th_generate(network, layername, type, p, k, beta)
 }
 \arguments{
-\item{p}{Edge probability.}
+\item{network}{Name of the new network variable to create.}
 
-\item{name}{Name of the new network variable to create.}
+\item{layername}{Name of the layer to create in `network`.}
 
-\item{size}{Number of nodes.}
+\item{type}{Random graph model, one of `"er"` or `"ws"`.}
 
-\item{directed}{Logical; whether the generated network is directed. Defaults to `TRUE`.}
+\item{p}{For `type = "er"`: edge probability in `[0, 1]`. Required when `type = "er"`.}
 
-\item{selfties}{Logical; whether self-edges are allowed. Defaults to `FALSE`.}
+\item{k}{For `type = "ws"`: mean degree (must be even). Required when `type = "ws"`.}
+
+\item{beta}{For `type = "ws"`: rewiring probability in `[0, 1]`. Required when `type = "ws"`.}
 }
 \value{
-A `threadle_network`.
+Invisibly returns the CLI response.
 }
 \description{
-`generate()` creates a random
-network and store it under `name`
+`th_generate()` creates a random
+network and store it under `network`
+}
+\details{
+#' Two generators are supported:
+\describe{
+  \item{`type = "er"`}{Erdős–Rényi. Provide `p` (edge probability / density).}
+  \item{`type = "ws"`}{Watts–Strogatz. Provide `k` (even mean degree) and
+  `beta` (rewiring probability in [0,1]). The layer must be symmetric.}
+}
 }

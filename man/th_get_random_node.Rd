@@ -7,7 +7,7 @@
 th_get_random_node(structure)
 }
 \arguments{
-\item{name}{Structure name.}
+\item{structure}{Structure name.}
 }
 \value{
 A node ID (numeric).

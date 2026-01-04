@@ -2,18 +2,18 @@
 % Please edit documentation in R/threadle_client.R
 \name{.send_command}
 \alias{.send_command}
-\title{Send a command to the Threadle CLI backend}
+\title{Send a command to the Threadle CLI}
 \usage{
 .send_command(cmd)
 }
 \arguments{
-\item{cmd}{A character string containing the CLI command to send.}
+\item{cmd}{A JSON command string to send to the Threadle CLI process.}
 }
 \value{
-A character vector with output lines.
+A parsed JSON response as a list.
 }
 \description{
-Internal helper function used by all wrappers. Sends a command string and
-waits for the `__END__` marker, returning all intermediate output lines.
+Internal helper function used by all wrappers. Sends a JSON command and
+waits for a complete one-line JSON response.
 }
 \keyword{internal}

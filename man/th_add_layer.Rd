@@ -9,7 +9,7 @@ th_add_layer(
   layername,
   mode,
   directed = FALSE,
-  valuetype = "binary",
+  valuetype = c("binary", "valued"),
   selfties = FALSE
 )
 }

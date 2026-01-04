@@ -18,6 +18,6 @@ A JSON string.
 }
 \description{
 Internal helper that constructs the JSON object sent to the Threadle CLI
-process. The JSON contains: `Assign` `Command` `Args`.
+process.
 }
 \keyword{internal}

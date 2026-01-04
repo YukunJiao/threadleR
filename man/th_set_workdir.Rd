@@ -16,5 +16,7 @@ CLI output as a character vector.
 Set working directory inside the Threadle CLI environment
 }
 \examples{
-set_workdir("~/data")
+\dontrun{
+th_set_workdir("~/data")
+}
 }

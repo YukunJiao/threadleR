@@ -8,7 +8,7 @@ Authors@R: c(
     person("Yukun", "Jiao", email = "jiaoyukun@gmail.com",
            role = c("aut", "cre"), comment = c(ORCID = "0009-0009-4826-4682"))
   )
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:

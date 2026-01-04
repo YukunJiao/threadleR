@@ -71,10 +71,15 @@
 #'
 #' Returns `a` if it is not `NULL`, otherwise returns `b`.
 #'
+#' @name op-null-coalesce
+#' @aliases %||%
 #' @param a First value.
 #' @param b Fallback value.
 #' @return `a` if non-`NULL`, else `b`.
 #' @keywords internal
+NULL
+
+#' @rdname op-null-coalesce
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #' Stop if backend response indicates failure
@@ -189,6 +194,7 @@ th_start_threadle <- function(path = "Threadle.CLIconsole.exe") {
   }
   proc <- processx::process$new(path, args=c("--json", "--silent"), stdin="|", stdout="|", stderr = "|")
   #proc <- processx::process$new(path, args=c("--endmarker"), stdin="|", stdout="|", stderr = "|")
+  # assign(".threadle_proc", proc, envir=.GlobalEnv)
   assign(".threadle_proc", proc, envir=.GlobalEnv)
   invisible(proc)
 }
@@ -217,22 +223,11 @@ th_stop_threadle <- function() {
   }
 }
 
-#' Create a new nodeset in Threadle and assign it to variable 'name' in the Threadle CLI environment
-#'
-#' @param name Name of the R variable to assign in the CLI environment.
-#' @return A `threadle_nodeset` object.
-#' @export
-th_create_nodeset <- function(name, createnodes = 0) {
-  args <- .th_args(environment())
-  cmd <- "createnodeset"
-  assign <- name
-  structure(list(name=name), class="threadle_nodeset")
-}
-
 #' Load a network structure from a file
 #'
 #' @param name Name for the network object.
 #' @param file Path to the network file.
+#' @param type Type of the structure to create.
 #'
 #' @return A `threadle_network` object.
 #' @export
@@ -242,16 +237,6 @@ th_load_network <- function(name, file, type = "network") {
   assign <- name
   .th_call(cmd = cmd, args = args, assign = assign)
   structure(list(name=name), class=paste0("threadle_",type))
-}
-
-#' Help from Threadle backend (CLI), not R package documentation.
-#' @export
-th_cli_help <- function(arg0 = NULL, file = NULL){
-  args <- .th_args(environment())
-  args <- Filter(Negate(is.null), args)
-  cmd <- "help"
-  assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Add an affiliation (hyperedge) in a 2-mode layer
@@ -414,6 +399,7 @@ th_create_network <- function(nodeset, name) {
 #' Create a new nodeset in Threadle and assign it to variable 'name' in the Threadle CLI environment
 #'
 #' @param name Name of the R variable to assign in the CLI environment.
+#' @param createnodes Number of nodes
 #' @return A `threadle_nodeset` object.
 #' @export
 th_create_nodeset <- function(name, createnodes = 0) {
@@ -532,20 +518,28 @@ th_filter <- function(name, nodeset, attrname, cond, attrvalue) {
   structure(list(name = name), class = "threadle_nodeset")
 }
 
-#' Generate an Erdős–Rényi random network
+#' Generate a random network layer
 #'
 #' `th_generate()` creates a random
-#' network and store it under `name`
+#' network layer and store it under `network`.
 #'
-#' @param name Name of the new network variable to create.
-#' @param size Number of nodes.
-#' @param p Edge probability.
-#' @param directed Logical; whether the generated network is directed. Defaults to `TRUE`.
-#' @param selfties Logical; whether self-edges are allowed. Defaults to `FALSE`.
+#' #' Two generators are supported:
+#' \describe{
+#'   \item{`type = "er"`}{Erdős–Rényi. Provide `p` (edge probability / density).}
+#'   \item{`type = "ws"`}{Watts–Strogatz. Provide `k` (even mean degree) and
+#'   `beta` (rewiring probability in [0,1]). The layer must be symmetric.}
+#' }
 #'
-#' @return A `threadle_network`.
+#' @param network Name of the new network variable to create.
+#' @param layername Name of the layer to create in `network`.
+#' @param type Random graph model, one of `"er"` or `"ws"`.
+#' @param p For `type = "er"`: edge probability in `[0, 1]`. Required when `type = "er"`.
+#' @param k For `type = "ws"`: mean degree (must be even). Required when `type = "ws"`.
+#' @param beta For `type = "ws"`: rewiring probability in `[0, 1]`. Required when `type = "ws"`.
+#'
+#' @return Invisibly returns the CLI response.
 #' @export
-th_generate <- function(network, layername, type = "er", p) {
+th_generate <- function(network, layername, type, p, k, beta) {
   args <- .th_args(environment())
   cmd <- "generate"
   assign <- NULL
@@ -620,7 +614,7 @@ th_get_node_alters <- function(network,layername,nodeid,direction=c("both", "in"
 
 #' Get a node ID by index
 #'
-#' @param name Name of the structure (can be network or nodeset).
+#' @param structure Name of the structure (can be network or nodeset).
 #' @param index Numeric index.
 #'
 #' @return The node ID.
@@ -636,7 +630,7 @@ th_get_nodeid_by_index <- function(structure, index) {
 #'
 #' `th_get_random_alter()` get a random alter for a node.
 #'
-#' @param name Network name.
+#' @param network Network name.
 #' @param nodeid Node ID.
 #' @param layername Optional layer. If left blank, will pick from all layers
 #' @param direction Direction ("both"(default), "in", "out").
@@ -657,7 +651,7 @@ th_get_random_alter <- function(network, nodeid, layername="", direction=c("both
 #'
 #' `th_get_random_node()` gets a random node.
 #'
-#' @param name Structure name.
+#' @param structure Structure name.
 #' @return A node ID (numeric).
 #' @export
 th_get_random_node <- function(structure) {
@@ -677,8 +671,19 @@ th_get_workdir <- function() {
 
 #' Import a layer into a network
 #'
-#' @param name description
+#' `th_import_layer()` imports a layer from a file into an existing network.
 #'
+#' @param network Name of the network
+#' @param layername Name of the layer to create inside `network`.
+#' @param file Path to the input file.
+#' @param format Input file format. One of `"edgelist"` or `"matrix"`.
+#' @param sep Field separator used when `format = "edgelist"` (and for delimited
+#' matrix formats, if applicable). Defaults to tab.
+#' @param addmissingnodes Logical; if `TRUE`, create nodes referenced in the file
+#' that are not yet present in `network`.
+#'
+#' @return Invisibly returns the CLI response.
+#' @export
 th_import_layer <- function(network, layername, file, format = c('edgelist','matrix'), sep = "\t",
                             addmissingnodes = FALSE) {
   format <- match.arg(format)
@@ -727,15 +732,15 @@ th_load_file <- function(name, file, type) {
   structure(list(name=name), class=paste0("threadle_",type))
 }
 
-#' Remove a structure
+#' Delete a structure
 #'
 #' @param structure A `threadle_nodeset` or `threadle_network` object, or a character
 #'   string naming a structure in the Threadle CLI environment.
 #'
 #' @return CLI output.
-th_remove <- function(structure) {
+th_delete <- function(structure) {
   args <- .th_args(environment())
-  cmd <- "remove"
+  cmd <- "delete"
   assign <- NULL
   invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
@@ -761,12 +766,12 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
 
 #' Remove all structures
 #'
-#' `th_remove_all()` removes all stored variables.
+#' `th_delete_all()` removes all stored variables.
 #'
 #' @return CLI output.
-th_remove_all <- function() {
+th_delete_all <- function() {
   args <- NULL
-  cmd <- "removeall"
+  cmd <- "deleteall"
   assign <- NULL
   invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
@@ -834,6 +839,7 @@ th_remove_hyper <- function(network, layername, hypername) {
 #'
 #' @param network A `threadle_network` object or a character string giving
 #' the name of a network in the Threadle CLI environment.
+#' @param layername Name of the layer to be removed.
 #' @return CLI output.
 #' @export
 th_remove_layer <- function(network, layername) {
@@ -916,7 +922,9 @@ th_setting <- function(name, value) {
 #' @param dir Path to the directory.
 #' @return CLI output as a character vector.
 #' @examples
-#' set_workdir("~/data")
+#' \dontrun{
+#' th_set_workdir("~/data")
+#' }
 #' @export
 th_set_workdir <- function(dir) {
   args <- .th_args(environment())
@@ -951,6 +959,7 @@ th_subnet <- function(name, network, nodeset) {
 #' `th_undefine_attr()` removes an attribute
 #' from a nodeset or network.
 #'
+#' @param structure Name of the structure.
 #' @param attrname Attribute name.
 #'
 #' @return CLI output.

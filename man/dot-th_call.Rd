@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{.th_call}
 \alias{.th_call}
-\title{Call the Threadle function}
+\title{Call a Threadle CLI command and handle the response}
 \usage{
 .th_call(
   cmd,
@@ -12,6 +12,23 @@
   .print_message = getOption("threadle.print_message", TRUE)
 )
 }
-\description{
-Call the Threadle function
+\arguments{
+\item{cmd}{Command name (character scalar).}
+
+\item{args}{Named list of command arguments, or `NULL`.}
+
+\item{assign}{Optional backend variable name to assign the result to, or `NULL`.}
+
+\item{return}{What to return: `"payload"` (default) or `"response"`.}
+
+\item{.print_message}{Logical; if `TRUE`, print `resp$Message` when present.}
 }
+\value{
+If `return = "payload"`, returns `resp$Payload`; otherwise returns the full response.
+}
+\description{
+Internal helper for wrappers. Builds a JSON DTO, sends it to the running
+Threadle CLI process, checks success, and returns either the payload
+or the full response.
+}
+\keyword{internal}

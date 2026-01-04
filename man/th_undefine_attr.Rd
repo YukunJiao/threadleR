@@ -7,6 +7,8 @@
 th_undefine_attr(structure, attrname)
 }
 \arguments{
+\item{structure}{Name of the structure.}
+
 \item{attrname}{Attribute name.}
 }
 \value{

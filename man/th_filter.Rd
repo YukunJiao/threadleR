@@ -23,5 +23,5 @@ the name of a nodeset in the Threadle CLI environment.}
 A `threadle_nodeset`
 }
 \description{
-`filter()` creates a new nodeset based names and values of attributes.
+`th_filter()` creates a new nodeset based names and values of attributes.
 }

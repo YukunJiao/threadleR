@@ -4,10 +4,15 @@
 \alias{th_get_node_alters}
 \title{Get alters of a node within a network layer}
 \usage{
-th_get_node_alters(name, layername, nodeid, direction = "both")
+th_get_node_alters(
+  network,
+  layername,
+  nodeid,
+  direction = c("both", "in", "out")
+)
 }
 \arguments{
-\item{name}{Name of the network.}
+\item{network}{Name of the network.}
 
 \item{layername}{Layer to query.}
 

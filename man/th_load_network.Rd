@@ -10,6 +10,8 @@ th_load_network(name, file, type = "network")
 \item{name}{Name for the network object.}
 
 \item{file}{Path to the network file.}
+
+\item{type}{Type of the structure to create.}
 }
 \value{
 A `threadle_network` object.

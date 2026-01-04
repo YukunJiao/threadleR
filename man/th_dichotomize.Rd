@@ -7,7 +7,7 @@
 th_dichotomize(
   network,
   layername,
-  cond = "ge",
+  cond = c("ge", "eq", "ne", "gt", "lt", "le", "isnull", "notnull"),
   threshold = 1,
   truevalue = 1,
   falsevalue = 0,
@@ -25,9 +25,11 @@ Defaults to `"ge"`.}
 
 \item{threshold}{Threshold used with `cond`. Defaults to `1`.}
 
-\item{truevalue}{Value to assign when the condition is `TRUE`. Defaults to `1`.}
+\item{truevalue}{Value to assign when the condition is `TRUE`. Defaults to `1`.
+Can also be `"keep"` to retain the original value for ties that satisfy the condition.}
 
-\item{falsevalue}{Value to assign when the condition is `FALSE`. Defaults to `0`.}
+\item{falsevalue}{Value to assign when the condition is `FALSE`. Defaults to `0`.
+Can also be `"keep"` to retain the original value for ties that do not satisfy the condition.}
 
 \item{newlayername}{Optional name for the new layer.}
 }
@@ -35,6 +37,6 @@ Defaults to `"ge"`.}
 CLI output.
 }
 \description{
-`dichotomize()` creates a recoded version of
+`th_dichotomize()` creates a recoded version of
 a layer based on a threshold rule.
 }

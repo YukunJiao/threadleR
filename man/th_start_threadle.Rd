@@ -2,7 +2,7 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_start_threadle}
 \alias{th_start_threadle}
-\title{Start a Threadle CLI console process}
+\title{Start a Threadle CLI process}
 \usage{
 th_start_threadle(path = "Threadle.CLIconsole.exe")
 }
@@ -13,7 +13,7 @@ th_start_threadle(path = "Threadle.CLIconsole.exe")
 Invisibly returns the `processx` process object.
 }
 \description{
-Launches the Threadle.CLIconsole executable and stores the process handle
+Launches the Threadle CLI process executable and stores the process handle
 in the global environment as `.threadle_proc`. The process is started with
 silent mode and an end marker to delimit responses.
 }
