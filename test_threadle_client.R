@@ -22,22 +22,20 @@ options(threadle.print_message = TRUE)
 
 lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
 lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
-th_info(lazeganet)
 lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
 th_info(lazeganet)
 th_info(lazeganet_nodeset)
+
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")
 th_info(mynet)
 mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
 th_info(mynet)
-mynet$name
-mynet_nodeset$name
 
 th_inventory()
 th_create_nodeset("test")
 th_info("test")
-th_remove("test")
+th_delete("test")
 th_info("lazega")
 th_info(lazeganet)
 th_info("lazega_nodeset")
@@ -67,13 +65,12 @@ th_inventory()
 
 th_create_network("lazega_nodeset", "sss")
 
-th_define_attr('testdddd', "gendeasdassasdasdaadrsss")
-th_info("testdddd")
-th_create_nodeset("testdddd")
 
-th_info("lazega")
-th_info(lazeganet)
-th_info(lazeganet_nodeset)
+
+th_create_nodeset("testnodeset")
+th_info("testnodeset")
+th_define_attr('testnodeset', "testattr")
+
 # Get a random alter in the friends layer:
 random_alter_nodeid <- th_get_random_alter("lazega", nodeid, layername = "friends", balanced = "fff")
 random_alter_nodeid
@@ -111,18 +108,18 @@ th_info(lazeganet_nodeset)
 th_add_node(lazeganet, 100)
 
 
-th_add_layer(lazeganet, "test122", mode = 1, valuetype = "binarys", selfties = "test")
-th_add_edge(lazeganet, "test1", 31, 35, addmissingnodes = "ttt")
+th_add_layer(lazeganet, "test122", mode = 1, valuetype = "binary", selfties = "test")
+th_add_edge(lazeganet, "test122", 31, 35, addmissingnodes = "ttt")
 
 
-th_add_layer(lazeganet, "test2", mode = 2)
+th_add_layer(lazeganet, "test3", mode = 2)
 th_info(lazeganet)
-th_add_aff(lazeganet, "test2", 30, "newaff")
-th_remove_edge(lazeganet, "test1", 31, 36)
+th_add_aff(lazeganet, "test3", 30, "newaff")
+th_remove_edge(lazeganet, "test122", 31, 35)
 th_add_edge(lazeganet, "friends", 1, 100)
 
-th_add_edge("lazega", "test1", 1, 70)
-th_add_edge("lazega", "test1", 1, 3, 1, "true")
+th_add_edge("lazega", "test122", 1, 70)
+th_add_edge("lazega", "test122", 1, 3, 1, "true")
 
 
 th_info(lazeganet)
@@ -149,7 +146,6 @@ th_info(mynet)
 random_alter_nodeid <- th_get_random_alter(mynet, nodeid, layername = "trade")
 random_alter_nodeid
 
-th_import_layer
 
 th_get_random_node(mynet)
 
@@ -179,7 +175,7 @@ th_info(mynet)
 getwd()
 
 
-th_generate(network = "mynet", layername = "kinship", p = 2)
+th_generate(network = "mynet", layername = "kinship", p = 2, type = 'er')
 th_inventory()
 th_info(mynet)
 mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
@@ -188,10 +184,11 @@ mytestnet <- th_load_file("mytestnet", "mynet.tsv", "network")
 th_save_file("mytestnet_nodeset", "")
 th_save_file("mytestnet")
 
+th_inventory()
 
-th_save_file("testmeow_nodeset")
-th_save_file("testmeow", "")
-th_save_file("testmeow", "nodes.bin.gz")
+th_save_file("test123")
+th_save_file("test123", "")
+th_save_file("test123", "nodes.bin.gz")
 # th_save_file("mytestnet", file = "nodes.bin.gz")
 
 th_info(mynet)
@@ -209,7 +206,7 @@ tt <- th_degree(mynet, "kinship", attrname = "kinship_degree")
 th_degree(mynet, "kinship", attrname = NULL)
 th_degree(mynet, "trade", attrname = "")
 th_degree(mynet, "work", attrname = "weight")
-th_filter
+
 th_info(mynet)
 th_info(mynet_nodeset)
 th_inventory()
@@ -227,21 +224,30 @@ th_save_file(mynet, "testtt.tsv")
 
 th_remove_hyper(mynet, "work", "LiU")
 th_info(mynet)
-th_remove_layer(mynet, "work")
+th_remove_layer(mynet, "trade")
 th_info(lazeganet)
-th_add_layer(lazeganet, "test1", mode = 2)
-th_remove_layer(lazeganet, "test2")
-th_add_layer(lazeganet, "test", mode = 2)
+
+lazeganet_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
+lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
+lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
+th_info(lazeganet)
+
+th_add_layer(lazeganet, "test1", mode = 1)
+th_add_layer(lazeganet, "test2", mode = 2)
+th_remove_layer(lazeganet, "advice")
+th_remove_layer(lazeganet, "test1")
+
+
 th_add_hyper(lazeganet, "test", "test_name", nodes = c(1,2,32,4,5,7), addmissingnodes = FALSE)
 th_info(lazeganet)
 th_clear_layer(lazeganet, "test2")
 
-th_add_layer(lazeganet, "test2", mode = 2)
-th_remove_layer(lazeganet, "test2")
+th_add_layer(lazeganet, "test123", mode = 1)
+th_remove_layer(lazeganet, "test123")
 th_setting("verbose", TRUE)
 th_setting("verbose", FALSE)
 # th_setting("verbose", FALSE)
-th_info(mynet, "json")
+th_info(mynet)
 th_info(mynet_nodeset)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")

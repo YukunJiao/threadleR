@@ -443,7 +443,7 @@ th_degree <- function(network, layername, attrname = NULL, direction = c("in", "
   args <- .th_args(environment())
   cmd <- "degree"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Calculate density of a layer
@@ -761,7 +761,7 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
   args <- .th_args(environment())
   cmd <- "removeaff"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Remove all structures
@@ -792,7 +792,7 @@ th_remove_attr <- function(structure, nodeid, attrname) {
   args <- .th_args(environment())
   cmd <- "removeattr"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Remove an edge from a layer
@@ -835,7 +835,7 @@ th_remove_hyper <- function(network, layername, hypername) {
 #' Remove a layer from a network
 #'
 #' `th_remove_layer()` removes a layer
-#' (and its ties) from the network.
+#' (and its edges) from the network.
 #'
 #' @param network A `threadle_network` object or a character string giving
 #' the name of a network in the Threadle CLI environment.
@@ -863,7 +863,7 @@ th_remove_node <- function(structure, nodeid) {
   args <- .th_args(environment())
   cmd <- "removenode"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Save a structure to file
@@ -914,7 +914,7 @@ th_setting <- function(name, value) {
   args <- .th_args(environment())
   cmd <- "setting"
   assign <- NULL
-  .th_call(cmd = cmd, args = args, assign = assign)
+  invisible(.th_call(cmd = cmd, args = args, assign = assign))
 }
 
 #' Set working directory inside the Threadle CLI environment
