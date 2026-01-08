@@ -51,6 +51,45 @@
 #' @return A JSON string.
 #' @keywords internal
 .th_json_cmd <- function(command, args = NULL, assign = NULL) {
+  mode <- getOption("threadle.command", default = "json")
+
+  # plain cli mode
+  if (identical(mode, "cli")) {
+    cmd <- as.character(command)
+    asg <- if (!is.null(assign) && nzchar(as.character(assign))) as.character(assign) else NULL
+
+    fmt_val <- function(v) {
+      if (is.null(v)) "" else as.character(v)
+    }
+
+    fmt_one <- function(nm, v) {
+      v_out <- fmt_val(v)
+      if (!is.null(nm) && nzchar(nm)) {
+        paste0(nm, " = ", v_out)
+      } else {
+        v_out
+      }
+    }
+
+    if (is.null(args) || length(args) == 0) {
+      call_str <- paste0(cmd, "()")
+    } else {
+      nms <- names(args)
+      if (is.null(nms)) nms <- rep("", length(args))
+
+      parts <- Map(fmt_one, nms, args)
+
+      # optional
+      parts <- Filter(function(x) nzchar(x), parts)
+
+      call_str <- paste0(cmd, "(", paste(parts, collapse = ", "), ")")
+    }
+
+    if (!is.null(asg)) return(paste0(asg, " = ", call_str))
+    return(call_str)
+  }
+
+  # default json mode
   dto <- list(
     Assign  = if (!is.null(assign)) as.character(assign) else NULL,
     Command = as.character(command),
@@ -91,6 +130,15 @@ NULL
 #' @return Invisibly returns `resp` when successful.
 #' @keywords internal
 .th_stop_if_fail <- function(resp) {
+  mode <- getOption("threadle.command", "json")
+
+  if (identical(mode, "cli")) {
+    if (is.null(resp)) {
+      stop("No response from Threadle (CLI mode).", call. = FALSE)
+    }
+    return(invisible(resp))
+  }
+
   if (is.null(resp) || is.null(resp$Success)) {
     stop("Invalid JSON response from Threadle.", call. = FALSE)
   }
@@ -106,7 +154,7 @@ NULL
 #' Send a command to the Threadle CLI
 #'
 #' Internal helper function used by all wrappers. Sends a JSON command and
-#' waits for a complete one-line JSON response.
+#' waits for a complete one-line JSON response. It also support CLI command now.
 #'
 #' @param cmd A JSON command string to send to the Threadle CLI process.
 #' @return A parsed JSON response as a list.
@@ -117,6 +165,29 @@ NULL
 
   proc <- get(".threadle_proc", envir = .GlobalEnv)
   proc$write_input(paste0(cmd, "\n"))
+
+  mode <- getOption("threadle.command", default = "json")
+
+  if (identical(mode, "cli")){
+    out <- character()
+    idle_ticks <- 0L
+    repeat {
+      new <- proc$read_output_lines()
+
+      if (length(new) > 0) {
+        out <- c(out, new)
+        idle_ticks <- 0L
+      } else {
+        Sys.sleep(0.01)
+        idle_ticks <- idle_ticks + 1L
+
+        # after ~200ms with no new output, treat as finished
+        if (idle_ticks >= 20L) {
+          return(out)
+        }
+      }
+    }
+  }
 
   out <- character()
   repeat {
@@ -135,9 +206,8 @@ NULL
             error = function(e) NULL
           )
           if (!is.null(resp)) {
-            if (isTRUE(getOption("threadle.debug_raw", FALSE))) {
-              attr(resp, "raw_lines") <- out
-            }
+            # if debug raw
+            # attr(resp, "raw_lines") <- out
             return(resp)
           }
         }
@@ -166,17 +236,48 @@ NULL
                      assign = NULL,
                      return = getOption("threadle.return", "payload"),
                      .print_message = getOption("threadle.print_message", TRUE)) {
-  return <- match.arg(return)
-  cmd <- .th_json_cmd(command = cmd, args = args, assign = assign)
-  print(cmd)
-  resp <- .send_command(cmd)
-  .th_stop_if_fail(resp)
+
+  mode <- getOption("threadle.command", "json")
+
+  if (identical(mode, "cli")) {
+    if (!isTRUE(getOption("threadle.warn_return_cli_shown", FALSE))) {
+      if (!is.null(getOption("threadle.return", NULL)) || length(return) > 1L) {
+        message("Note: `threadle.return` = \"payload\"/\"response\" applies only in JSON mode; it is ignored in CLI mode.")
+        options(threadle.warn_return_cli_shown = TRUE)
+      }
+    }
+
+    cmd_str <- .th_json_cmd(command = cmd, args = args, assign = assign)
+    if (isTRUE(getOption("threadle.print_cmd", FALSE))) {
+      print(cmd_str)
+    }
+
+    out <- .send_command(cmd_str)
+    .th_stop_if_fail(out)
+    if (is.null(out) || length(out) == 0L) return(invisible(NULL))
+    return(out)
+  }
+
+  cmd_json <- .th_json_cmd(command = cmd, args = args, assign = assign)
+  if (isTRUE(getOption("threadle.print_cmd", FALSE))) {
+    print(cmd_json)
+  }
+  resp <- .send_command(cmd_json)
+  if (identical(mode, "json")) {.th_stop_if_fail(resp)}
 
   if (.print_message && !is.null(resp$Message) && nzchar(resp$Message)) {
     message(resp$Message)
   }
 
-  if (return == "payload") resp$Payload else resp
+  if (return == "payload") {
+    p <- resp$Payload
+    if (is.null(p) || (is.atomic(p) && length(p) == 0L)) {
+      return(invisible(NULL))
+    }
+    return(p)
+  }
+
+  resp
 }
 
 #' Start a Threadle CLI process
@@ -189,10 +290,20 @@ NULL
 #' @return Invisibly returns the `processx` process object.
 #' @export
 th_start_threadle <- function(path = "Threadle.CLIconsole.exe") {
+  mode <- getOption("threadle.command", "json")
   if (exists(".threadle_proc", envir=.GlobalEnv)) {
     stop("'.threadle_proc' process already running.")
   }
-  proc <- processx::process$new(path, args=c("--json", "--silent"), stdin="|", stdout="|", stderr = "|")
+
+  if (identical(mode, "cli")) {
+    args <- c("--silent")
+  } else if (identical(mode, "json")) {
+    args <- c("--json", "--silent")
+  } else {
+    stop("Invalid option threadle.command. Use 'json' or 'cli'.", call. = FALSE)
+  }
+  proc <- processx::process$new(path, args=args, stdin="|", stdout="|", stderr = "|")
+  # proc <- processx::process$new(path, args=c("--json", "--silent"), stdin="|", stdout="|", stderr = "|")
   #proc <- processx::process$new(path, args=c("--endmarker"), stdin="|", stdout="|", stderr = "|")
   # assign(".threadle_proc", proc, envir=.GlobalEnv)
   assign(".threadle_proc", proc, envir=.GlobalEnv)
@@ -258,7 +369,7 @@ th_add_aff <- function(network, layername, nodeid, hypername,
   args <- .th_args(environment())
   cmd <- "addaff"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Add an edge to a network
@@ -280,7 +391,7 @@ th_add_edge <- function(network, layername, node1id, node2id,
   args <- .th_args(environment())
   cmd <- "addedge"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Add a hyperedge to a specified layer of a network.
@@ -323,7 +434,7 @@ th_add_layer <- function(network, layername, mode, directed=FALSE, valuetype = c
   args <- .th_args(environment())
   cmd <- "addlayer"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Add a node to a nodeset (or network)
@@ -338,7 +449,7 @@ th_add_node <- function(structure, id) {
   args <- .th_args(environment())
   cmd <- "addnode"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Check whether an edge exists in a layer
@@ -424,7 +535,7 @@ th_define_attr <- function(structure, attrname, attrtype = c('int','char','float
   cmd <- "defineattr"
   args <- list(structure = .th_name(structure), attrname = attrname, attrtype = attrtype)
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Calculate the degree centrality for a layer
@@ -443,7 +554,7 @@ th_degree <- function(network, layername, attrname = NULL, direction = c("in", "
   args <- .th_args(environment())
   cmd <- "degree"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Calculate density of a layer
@@ -494,7 +605,7 @@ th_dichotomize <- function(network, layername,
   args <- .th_args(environment())
   cmd <- "dichotomize"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Filter a nodeset by an attribute condition
@@ -544,7 +655,7 @@ th_generate <- function(network, layername, type, p, k, beta, m) {
   args <- .th_args(environment())
   cmd <- "generate"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Get the value of a node attribute for a nodeset (or network)
@@ -743,7 +854,7 @@ th_delete <- function(structure) {
   args <- .th_args(environment())
   cmd <- "delete"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Remove an affiliation (node -> hyperedge) from a layer
@@ -762,7 +873,7 @@ th_remove_aff <- function(network, layername, nodeid, hypername) {
   args <- .th_args(environment())
   cmd <- "removeaff"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Remove all structures
@@ -774,7 +885,7 @@ th_delete_all <- function() {
   args <- NULL
   cmd <- "deleteall"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Remove an attribute value from a node
@@ -793,7 +904,7 @@ th_remove_attr <- function(structure, nodeid, attrname) {
   args <- .th_args(environment())
   cmd <- "removeattr"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Remove an edge from a layer
@@ -812,7 +923,7 @@ th_remove_edge <- function(network, layername, node1id, node2id) {
   args <- .th_args(environment())
   cmd <- "removeedge"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Remove a hyperedge from a 2-mode layer
@@ -864,7 +975,7 @@ th_remove_node <- function(structure, nodeid) {
   args <- .th_args(environment())
   cmd <- "removenode"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Save a structure to file
@@ -882,7 +993,7 @@ th_save_file <- function(structure, file = "") {
   if (!nzchar(file)) args$file <- shQuote(paste0(args$structure, ".tsv"), "cmd2")
   cmd <- "savefile"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Set the value of a node attribute for a nodeset (or network)
@@ -915,7 +1026,7 @@ th_setting <- function(name, value) {
   args <- .th_args(environment())
   cmd <- "setting"
   assign <- NULL
-  invisible(.th_call(cmd = cmd, args = args, assign = assign))
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Set working directory inside the Threadle CLI environment
@@ -929,7 +1040,7 @@ th_setting <- function(name, value) {
 #' @export
 th_set_workdir <- function(dir) {
   args <- .th_args(environment())
-  invisible(.th_call(cmd = "setwd", args = args))
+  .th_call(cmd = "setwd", args = args)
 }
 
 #' Create a subnet from a network and a nodeset

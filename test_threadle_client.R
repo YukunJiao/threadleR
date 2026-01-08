@@ -9,9 +9,16 @@ devtools::load_all()
 # path to the exe file
 path_to_exe <-"../bin/Debug/net8.0/Threadle.CLIconsole"
 
-# Start a Threadle instance
+options(threadle.command = "cli")
+options(threadle.command = "json")
 
+options(threadle.print_cmd = TRUE)
+options(threadle.print_cmd = FALSE)
+
+# Start a Threadle instance
 th_start_threadle(path_to_exe)
+
+
 
 # Move into examples folder
 th_set_workdir("../Examples")
@@ -215,7 +222,7 @@ th_remove_aff(mynet, "work", 789, "ica")
 
 th_save_file(mynet, "testtt.tsv")
 
-options(threadle.return = "response")
+# options(threadle.return = "response")
 th_add_hyper(mynet, "work", "LiU", nodes = "")
 th_add_hyper(mynet, "work", "LiU", nodes = c())
 th_add_hyper(mynet, "work", "LiU", nodes = 123)
