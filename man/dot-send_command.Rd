@@ -14,6 +14,6 @@ A parsed JSON response as a list.
 }
 \description{
 Internal helper function used by all wrappers. Sends a JSON command and
-waits for a complete one-line JSON response.
+waits for a complete one-line JSON response. It also support CLI command now.
 }
 \keyword{internal}

@@ -17,5 +17,5 @@ CLI output.
 }
 \description{
 `th_remove_layer()` removes a layer
-(and its ties) from the network.
+(and its edges) from the network.
 }

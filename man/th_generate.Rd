@@ -4,7 +4,7 @@
 \alias{th_generate}
 \title{Generate a random network layer}
 \usage{
-th_generate(network, layername, type, p, k, beta)
+th_generate(network, layername, type, p, k, beta, m)
 }
 \arguments{
 \item{network}{Name of the new network variable to create.}
@@ -24,7 +24,7 @@ Invisibly returns the CLI response.
 }
 \description{
 `th_generate()` creates a random
-network and store it under `network`
+network layer and store it under `network`.
 }
 \details{
 #' Two generators are supported:
@@ -32,5 +32,6 @@ network and store it under `network`
   \item{`type = "er"`}{Erdős–Rényi. Provide `p` (edge probability / density).}
   \item{`type = "ws"`}{Watts–Strogatz. Provide `k` (even mean degree) and
   `beta` (rewiring probability in [0,1]). The layer must be symmetric.}
+  \item{`type = "bt"`}{Barabási–Albert. Provide `m` (number of edges each new node attaches; must be >= 1 and typically < number of nodes).}
 }
 }
