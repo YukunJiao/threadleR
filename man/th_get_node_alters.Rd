@@ -6,17 +6,17 @@
 \usage{
 th_get_node_alters(
   network,
-  layername,
   nodeid,
+  layername,
   direction = c("both", "in", "out")
 )
 }
 \arguments{
 \item{network}{Name of the network.}
 
-\item{layername}{Layer to query.}
-
 \item{nodeid}{Node ID.}
+
+\item{layername}{Layer to query.}
 
 \item{direction}{Tie direction ("both", "in", "out").}
 }

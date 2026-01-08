@@ -12,8 +12,8 @@ path_to_exe <-"../bin/Debug/net8.0/Threadle.CLIconsole"
 options(threadle.command = "cli")
 options(threadle.command = "json")
 
-options(threadle.print_cmd = TRUE)
 options(threadle.print_cmd = FALSE)
+options(threadle.print_cmd = TRUE)
 
 # Start a Threadle instance
 th_start_threadle(path_to_exe)
@@ -32,6 +32,11 @@ lazeganet <- th_load_network("lazega","lazega.tsv", type = "network")
 lazeganet <- th_load_file("lazega","lazega.tsv", type = "network")
 th_info(lazeganet)
 th_info(lazeganet_nodeset)
+
+th_shortest_path(lazeganet, 1, 23, "friends")
+th_shortest_path(lazeganet, 1, 23, "advice")
+th_shortest_path(lazeganet, 1, 23, "collaboration")
+th_shortest_path(lazeganet, 1, 23)
 
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_network("mynet", "mynet.tsv")
@@ -58,7 +63,9 @@ nbr_nodes <- th_get_nbr_nodes(lazeganet)
 nbr_nodes
 
 th_info(lazeganet)
-th_get_node_alters(lazeganet, "friends", 23, direction = "out")
+th_get_node_alters(lazeganet, 23, "friends", direction = "out")
+# th_get_node_alters(lazeganet, 23, c("advice", "friends"), direction = "out")
+th_get_node_alters(lazeganet, 23, direction = "out")
 
 # Get a random starting node
 nodeid <- th_get_nodeid_by_index(lazeganet, sample(0:nbr_nodes-1,1))

@@ -716,7 +716,7 @@ th_get_nbr_nodes <- function(structure) {
 #'
 #' @return Parsed JSON list of alters.
 #' @export
-th_get_node_alters <- function(network,layername,nodeid,direction=c("both", "in", "out")) {
+th_get_node_alters <- function(network,nodeid,layername,direction=c("both", "in", "out")) {
   direction <- match.arg(direction)
   args <- .th_args(environment())
   cmd <- "getnodealters"
@@ -1041,6 +1041,35 @@ th_setting <- function(name, value) {
 th_set_workdir <- function(dir) {
   args <- .th_args(environment())
   .th_call(cmd = "setwd", args = args)
+}
+
+#' Calculate the shortest path length between two nodes
+#' `th_shortest_path()` computes the shortest path length from `node1id` to
+#' `node2id` in a Threadle network. By default, the computation uses all layers
+#' in the network. If `layername` is provided, the shortest path is computed
+#' using only that specific layer.
+#'
+#'
+#' Note that shortest path measures are directional: for directed layers, the
+#' shortest path from `node1id` to `node2id` may differ from the shortest path
+#' from `node2id` to `node1id`. For undirected (symmetric) layers, directionality
+#' is moot.
+#'
+#' If no path exists from `node1id` to `node2id` under the specified layer
+#' selection, the backend returns `-1` to indicate that the target is unreachable.
+#'
+#' @param network A `threadle_network` object or a character string giving
+#' the name of a network in the Threadle CLI environment.
+#' @param node1id Node ID of the first vertex in the dyad.
+#' @param node2id Node ID of the second vertex in the dyad.
+#' @param layername Optional layer name. If omitted or empty, all layers are used.
+#' @return An integer giving the shortest path length.
+#' @export
+th_shortest_path <- function(network, node1id, node2id, layername) {
+  args <- .th_args(environment())
+  cmd <- "shortestpath"
+  assign <- NULL
+  .th_call(cmd = cmd, args = args, assign = assign)
 }
 
 #' Create a subnet from a network and a nodeset
