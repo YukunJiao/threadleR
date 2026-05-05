@@ -4,7 +4,7 @@
 \alias{th_load_file}
 \title{Load a nodeset or network from file}
 \usage{
-th_load_file(name, file, type)
+th_load_file(name, file, type, pack = FALSE)
 }
 \arguments{
 \item{name}{Name of the assigned variable in Threadle.}
@@ -12,6 +12,11 @@ th_load_file(name, file, type)
 \item{file}{Path to the input file.}
 
 \item{type}{Structure type to load: \code{"nodeset"} or \code{"network"}.}
+
+\item{pack}{Logical; if \code{TRUE}, network layers are stored in packed (immutable,
+memory-efficient) format immediately on load. Defaults to \code{FALSE}. Only
+meaningful when \code{type = "network"}. Use \code{\link[=th_pack]{th_pack()}} / \code{\link[=th_unpack]{th_unpack()}} to
+convert individual layers afterwards.}
 }
 \value{
 An object with class corresponding to the loaded type.

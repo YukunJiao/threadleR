@@ -7,9 +7,10 @@
 th_get_random_alter(
   network,
   nodeid,
-  layername = "",
+  layernames = "",
   direction = "both",
-  balanced = FALSE
+  balanced = FALSE,
+  weighted = FALSE
 )
 }
 \arguments{
@@ -18,11 +19,21 @@ a network in the Threadle CLI environment.}
 
 \item{nodeid}{Node ID.}
 
-\item{layername}{Optional layer name. If \code{NULL}, alters are considered across all layers.}
+\item{layernames}{Optional layer name(s) to restrict the search. A character
+vector of layer names, or a single semicolon-separated string. If \code{NULL} or
+\code{""}, alters are considered across all layers.}
 
-\item{direction}{Which ties to count: \code{"both"} (default), \code{"in"}, or \code{"out"}.}
+\item{direction}{Which ties to consider: \code{"both"} (default), \code{"in"}, or \code{"out"}.}
 
-\item{balanced}{Logical; only used when \code{layername} is \code{NULL}.}
+\item{balanced}{Logical; only meaningful when multiple layers are in scope. If
+\code{TRUE}, a layer is picked uniformly at random first, then an alter within that
+layer. If \code{FALSE} (default), all alters across layers are pooled first and one
+is drawn from the combined pool (an alter in many layers is more likely to be
+picked).}
+
+\item{weighted}{Logical; if \code{TRUE}, edge weights are used as transition
+probabilities. For binary layers each alter is treated as having weight 1.
+Defaults to \code{FALSE}.}
 }
 \value{
 An integer scalar giving the node ID of the sampled alter.
@@ -39,7 +50,7 @@ net <- th_create_network("net", ns)
 th_add_layer(net, "l1", mode = 1)
 th_add_edge(net, "l1", node1id = 1, node2id = 2)
 th_add_edge(net, "l1", node1id = 1, node2id = 3)
-th_get_random_alter(net, nodeid = 1, layername = "l1", direction = "both")
+th_get_random_alter(net, nodeid = 1, layernames = "l1", direction = "both")
 th_stop_threadle()
 \dontshow{\}) # examplesIf}
 }

@@ -92,7 +92,7 @@ th_shortest_path(lazeganet, 1, 23)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
 th_info(mynet)
-th_inventory()
+th_i()
 
 th_create_nodeset("test")
 th_info("test")
@@ -233,13 +233,13 @@ th_info(mynet)
 
 th_filter("test123", nodeset = mynet_nodeset, "gender", cond = "eq", attrvalue = "o") |> class()
 th_info("test123")
-th_inventory()
+th_i()
 th_info(mynet)
 getwd()
 
 th_delete_all()
 th_generate(network = "mynet", layername = "kinship", p = 2, type = 'er')
-th_inventory()
+th_i()
 th_info(mynet)
 mytestnet_nodeset <- th_load_file("mytestnet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mytestnet <- th_load_file("mytestnet", "mynet.tsv", "network")
@@ -247,7 +247,7 @@ mytestnet <- th_load_file("mytestnet", "mynet.tsv", "network")
 th_save_file("mytestnet_nodeset", "")
 th_save_file("mytestnet", "/Users/doge/Documents/mytestnet.tsv")
 
-th_inventory()
+th_i()
 
 th_save_file("test123")
 th_save_file("test123", "")
@@ -258,7 +258,6 @@ th_info(mynet)
 th_info(mynet_nodeset)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
 mynet <- th_load_file("mynet", "mynet.tsv", "network")
-mynet <- th_load_network("mynet", "mynet.tsv")
 th_info(mynet)
 th_remove_attr("mynet", 123, "gender")
 
@@ -273,7 +272,7 @@ th_degree(mynet, "work", attrname = "weight") |> class()
 
 th_info(mynet)
 th_info(mynet_nodeset)
-th_inventory()
+th_i()
 th_info(mynet)
 th_remove_aff(mynet, "work", 789, "ica")
 lazega <- th_load_file("lazega", "lazega.tsv", type = "network")
@@ -324,7 +323,7 @@ th_setting("verbose", FALSE)
 th_info(mynet)
 th_info(mynet_nodeset)
 mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
-mynet <- th_load_network("mynet", "mynet.tsv")
+mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
 th_info(mynet_nodeset)
 th_undefine_attr(mynet_nodeset, "gender")
 #---
@@ -336,19 +335,9 @@ mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "
 mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
 th_filter("test_nodeset", nodeset = "mynet_nodeset", "gender", cond = "eq", attrvalue = "o")
 
-{"Assign":null,"Command":"setwd","Args":{"dir":"/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples"}}
-{"Assign":"mynet_nodeset","Command":"loadfile","Args":{"file":"mynet_nodesetfile.tsv","type":"nodeset"}}
-{"Assign":"mynet","Command":"loadfile","Args":{"file":"mynet.tsv","type":"network"}}
-{"Assign":null,"Command":"i","Args":null}
-
-{"Assign":"test_nodeset","Command":"filter","Args":{"nodeset":"mynet_nodesetfile","attrname":"gender","cond":"eq","attrvalue":"o"}}
-{"Assign":"test_nodeset","Command":"filter","Args":{"nodeset":"mynet_nodeset","attrname":"gender","cond":"eq","attrvalue":"o"}}
-{"Assign":null,"Command":"i","Args":null}
-
-
 
 th_filter("test_nodeset", nodeset = "mynet_nodeset", "gender", cond = "eq", attrvalue = "o")
-th_inventory()
+th_i()
 th_info("testmeow_nodeset")
 
 setwd("/Users/doge/Documents/Threadle/Threadle.CLIconsole/Examples")

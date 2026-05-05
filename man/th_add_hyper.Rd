@@ -32,7 +32,8 @@ creates the hyperedge without adding nodes.}
 \code{th_add_hyper()} adds a hyperedge (affiliation) to the hyperedge set of a 2-mode layer.
 }
 \details{
-If a hyperedge with the same name already exists, it is replaced. Duplicate node IDs in \code{nodes} are ignored.
+If a hyperedge with the same name already exists, an error is returned.
+Remove it first with \code{\link[=th_remove_hyper]{th_remove_hyper()}}.
 }
 \examples{
 \dontshow{if (th_is_available()) withAutoprint(\{ # examplesIf}

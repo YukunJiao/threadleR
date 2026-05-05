@@ -4,7 +4,7 @@
 \alias{th_components}
 \title{Calculate connected components for the specified layer and network}
 \usage{
-th_components(network, layername, attrname)
+th_components(network, layername, attrname = NULL)
 }
 \arguments{
 \item{network}{A \code{threadle_network} object or a character string giving
@@ -12,14 +12,15 @@ the name of a network in the Threadle CLI environment.}
 
 \item{layername}{Layer name.}
 
-\item{attrname}{Attribute name.}
+\item{attrname}{Optional name for the node attribute that stores the component
+membership index. If \code{NULL}, the attribute is automatically named from the
+layer name.}
 }
 \value{
-A named list with:
-\describe{
-\item{NbrComponents}{Integer of length 1; number of connected components.}
-\item{ComponentSizes}{Integer vector; sizes of the connected components.}
-}
+\code{NULL}, invisibly. The component membership index is stored as a node
+attribute (named from \code{layername} unless overridden by \code{attrname}). Use
+\code{\link[=th_get_attr_summary]{th_get_attr_summary()}} on this attribute to explore the number of components
+(the maximum value equals the number of components minus one) and their sizes.
 }
 \description{
 \code{th_components()} computes connected components for the specified layer and network.

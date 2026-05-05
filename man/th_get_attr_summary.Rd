@@ -24,7 +24,7 @@ The reported statistics depend on the attribute type:
 \describe{
 \item{\code{int} / \code{float}}{Mean, Median, StdDev, Min, Max, Q1, Q3.}
 \item{\code{bool}}{Count_true, Count_false, Ratio_true.}
-\item{\code{char}}{Frequency distribution, Mode, Unique_values.}
+\item{\code{char} / \code{string}}{Frequency distribution (top 50), Mode, Unique_values.}
 }
 All types include Count, Missing, and PercentageWithValue.
 }

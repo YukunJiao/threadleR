@@ -4,13 +4,11 @@
 \alias{th_preview}
 \title{Preview a structure}
 \usage{
-th_preview(structure, maxlines = 50)
+th_preview(structure)
 }
 \arguments{
 \item{structure}{A \code{threadle_nodeset} or \code{threadle_network} object, or a character
 string naming a structure in the Threadle CLI environment.}
-
-\item{maxlines}{Maximum number of lines to output. Defaults to \code{50}.}
 }
 \value{
 A character vector of preview lines.
@@ -24,7 +22,7 @@ environment under the variable name \code{structure}.
 th_start_threadle()
 
 ns <- th_create_nodeset("ns", createnodes = 3)
-th_preview(ns, maxlines = 10)
+th_preview(ns)
 th_stop_threadle()
 \dontshow{\}) # examplesIf}
 }

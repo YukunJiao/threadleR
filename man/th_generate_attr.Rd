@@ -7,11 +7,12 @@
 th_generate_attr(
   structure,
   attrname,
-  attrtype = c("int", "float", "bool", "char"),
+  attrtype = c("int", "float", "bool", "char", "string"),
   min = NULL,
   max = NULL,
   p = 0.5,
-  chars = "m;f;o"
+  chars = "m;f;o",
+  values = NULL
 )
 }
 \arguments{
@@ -20,7 +21,7 @@ string naming a structure in the Threadle CLI environment.}
 
 \item{attrname}{Attribute name to create/fill.}
 
-\item{attrtype}{Attribute type: \code{"int"} (default), \code{"float"}, \code{"bool"}, or \code{"char"}. Defaults to \code{"int"}.}
+\item{attrtype}{Attribute type: \code{"int"} (default), \code{"float"}, \code{"bool"}, \code{"char"}, or \code{"string"}. Defaults to \code{"int"}.}
 
 \item{min}{Minimum value for \code{"int"}/\code{"float"} types. Defaults to \code{0}/\code{0.0}.}
 
@@ -30,6 +31,8 @@ string naming a structure in the Threadle CLI environment.}
 
 \item{chars}{For \code{"char"} type: \verb{;}-separated candidate values, e.g. \code{"a;c;f;g;z"}.
 Default \code{"m;f;o"}.}
+
+\item{values}{For \code{"string"} type: \verb{;}-separated candidate values, e.g. \code{"lawyer;carpenter;nurse"}.}
 }
 \value{
 \code{NULL}, invisibly.
@@ -46,6 +49,8 @@ The meaning of the parameters depends on \code{attrtype}:
 \item{\code{attrtype = "float"}}{Uses \code{min} and \code{max} (defaults 0.0 and 1.0).}
 \item{\code{attrtype = "bool"}}{Uses \code{p} as the probability of \code{"true"} (default 0.5).}
 \item{\code{attrtype = "char"}}{Uses \code{chars} as a \verb{;}-separated set of values (default \code{"m;f;o"}).}
+\item{\code{attrtype = "string"}}{Uses \code{values} as a \verb{;}-separated list of
+candidate strings, e.g. \code{"lawyer;carpenter;nurse"}.}
 }
 }
 \examples{

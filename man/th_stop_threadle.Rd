@@ -10,7 +10,7 @@ th_stop_threadle()
 \code{NULL}, invisibly.
 }
 \description{
-Terminates the Threadle process previously started with \code{.start_threadle()}.
+Terminates the Threadle process previously started with \code{th_start_threadle()}.
 }
 \examples{
 \dontshow{if (th_is_available()) withAutoprint(\{ # examplesIf}

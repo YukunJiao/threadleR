@@ -2,10 +2,9 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_shortest_path}
 \alias{th_shortest_path}
-\title{Calculate shortest path distance between two nodes
-\code{th_shortest_path()} computes the shortest path distance from \code{node1id} to \code{node2id} in a network.}
+\title{Calculate shortest path distance between two nodes}
 \usage{
-th_shortest_path(network, node1id, node2id, layername)
+th_shortest_path(network, node1id, node2id, layernames = NULL)
 }
 \arguments{
 \item{network}{A \code{threadle_network} object or a character string giving
@@ -15,18 +14,18 @@ the name of a network in the Threadle CLI environment.}
 
 \item{node2id}{Node ID of the second node.}
 
-\item{layername}{Optional layer name. If \code{NULL}, all layers are used.}
+\item{layernames}{Optional layer names. If \code{NULL} (default), all layers are used
+to find the shortest path.}
 }
 \value{
 An integer scalar giving the shortest path distance.
 }
 \description{
-Calculate shortest path distance between two nodes
 \code{th_shortest_path()} computes the shortest path distance from \code{node1id} to \code{node2id} in a network.
 }
 \details{
-By default, all layers are used. If \code{layername} is provided, the shortest path is
-computed using that layer only.
+By default, all layers are used. If \code{layernames} is provided, the shortest path is
+computed using the specified layers only.
 
 Shortest path distance is directional: in directed layers, the distance from \code{node1id}
 to \code{node2id} may differ from the distance in the reverse direction. For symmetric
@@ -42,7 +41,7 @@ th_add_layer(net, "l1", mode = 1, directed = FALSE, valuetype = "binary", selfti
 th_add_edge(net, "l1", node1id = 1, node2id = 2, value = 1)
 th_add_edge(net, "l1", node1id = 2, node2id = 3, value = 1)
 
-th_shortest_path(net, node1id = 1, node2id = 3, layername = "l1")
+th_shortest_path(net, node1id = 1, node2id = 3)
 th_stop_threadle()
 \dontshow{\}) # examplesIf}
 }

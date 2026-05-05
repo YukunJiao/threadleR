@@ -4,7 +4,7 @@
 \alias{th_get_all_nodes}
 \title{Get nodes from a nodeset}
 \usage{
-th_get_all_nodes(structure, offset, limit = 1000)
+th_get_all_nodes(structure, offset = 0, limit = 1000)
 }
 \arguments{
 \item{structure}{A \code{threadle_nodeset} or \code{threadle_network} object, or a character string

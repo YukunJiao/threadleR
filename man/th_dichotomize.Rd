@@ -7,7 +7,7 @@
 th_dichotomize(
   network,
   layername,
-  cond = c("ge", "eq", "ne", "gt", "lt", "le", "isnull", "notnull"),
+  cond = c("ge", "eq", "ne", "gt", "lt", "le"),
   threshold = 1,
   truevalue = 1,
   falsevalue = 0,
@@ -20,16 +20,17 @@ the name of a network in the Threadle CLI environment.}
 
 \item{layername}{Name of the valued one-mode layer to dichotomize.}
 
-\item{cond}{Comparison operator used for dichotomization: \code{"eq"}, \code{"ne"}, \code{"gt"}, \code{"lt"}, \code{"ge"}, or \code{"le"}.
-Defaults to \code{"ge"}.}
+\item{cond}{Comparison operator used for dichotomization: \code{"eq"}, \code{"ne"},
+\code{"gt"}, \code{"lt"}, \code{"ge"} (default), or \code{"le"}. The conditions \code{"isnull"} and
+\code{"notnull"} are not valid for this command.}
 
 \item{threshold}{Numeric threshold used with \code{cond}. Defaults to \code{1}.}
 
 \item{truevalue}{Value assigned when the condition is \code{TRUE}. Defaults to \code{1}.
-Can also be \code{"keep"} to retain the original value.}
+Pass the string \code{"keep"} to retain the original edge value for matching edges.}
 
 \item{falsevalue}{Value assigned when the condition is \code{FALSE}. Defaults to \code{0}.
-Can also be \code{"keep"} to retain the original value.}
+Pass the string \code{"keep"} to retain the original edge value for non-matching edges.}
 
 \item{newlayername}{Optional name for the dichotomized layer.
 If \code{NULL}, a default name is used.}

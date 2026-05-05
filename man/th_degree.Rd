@@ -4,7 +4,7 @@
 \alias{th_degree}
 \title{Calculate node degree centrality in a layer}
 \usage{
-th_degree(network, layername, attrname = NULL, direction = "in")
+th_degree(network, layername, attrname = NULL, direction = "out")
 }
 \arguments{
 \item{network}{A \code{threadle_network} object or a character string giving
@@ -14,7 +14,8 @@ the name of a network in the Threadle CLI environment.}
 
 \item{attrname}{Optional name for the node attribute storing degree values.}
 
-\item{direction}{Which ties to count: \code{"in"}, \code{"out"}, or \code{"both"}. Defaults to \code{"in"}.}
+\item{direction}{Which ties to count: \code{"in"}, \code{"out"} (default), or \code{"both"}.
+For symmetric layers this option has no effect.}
 }
 \value{
 \code{NULL}, invisibly.

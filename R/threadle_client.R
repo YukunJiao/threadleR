@@ -252,7 +252,7 @@ NULL
 
   if (return == "payload") {
     p <- resp$Payload
-    if (is.null(p) || (is.atomic(p) && length(p) == 0L)) {
+    if (is.null(p)) {
       return(invisible(NULL))
     }
     return(p)
@@ -396,6 +396,34 @@ th_stage_examples_to_wd <- function(folder = "threadle_examples", overwrite = TR
   invisible(normalizePath(dest, mustWork = TRUE))
 }
 
+#' Send a raw command to the Threadle backend
+#'
+#' `th_cmd()` is a low-level escape hatch that sends any command directly to
+#' the Threadle CLI, bypassing the typed wrapper functions. Useful for commands
+#' not yet wrapped in threadleR, or for advanced scripting.
+#'
+#' @param cmd Command name string (e.g. `"density"`, `"i"`).
+#' @param args Named list of arguments. `threadle_*` objects are automatically
+#'   resolved to their backend name.
+#' @param assign Optional variable name to assign the result to in the backend.
+#' @param type If `assign` is set, the type string for the returned handle
+#'   (e.g. `"network"`, `"nodeset"`). If `NULL`, the payload is returned directly.
+#' @return A `threadle_*` handle if `assign` and `type` are both set; otherwise
+#'   the payload value, invisibly.
+#' @export
+th_cmd <- function(cmd, args = list(), assign = NULL, type = NULL) {
+  args <- lapply(args, function(x) {
+    if (any(startsWith(class(x), "threadle_"))) .th_name(x) else x
+  })
+  payload <- .th_call(cmd = cmd, args = args, assign = assign)
+  if (!is.null(assign) && !is.null(type)) {
+    structure(list(name = assign), class = paste0("threadle_", type))
+  } else {
+    invisible(payload)
+  }
+}
+
+
 #' Add an affiliation to a two-mode layer
 #'
 #' `th_add_aff()` adds an affiliation (hyperedge membership) between a node and a hyperedge in a two-mode layer.
@@ -405,8 +433,8 @@ th_stage_examples_to_wd <- function(folder = "threadle_examples", overwrite = TR
 #' @param layername Layer name.
 #' @param nodeid Node ID.
 #' @param hypername Name of the hyperedge.
-#' @param addmissingnode Logical; if `TRUE`, missing nodes are created automatically.
-#' @param addmissingaffiliation Logical; if `TRUE`, missing affiliations are created automatically.
+#' @param addmissingnode Logical; if `TRUE`, a missing node is created automatically.
+#' @param addmissinghyperedge Logical; if `TRUE`, a missing hyperedge is created automatically.
 #'
 #' @return `NULL`, invisibly.
 #' @examplesIf th_is_available()
@@ -420,7 +448,7 @@ th_stage_examples_to_wd <- function(folder = "threadle_examples", overwrite = TR
 #' th_stop_threadle()
 #' @export
 th_add_aff <- function(network, layername, nodeid, hypername,
-                       addmissingnode = TRUE, addmissingaffiliation = TRUE) {
+                       addmissingnode = TRUE, addmissinghyperedge = TRUE) {
   args <- .th_args(environment())
   cmd <- "addaff"
   assign <- NULL
@@ -491,8 +519,9 @@ th_add_edge <- function(network, layername, node1id, node2id,
 #' @export
 th_add_hyper <- function(network, layername, hypername,
                          nodes = c(), addmissingnodes = TRUE) {
-  args <- .th_args(environment())
-  args$nodes <- if (is.null(args$nodes)) "" else paste(args$nodes, collapse = ";")
+  nodes_str <- if (length(nodes) == 0L) "" else paste(as.character(nodes), collapse = ";")
+  args <- .th_args(environment(), drop = "nodes")
+  args$nodes <- nodes_str
   cmd <- "addhyper"
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = NULL)
@@ -814,8 +843,8 @@ th_delete_all <- function() {
 #' @param network A `threadle_network` object or a character string giving
 #'   the name of a network in the Threadle CLI environment.
 #' @param layername Name of the layer for which density is computed.
-#' @param samplesize Optional integer. If provided, density is estimated from a
-#'   random sample of this size rather than the full layer.
+#' @param samplesize Sample size for density estimation. If `NULL` (default),
+#'   the default is 200.
 #' @return A numeric scalar giving the layer density.
 #' @examplesIf th_is_available()
 #' th_start_threadle()
@@ -827,7 +856,7 @@ th_delete_all <- function() {
 #' th_density(net, "l1")
 #' th_stop_threadle()
 #' @export
-th_density <- function(network, layername, samplesize = NULL) {
+th_density <- function(network, layername, samplesize = 200L) {
   args <- .th_args(environment())
   cmd <- "density"
   assign <- NULL
@@ -1426,7 +1455,7 @@ th_get_nbr_nodes <- function(structure) {
 #' @param nodeid Node ID.
 #' @param layernames Optional layer names.
 #'   If `NULL`, alters are collected across all layers.
-#' @param direction Which ties to count: `"both"` (default), `"in"`, or `"out"`.
+#' @param direction Which ties to count: `"both"`, `"in"`, or `"out"` (default).
 #' @param unique Logical; if `TRUE` (default), deduplicate alter IDs across layers
 #'   (the returned vector will also be sorted as a side-effect of deduplication).
 #'   Set to `FALSE` to allow the same alter to appear once per layer it is found in.
@@ -1442,7 +1471,7 @@ th_get_nbr_nodes <- function(structure) {
 #' th_get_node_alters(net, nodeid = 2, layernames = "l1", direction = "both")
 #' th_stop_threadle()
 #' @export
-th_get_node_alters <- function(network, nodeid, layernames = "", direction="both", unique = TRUE) {
+th_get_node_alters <- function(network, nodeid, layernames = "", direction="out", unique = TRUE) {
   direction <- match.arg(direction, c("both", "in", "out"))
   if (is.null(layernames) || length(layernames) == 0L) {
     layernames <- ""
@@ -2177,9 +2206,6 @@ th_rwdistances <- function(name, network, attrname, maxsteps,
 #'   Defaults to `FALSE`.
 #' @param weighted Logical; if `TRUE`, uses edge weights to bias walk steps.
 #'   Defaults to `FALSE`.
-#' @param backtrack Logical; if `TRUE`, allows walkers to return to the
-#'   previous node. Defaults to `FALSE`.
-#' @param savesteps Logical; if `TRUE`, saves per-step data. Defaults to `FALSE`.
 #' @return A `threadle_network` object containing result layers.
 #' @examplesIf th_is_available()
 #' th_start_threadle()
@@ -2205,9 +2231,7 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
                      walkfactor = 1.0,
                      minpairobs = 10L,
                      balanced = FALSE,
-                     weighted = FALSE,
-                     backtrack = FALSE,
-                     savesteps = FALSE) {
+                     weighted = FALSE) {
   if (!is.null(layernames) && length(layernames) > 1L)
     layernames <- paste(layernames, collapse = ";")
   args <- .th_args(environment(), drop = "name")
@@ -2249,7 +2273,6 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
 #' @export
 th_save_file <- function(structure, file = "") {
   args <- .th_args(environment())
-  if (!nzchar(file)) args$file <- paste0(args$structure, ".tsv")
   cmd <- "savefile"
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
@@ -2353,8 +2376,8 @@ th_set_workdir <- function(dir) {
 #' `th_shortest_path()` computes the shortest path distance from `node1id` to `node2id` in a network.
 #'
 #' @details
-#' By default, all layers are used. If `layername` is provided, the shortest path is
-#' computed using that layer only.
+#' By default, all layers are used. If `layernames` is provided, the shortest path is
+#' computed using the specified layers only.
 #'
 #' Shortest path distance is directional: in directed layers, the distance from `node1id`
 #' to `node2id` may differ from the distance in the reverse direction. For symmetric
@@ -2364,7 +2387,7 @@ th_set_workdir <- function(dir) {
 #' the name of a network in the Threadle CLI environment.
 #' @param node1id Node ID of the first node.
 #' @param node2id Node ID of the second node.
-#' @param layername Optional layer name. If `NULL` (default), all layers are used
+#' @param layernames Optional layer names. If `NULL` (default), all layers are used
 #'   to find the shortest path.
 #' @return An integer scalar giving the shortest path distance.
 #' @examplesIf th_is_available()
@@ -2376,15 +2399,63 @@ th_set_workdir <- function(dir) {
 #' th_add_edge(net, "l1", node1id = 1, node2id = 2, value = 1)
 #' th_add_edge(net, "l1", node1id = 2, node2id = 3, value = 1)
 #'
-#' th_shortest_path(net, node1id = 1, node2id = 3, layername = "l1")
+#' th_shortest_path(net, node1id = 1, node2id = 3)
 #' th_stop_threadle()
 #' @export
-th_shortest_path <- function(network, node1id, node2id, layername = NULL) {
+th_shortest_path <- function(network, node1id, node2id, layernames = NULL) {
+  if (!is.null(layernames) && length(layernames) > 1L)
+    layernames <- paste(layernames, collapse = ";")
   args <- .th_args(environment())
   cmd <- "shortestpath"
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
 }
+
+#' Calculate average shortest paths between node attribute categories
+#'
+#' Calculates the exact BFS shortest path between all ordered node pairs in the
+#' network, then aggregates the distances by the values of a specified node
+#' attribute. Unreachable pairs are excluded from all statistics. The result is a
+#' new network whose nodes represent the unique attribute values and whose directed
+#' valued edges hold the aggregated path lengths between categories. A companion
+#' nodeset with the category labels is also registered under \code{<name>_nodeset}.
+#'
+#' @note This command runs BFS from every node — O(N x (N+E)) — and is only
+#'   feasible for smaller networks.
+#'
+#' @param name Character. Variable name for the resulting network in the Threadle
+#'   session. A companion category nodeset is also registered as
+#'   \code{<name>_nodeset}.
+#' @param network A \code{threadle_network} object. The source network.
+#' @param attrname Character. Name of the node attribute used for category
+#'   grouping. Must be of type \code{char}, \code{int}, or \code{string}.
+#' @param layernames Optional character vector of one or more layer names to
+#'   include in the path calculation. If \code{NULL} (default), all layers are
+#'   used. Multiple names are collapsed to a semicolon-separated string before
+#'   being sent to the CLI.
+#'
+#' @return A \code{threadle_network} object named \code{name}. The result network
+#'   contains three directed valued layers:
+#'   \itemize{
+#'     \item \code{<attrname>_sp_avg} — mean shortest path length between categories.
+#'     \item \code{<attrname>_sp_se} — standard error of the mean.
+#'     \item \code{<attrname>_sp_count} — number of reachable ordered node pairs.
+#'   }
+#'
+#' @seealso \code{\link{th_shortest_path}} for the path between two specific
+#'   nodes; \code{\link{th_rwdistances}} and \code{\link{th_rwfpt}} for
+#'   stochastic alternatives suited to larger networks.
+#' @export
+th_shortest_paths <- function(name, network, attrname, layernames = NULL) {
+  if (!is.null(layernames) && length(layernames) > 1L)
+    layernames <- paste(layernames, collapse = ";")
+  args <- .th_args(environment(), drop = "name")
+  cmd <- "shortestpaths"
+  assign <- name
+  .th_call(cmd = cmd, args = args, assign = assign)
+  structure(list(name = name), class = "threadle_network")
+}
+
 
 #' Create a subnetwork from a network and nodeset
 #'

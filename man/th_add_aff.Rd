@@ -10,7 +10,7 @@ th_add_aff(
   nodeid,
   hypername,
   addmissingnode = TRUE,
-  addmissingaffiliation = TRUE
+  addmissinghyperedge = TRUE
 )
 }
 \arguments{
@@ -23,9 +23,9 @@ the name of a network in the Threadle CLI environment.}
 
 \item{hypername}{Name of the hyperedge.}
 
-\item{addmissingnode}{Logical; if \code{TRUE}, missing nodes are created automatically.}
+\item{addmissingnode}{Logical; if \code{TRUE}, a missing node is created automatically.}
 
-\item{addmissingaffiliation}{Logical; if \code{TRUE}, missing affiliations are created automatically.}
+\item{addmissinghyperedge}{Logical; if \code{TRUE}, a missing hyperedge is created automatically.}
 }
 \value{
 \code{NULL}, invisibly.

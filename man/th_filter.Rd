@@ -4,7 +4,7 @@
 \alias{th_filter}
 \title{Create a nodeset by a node attribute}
 \usage{
-th_filter(name, nodeset, attrname, cond, attrvalue)
+th_filter(name, nodeset, attrname, cond, attrvalue = NULL)
 }
 \arguments{
 \item{name}{Name of the new nodeset variable}
@@ -17,7 +17,9 @@ the name of a nodeset in the Threadle CLI environment.}
 \item{cond}{Condition operator: \code{"eq"}, \code{"ne"}, \code{"gt"}, \code{"lt"}, \code{"ge"}, \code{"le"},
 \code{"isnull"}, or \code{"notnull"}.}
 
-\item{attrvalue}{Attribute value used for the condition.}
+\item{attrvalue}{Reference value for the condition. May be omitted (i.e. left
+\code{NULL}) when \code{cond} is \code{"isnull"} or \code{"notnull"}, since those conditions do
+not require a comparison value.}
 }
 \value{
 A \code{threadle_nodeset} object.

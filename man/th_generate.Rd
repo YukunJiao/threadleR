@@ -4,12 +4,24 @@
 \alias{th_generate}
 \title{Generate random ties in a layer}
 \usage{
-th_generate(network, layername, type, p, k, beta, m, h, a)
+th_generate(
+  network,
+  layername,
+  type,
+  p = NULL,
+  k = NULL,
+  beta = NULL,
+  m = NULL,
+  h = NULL,
+  a = NULL
+)
 }
 \arguments{
-\item{network}{Name of the new network variable to create.}
+\item{network}{A \code{threadle_network} object or a character string giving
+the name of a network in the Threadle CLI environment.}
 
-\item{layername}{Name of the layer to create in \code{network}.}
+\item{layername}{Name of the existing binary layer in \code{network} where random
+ties will be generated. Any existing ties in this layer are removed first.}
 
 \item{type}{Generator type: \code{"er"}, \code{"ws"}, \code{"ba"}, or \code{"2mode"}.}
 

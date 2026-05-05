@@ -7,7 +7,7 @@
 th_define_attr(
   structure,
   attrname,
-  attrtype = c("int", "char", "float", "bool")
+  attrtype = c("int", "char", "float", "bool", "string")
 )
 }
 \arguments{
@@ -16,7 +16,7 @@ string naming a structure in the Threadle CLI environment.}
 
 \item{attrname}{Attribute name.}
 
-\item{attrtype}{Attribute type ("int","char", "float", or "bool")}
+\item{attrtype}{Attribute type ("int","char", "float", "bool", or "string")}
 }
 \value{
 \code{NULL}, invisibly.
