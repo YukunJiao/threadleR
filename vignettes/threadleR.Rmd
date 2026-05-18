@@ -113,7 +113,7 @@ th_info(lazega_nodeset)
 
 ### Preview and inventory
 ```{r eval=can_run_threadle}
-th_preview(lazega, maxlines = 20)
+th_preview(lazega)
 th_i()
 ```
 
