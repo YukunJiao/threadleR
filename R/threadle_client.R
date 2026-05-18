@@ -364,29 +364,30 @@ th_sync_wd <- function() {
   message("Threadle working directory synced to: ", r_wd)
 }
 
-#' Stage threadleR example files into a subfolder of the current R working directory
+#' Stage threadleR example files into a folder
 #'
-#' Copies example files shipped with \pkg{threadleR} into \code{file.path(getwd(), folder)}
-#' and returns the destination path.
+#' Copies example files shipped with \pkg{threadleR} into `folder` and returns
+#' the destination path. Relative paths are resolved under the current R working
+#' directory; absolute paths are used as-is.
 #'
-#' @param folder Name of the destination subfolder under [getwd()].
+#' @param folder Destination folder path. Relative paths are resolved under [getwd()].
 #' @param overwrite Logical; overwrite existing files in the destination.
 #' @return A character string giving the path to the staged examples folder.
 #' @examples
-#' td <- tempdir()
-#' old <- getwd()
-#' setwd(td)
-#'
-#' exdir <- th_stage_examples_to_wd(folder = "threadle_examples", overwrite = TRUE)
+#' exdir <- th_stage_examples_to_wd(
+#'   folder = file.path(tempdir(), "threadle_examples"),
+#'   overwrite = TRUE
+#' )
 #' list.files(exdir)
 #' unlink(exdir, recursive = TRUE, force = TRUE)
-#' setwd(old)
 #' @export
 th_stage_examples_to_wd <- function(folder = "threadle_examples", overwrite = TRUE) {
   from <- system.file("extdata", package = "threadleR")
   if (from == "") stop("Examples not found in threadleR extdata.", call. = FALSE)
 
-  dest <- file.path(getwd(), folder)
+  folder <- path.expand(folder)
+  is_absolute <- grepl("^([/\\\\]|[A-Za-z]:)", folder)
+  dest <- if (is_absolute) folder else file.path(getwd(), folder)
   dir.create(dest, recursive = TRUE, showWarnings = FALSE)
 
   files <- list.files(from, full.names = TRUE)
@@ -422,7 +423,6 @@ th_cmd <- function(cmd, args = list(), assign = NULL, type = NULL) {
     invisible(payload)
   }
 }
-
 
 #' Add an affiliation to a two-mode layer
 #'
@@ -942,8 +942,7 @@ th_dir <- function(path = NULL) {
 #'   the name of a network in the Threadle CLI environment.
 #' @param format Export format. Currently `"gexf"` is supported.
 #' @param file Path to the output file.
-#' @param layername Optional name of a specific layer to export. If `NULL`,
-#'   all layers are included.
+#' @param layername Name of the specific layer to export.
 #' @return `NULL`, invisibly.
 #' @examplesIf th_is_available()
 #' th_start_threadle()
@@ -953,10 +952,10 @@ th_dir <- function(path = NULL) {
 #' th_add_layer(net, "l1", mode = 1, directed = FALSE, valuetype = "binary")
 #' th_add_edge(net, "l1", node1id = 1, node2id = 2)
 #' tmp <- tempfile(fileext = ".gexf")
-#' th_export(net, format = "gexf", file = tmp)
+#' th_export(net, format = "gexf", file = tmp, layername = "l1")
 #' th_stop_threadle()
 #' @export
-th_export <- function(network, format = "gexf", file, layername = NULL) {
+th_export <- function(network, format = "gexf", file, layername) {
   args <- .th_args(environment())
   cmd <- "export"
   assign <- NULL
@@ -1845,6 +1844,104 @@ th_load_file <- function(name, file, type, pack = FALSE) {
   obj
 }
 
+#' Load bundled example data
+#'
+#' `th_load_examples()` loads one or more example datasets shipped with
+#' \pkg{threadleR}. It sets Threadle's working directory to the package
+#' `extdata` folder, loads each dataset's nodeset and network, assigns the
+#' resulting handles into the caller's environment by default, and returns them
+#' as a named list.
+#'
+#' @param examples Character vector of example dataset names. Supported values
+#'   are `"mynet"`, `"lazega"`, `"lazega_female"`, `"dscw"`, and `"all"`.
+#'   Defaults to `c("mynet", "lazega")`.
+#' @param assign Logical; if `TRUE`, assign handles such as `mynet_nodeset` and
+#'   `mynet` into the caller's environment.
+#' @param set_workdir Logical; if `TRUE`, set Threadle's working directory to the
+#'   bundled `extdata` folder before loading.
+#' @param envir Environment where handles are assigned when `assign = TRUE`.
+#' @return A named list of `threadle_nodeset` and `threadle_network` handles.
+#' @examplesIf th_is_available()
+#' th_start_threadle()
+#'
+#' th_load_examples("mynet")
+#' th_info(mynet)
+#'
+#' th_stop_threadle()
+#' @export
+th_load_examples <- function(examples = c("mynet", "lazega"),
+                             assign = TRUE,
+                             set_workdir = TRUE,
+                             envir = parent.frame()) {
+  ext <- system.file("extdata", package = "threadleR")
+  if (ext == "") stop("Example data not found in threadleR extdata.", call. = FALSE)
+
+  specs <- list(
+    mynet = list(
+      nodeset = "mynet_nodeset",
+      nodeset_file = "mynet_nodesetfile.tsv",
+      network = "mynet",
+      network_file = "mynet.tsv"
+    ),
+    lazega = list(
+      nodeset = "lazega_nodeset",
+      nodeset_file = "lazega_nodes.tsv",
+      network = "lazega",
+      network_file = "lazega.tsv"
+    ),
+    lazega_female = list(
+      nodeset = "lazega_female_nodeset",
+      nodeset_file = "lazega_female_nodeset.tsv",
+      network = "lazega_female",
+      network_file = "lazega_female.tsv"
+    ),
+    dscw = list(
+      nodeset = "dscw_nodeset",
+      nodeset_file = "dscw_nodeset.tsv",
+      network = "dscw",
+      network_file = "dscw.tsv"
+    )
+  )
+
+  if (length(examples) == 1L && identical(examples, "all")) {
+    examples <- names(specs)
+  }
+
+  unknown <- setdiff(examples, names(specs))
+  if (length(unknown) > 0L) {
+    stop("Unknown example dataset(s): ", paste(unknown, collapse = ", "), call. = FALSE)
+  }
+
+  if (isTRUE(set_workdir)) {
+    th_set_workdir(ext)
+  }
+
+  out <- list()
+  for (example in examples) {
+    spec <- specs[[example]]
+    ns <- th_load_file(
+      spec$nodeset,
+      file.path(ext, spec$nodeset_file),
+      type = "nodeset"
+    )
+    net <- th_load_file(
+      spec$network,
+      file.path(ext, spec$network_file),
+      type = "network"
+    )
+
+    out[[spec$nodeset]] <- ns
+    out[[spec$network]] <- net
+
+    if (isTRUE(assign)) {
+      base::assign(spec$nodeset, ns, envir = envir)
+      base::assign(spec$network, net, envir = envir)
+    }
+  }
+
+  out
+}
+
 #' Convert a dynamic layer to a static (memory-efficient) representation
 #'
 #' `th_pack()` converts one or all dynamic layers in a network to their static
@@ -2586,4 +2683,3 @@ th_unpack <- function(network, layername = NULL) {
   assign <- NULL
   .th_call(cmd = cmd, args = args, assign = assign)
 }
-
