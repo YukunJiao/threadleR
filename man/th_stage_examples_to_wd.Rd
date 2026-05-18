@@ -2,12 +2,12 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_stage_examples_to_wd}
 \alias{th_stage_examples_to_wd}
-\title{Stage threadleR example files into a subfolder of the current R working directory}
+\title{Stage threadleR example files into a folder}
 \usage{
 th_stage_examples_to_wd(folder = "threadle_examples", overwrite = TRUE)
 }
 \arguments{
-\item{folder}{Name of the destination subfolder under \code{\link[=getwd]{getwd()}}.}
+\item{folder}{Destination folder path. Relative paths are resolved under \code{\link[=getwd]{getwd()}}.}
 
 \item{overwrite}{Logical; overwrite existing files in the destination.}
 }
@@ -15,16 +15,15 @@ th_stage_examples_to_wd(folder = "threadle_examples", overwrite = TRUE)
 A character string giving the path to the staged examples folder.
 }
 \description{
-Copies example files shipped with \pkg{threadleR} into \code{file.path(getwd(), folder)}
-and returns the destination path.
+Copies example files shipped with \pkg{threadleR} into \code{folder} and returns
+the destination path. Relative paths are resolved under the current R working
+directory; absolute paths are used as-is.
 }
 \examples{
-td <- tempdir()
-old <- getwd()
-setwd(td)
-
-exdir <- th_stage_examples_to_wd(folder = "threadle_examples", overwrite = TRUE)
+exdir <- th_stage_examples_to_wd(
+  folder = file.path(tempdir(), "threadle_examples"),
+  overwrite = TRUE
+)
 list.files(exdir)
 unlink(exdir, recursive = TRUE, force = TRUE)
-setwd(old)
 }
