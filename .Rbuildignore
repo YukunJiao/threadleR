@@ -8,3 +8,5 @@
 ^doc$
 ^Meta$
 ^scripts$
+^\.positai$
+^\.claude$
