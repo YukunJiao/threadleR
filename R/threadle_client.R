@@ -2206,7 +2206,13 @@ th_rwdistances <- function(name, network, attrname, maxsteps,
 #'   Defaults to `FALSE`.
 #' @param weighted Logical; if `TRUE`, uses edge weights to bias walk steps.
 #'   Defaults to `FALSE`.
-#' @return A `threadle_network` object containing result layers.
+#' @param return_histograms Logical; if `TRUE`, also returns the full step-count
+#'   histogram distributions as a `data.table` alongside the result network.
+#'   Defaults to `FALSE`.
+#' @return When `return_histograms = FALSE` (default): a `threadle_network`
+#'   object containing result layers. When `return_histograms = TRUE`: a named
+#'   list with elements `network` (a `threadle_network`) and `histograms` (a
+#'   `data.table` with columns `from`, `to`, `step`, `count`).
 #' @examplesIf th_is_available()
 #' th_start_threadle()
 #'
@@ -2231,16 +2237,22 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
                      walkfactor = 1.0,
                      minpairobs = 10L,
                      balanced = FALSE,
-                     weighted = FALSE) {
+                     weighted = FALSE,
+                     return_histograms = FALSE) {
   if (!is.null(layernames) && length(layernames) > 1L)
     layernames <- paste(layernames, collapse = ";")
   args <- .th_args(environment(), drop = "name")
+  args[["return_histograms"]] <- NULL
+  if (isTRUE(return_histograms))
+    args[["returnhistograms"]] <- "true"
   cmd <- "rwfpt"
   assign <- name
-  .th_call(cmd = cmd, args = args, assign = assign)
-  structure(list(name = name), class = "threadle_network")
+  payload <- .th_call(cmd = cmd, args = args, assign = assign)
+  net_obj <- structure(list(name = name), class = "threadle_network")
+  if (isTRUE(return_histograms) && !is.null(payload))
+    return(list(network = net_obj, histograms = data.table::as.data.table(payload)))
+  net_obj
 }
-
 
 #' Save a structure to file
 #'
