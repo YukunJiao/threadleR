@@ -117,4 +117,16 @@ th_delete_all()
 th_stop_threadle()
 ```
 
-See `vignette("threadleR")` for a longer walkthrough.
+For the longer walkthrough, install with vignettes enabled:
+
+``` r
+remotes::install_github(
+  "YukunJiao/threadleR",
+  build_vignettes = TRUE,
+  dependencies = TRUE
+)
+
+vignette("threadleR", package = "threadleR")
+```
+
+You can also read the source vignette in `vignettes/threadleR.Rmd`.
