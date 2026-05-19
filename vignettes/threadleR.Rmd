@@ -21,254 +21,270 @@ can_run_threadle <- th_is_available()
 
 ## Overview
 
-threadleR is an R client for [Threadle](https://threadle.dev), a high-performance network engine. It starts a background Threadle process, sends commands, and returns results back to R. Most functions are thin wrappers around Threadle CLI commands.
+threadleR is an R client for [Threadle](https://threadle.dev), a high-performance network engine. It starts a background Threadle process, sends commands, and returns results back to R. The public R functions use a `th_` prefix and wrap the commands shown by Threadle's `help` command.
 
 ## Installation
+
 Install from GitHub:
+
 ```{r eval=FALSE}
 # install.packages("remotes")
 remotes::install_github("YukunJiao/threadleR")
 ```
 
 Load the package:
-```{r eval=can_run_threadle}
+
+```{r eval=FALSE}
 library(threadleR)
 ```
 
-## Prerequisites
+## Start Threadle
 
-### Check whether Threadle is available
-
-`th_is_available()` checks whether the `threadle` executable can be found on your system.
+Check whether the `threadle` executable is available:
 
 ```{r eval=FALSE}
 th_is_available()
 ```
 
-If it returns FALSE, either add threadle to your PATH or start Threadle with an explicit path:
+Start a Threadle process. If `threadle` is not on your PATH, pass the full path to the executable.
+
+```{r eval=can_run_threadle}
+th_start_threadle()
+```
 
 ```{r eval=FALSE}
 th_start_threadle("/full/path/to/threadle")
 ```
 
-### Start Threadle
-Start the Threadle background process:
+## Load example data
+
+The easiest way to use the bundled data is `th_load_examples()`. It loads the example files shipped with threadleR, sets Threadle's working directory to the example-data folder, and assigns R handles such as `mynet` and `mynet_nodeset`.
+
 ```{r eval=can_run_threadle}
-th_start_threadle()
+examples <- th_load_examples("mynet")
+names(examples)
+
+th_i()
+th_info(mynet)
+th_info(mynet_nodeset)
 ```
 
-### Stop Threadle
-Stop the Threadle process when you are done:
+You can also inspect the Threadle working directory:
+
 ```{r eval=can_run_threadle}
-th_stop_threadle()
-```
-
-## Working directory
-Threadle has its own working directory. Many file-based commands (especially `th_load_file()`) depend on it.
-
-To inspect Threadle working directory:
-```{r eval=FALSE}
 th_get_workdir()
+th_dir()
 ```
 
-To set it:
-```{r eval=FALSE}
-th_set_workdir("~documents")   # or "~", or an absolute path
-```
+## Explore nodes and attributes
 
-To keep Threadle aligned with the current R working directory:
-```{r eval=FALSE}
-th_sync_wd()
-```
-
-## Example data: Lazega
-
-Threadle network files may reference companion files (e.g., a nodeset file).
-When you load a network from disk, Threadle will also try to load the referenced nodeset file using its current working directory.
-
-### Stage example files to your working directory
 ```{r eval=can_run_threadle}
-th_start_threadle()
-
-th_sync_wd()
-exdir <- th_stage_examples_to_wd(folder = "threadle_examples", overwrite = TRUE)
-
-th_set_workdir(exdir)
-
-list.files(exdir)
+th_get_nbr_nodes(mynet)
+th_get_all_nodes(mynet, offset = 0, limit = 8)
+th_get_nodeid_by_index(mynet, index = 0)
+th_get_random_node(mynet)
 ```
 
-### Load Lazega network (and its referenced nodeset)
+The `mynet` example has a `gender` node attribute:
+
 ```{r eval=can_run_threadle}
-net_file <- file.path(exdir, "lazega.tsv")
-
-lazega <- th_load_file("lazega", net_file, type = "network")
-
-# th_load_file("lazega", ..., type = "network") also creates:
-# lazega_nodeset  (a threadle_nodeset handle in the calling environment)
-th_i()
-th_info(lazega)
-th_info(lazega_nodeset)
+th_get_attr(mynet_nodeset, nodeid = 123, attrname = "gender")
+th_get_attrs(mynet_nodeset, nodes = c(123, 234, 345), attrname = "gender")
+th_get_attr_summary(mynet_nodeset, attrname = "gender")
 ```
 
-### Preview and inventory
+## One-mode layers
+
+Use one-mode layers such as `kinship` and `trade` for edge and degree commands:
+
 ```{r eval=can_run_threadle}
-th_preview(lazega)
-th_i()
+th_get_edge(mynet, "trade", node1id = 123, node2id = 345)
+th_check_edge(mynet, "kinship", node1id = 123, node2id = 345)
+th_get_all_edges(mynet, "trade", offset = 0, limit = 10)
+th_get_random_edge(mynet, "trade")
 ```
 
-## Adding and removing ties
-
-### One-mode layer: edges
-Create a layer and add a few edges:
 ```{r eval=can_run_threadle}
-th_add_layer(lazega, "friends2", mode = 1, directed = FALSE, valuetype = "binary")
-
-th_add_edge(lazega, "friends2", node1id = 1, node2id = 2)
-th_add_edge(lazega, "friends2", node1id = 2, node2id = 3)
-
-th_check_edge(lazega, "friends2", node1id = 1, node2id = 2)
-th_get_all_edges(lazega, "friends2", offset = 0, limit = 10)
+th_get_node_alters(mynet, nodeid = 345, layernames = "trade", direction = "both")
+th_get_degree(mynet, nodeid = 345, layernames = "trade", direction = "both")
+th_get_random_alter(mynet, nodeid = 345, layernames = "trade", direction = "both")
+th_density(mynet, "kinship")
 ```
 
-Remove an edge or clear a layer:
+Some routines write results back as node attributes:
+
 ```{r eval=can_run_threadle}
-th_remove_edge(lazega, "friends2", node1id = 1, node2id = 2)
-th_clear_layer(lazega, "friends2")
+th_components(mynet, "kinship", attrname = "kinship_component")
+th_degree(mynet, "kinship", attrname = "kinship_degree", direction = "both")
+th_get_attr_summary(mynet, "kinship_degree")
 ```
 
-### Two-mode layer: affiliations (hyperedges)
+Shortest-path commands use the public `layernames` argument:
+
 ```{r eval=can_run_threadle}
-th_add_layer(lazega, "clubs", mode = 2)
-
-th_add_hyper(lazega, "clubs", hypername = "group1", nodes = c(1, 2, 3))
-th_get_node_hyperedges(lazega, "clubs", nodeid = 1)
-th_get_hyperedge_nodes(lazega, "clubs", hypername = "group1")
-
-th_add_aff(lazega, "clubs", nodeid = 4, hypername = "group1")
-th_remove_aff(lazega, "clubs", nodeid = 4, hypername = "group1")
-
-th_get_all_hyperedges(lazega, "clubs", offset = 0, limit = 10)
+th_shortest_path(mynet, node1id = 123, node2id = 567, layernames = "kinship")
+paths_by_gender <- th_shortest_paths(
+  "paths_by_gender",
+  mynet,
+  attrname = "gender",
+  layernames = "kinship"
+)
+th_info(paths_by_gender)
 ```
 
-## Nodes and attributes
-### Add nodes
-Add a node to the nodeset:
+## Two-mode layers
+
+The `work` layer in `mynet` is a two-mode layer:
+
 ```{r eval=can_run_threadle}
-th_add_node(lazega_nodeset, nodeid = 999)
-th_get_nbr_nodes(lazega_nodeset)
+th_get_all_hyperedges(mynet, "work", offset = 0, limit = 10)
+th_get_hyperedge_nodes(mynet, "work", hypername = "ias")
+th_get_node_hyperedges(mynet, "work", nodeid = 123)
 ```
 
-### Define and query attributes
-Define an integer attribute and set values:
+You can add and remove affiliations with the exported two-mode helpers:
+
 ```{r eval=can_run_threadle}
-th_define_attr(lazega_nodeset, "score", "int")
-th_set_attr(lazega_nodeset, nodeid = 1, attrname = "score", attrvalue = 10)
-th_get_attr(lazega_nodeset, nodeid = 1, attrname = "score")
-th_get_attr_summary(lazega_nodeset, "score")
-```
-Remove values or undefine the attribute:
-```{r eval=can_run_threadle}
-th_remove_attr(lazega_nodeset, nodeid = 1, attrname = "score")
-th_undefine_attr(lazega_nodeset, "score")
+th_add_hyper(mynet, "work", hypername = "liu_temp", nodes = c(123, 234))
+th_add_aff(mynet, "work", nodeid = 345, hypername = "liu_temp")
+th_get_hyperedge_nodes(mynet, "work", hypername = "liu_temp")
+
+th_remove_aff(mynet, "work", nodeid = 345, hypername = "liu_temp")
+th_remove_hyper(mynet, "work", hypername = "liu_temp")
 ```
 
-Generate random attributes:
+## Derived structures
+
+Create a filtered nodeset and subnet from the example data:
+
 ```{r eval=can_run_threadle}
-th_generate_attr(lazega_nodeset, "x", attrtype = "int", min = 1, max = 10)
-th_get_attr_summary(lazega_nodeset, "x")
+female_nodeset <- th_filter(
+  "female_nodeset",
+  mynet_nodeset,
+  attrname = "gender",
+  cond = "eq",
+  attrvalue = "f"
+)
+female_mynet <- th_subnet("female_mynet", mynet, female_nodeset)
+
+th_info(female_nodeset)
+th_info(female_mynet)
 ```
 
-## Basic network routines
-Compute density (for a one-mode layer):
-```{r eval=can_run_threadle}
-th_density(lazega, "friends")
-```
-Degree (writes an attribute):
-```{r eval=can_run_threadle}
-th_degree(lazega, "friends", attrname = "deg", direction = "both")
-th_get_attr(lazega, nodeid = 2, attrname = "deg")
-```
+Layer transformations also operate on the example network:
 
-Connected components (writes component IDs to an attribute):
 ```{r eval=can_run_threadle}
-th_components(lazega, "friends", attrname = "comp")
-th_get_attr_summary(lazega, "comp")
-```
+th_symmetrize(mynet, "trade", method = "max", newlayername = "trade_sym")
+th_dichotomize(
+  mynet,
+  "trade",
+  cond = "ge",
+  threshold = 1000,
+  truevalue = 1,
+  falsevalue = 0,
+  newlayername = "trade_hi"
+)
+th_project_two_mode(mynet, "work", method = "count", newlayername = "work_projected")
 
-Shortest path:
-```{r eval=can_run_threadle}
-th_shortest_path(lazega, node1id = 1, node2id = 3, layername = "friends")
+th_get_edge(mynet, "trade_sym", 123, 345)
+th_get_edge(mynet, "trade_hi", 890, 234)
+th_get_edge(mynet, "work_projected", 123, 456)
 ```
 
+## Editing structures
 
-## Import and export layer data
-Export a layer to an edge list:
+You can create new structures when you need a small scratch network:
+
+```{r eval=can_run_threadle}
+scratch_nodes <- th_create_nodeset("scratch_nodes", name = "Scratch nodes", createnodes = 5)
+scratch_net <- th_create_network("scratch_net", scratch_nodes, name = "Scratch network")
+
+th_add_layer(scratch_net, "friendship", mode = 1, directed = FALSE, valuetype = "binary")
+th_add_edge(scratch_net, "friendship", node1id = 1, node2id = 2)
+th_check_edge(scratch_net, "friendship", node1id = 1, node2id = 2)
+
+th_remove_edge(scratch_net, "friendship", node1id = 1, node2id = 2)
+th_clear_layer(scratch_net, "friendship")
+```
+
+Node and attribute commands use the same public handles:
+
+```{r eval=can_run_threadle}
+th_add_node(scratch_nodes, nodeid = 10)
+th_get_all_nodes(scratch_nodes, offset = 0, limit = 20)
+th_remove_node(scratch_nodes, nodeid = 10)
+
+th_define_attr(scratch_nodes, "score", "int")
+th_set_attr(scratch_nodes, nodeid = 1, attrname = "score", attrvalue = 7)
+th_get_attr(scratch_nodes, nodeid = 1, attrname = "score")
+th_remove_attr(scratch_nodes, nodeid = 1, attrname = "score")
+th_undefine_attr(scratch_nodes, "score")
+```
+
+## Import and export
+
 ```{r eval=can_run_threadle}
 out <- tempfile(fileext = ".tsv")
-th_export_layer(lazega, "friends", file = out, header = TRUE, sep = "\t")
+th_export_layer(mynet, "kinship", file = out, header = TRUE, sep = "\t")
 readLines(out, n = 3)
 unlink(out)
 ```
-Import edges into an existing layer:
+
 ```{r eval=can_run_threadle}
 tmp <- tempfile(fileext = ".tsv")
 write.table(
-  data.frame(node1 = c(1, 2), node2 = c(2, 3), value = c(1, 1)),
-  file = tmp, sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE
+  data.frame(node1 = c(1, 2), node2 = c(2, 3), value = c(4, 5)),
+  file = tmp,
+  sep = "\t",
+  row.names = FALSE,
+  col.names = FALSE,
+  quote = FALSE
 )
 
-th_import_layer(lazega, "friends",
-  file = tmp, format = "edgelist",
-  node1col = 0, node2col = 1, valuecol = 2,
-  header = FALSE, sep = "\t"
+th_add_layer(scratch_net, "imported_edges", mode = 1, directed = FALSE, valuetype = "valued")
+th_import_layer(
+  scratch_net,
+  "imported_edges",
+  file = tmp,
+  format = "edgelist",
+  node1col = 0,
+  node2col = 1,
+  valuecol = 2,
+  header = FALSE,
+  sep = "\t"
 )
-
-th_check_edge(lazega, "friends", node1id = 1, node2id = 2)
+th_get_edge(scratch_net, "imported_edges", node1id = 1, node2id = 2)
 unlink(tmp)
 ```
 
-## Save and load Threadle structures
-Save nodeset or network:
+Save and load Threadle's internal file formats:
 
 ```{r eval=can_run_threadle}
-tmp_net <- tempfile(fileext = ".tsv")
-th_save_file(lazega, file = tmp_net)
-file.exists(tmp_net)
-unlink(tmp_net)
+tmp_nodes <- tempfile(fileext = ".tsv")
+th_save_file(scratch_nodes, file = tmp_nodes)
+scratch_nodes_copy <- th_load_file("scratch_nodes_copy", file = tmp_nodes, type = "nodeset")
+th_get_nbr_nodes(scratch_nodes_copy)
+unlink(tmp_nodes)
 ```
-Load back from file:
+
+## Low-level commands
+
+`th_cmd()` is an escape hatch for Threadle commands that do not yet have a typed wrapper.
+
 ```{r eval=can_run_threadle}
-# Ensure Threadle working directory can resolve referenced files if loading a network
-# (for a standalone roundtrip, prefer staging all required files into one folder first)
+th_cmd("info", args = list(structure = mynet))
 ```
 
 ## Cleanup
 
-Delete individual structures:
-```{r eval=can_run_threadle}
-th_delete(lazega)
-th_delete(lazega_nodeset)
-th_i()
-```
-
-Or delete everything:
 ```{r eval=can_run_threadle}
 th_delete_all()
 th_i()
-```
-
-Stop Threadle:
-
-```{r eval=can_run_threadle}
 th_stop_threadle()
-
-if (exists("exdir", inherits = FALSE) && is.character(exdir) && nzchar(exdir) && dir.exists(exdir)) {
-  unlink(exdir, recursive = TRUE, force = TRUE)
-}
 ```
 
 ## Session info
+
 ```{r session-info}
 sessionInfo()
 ```
