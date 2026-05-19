@@ -20,7 +20,7 @@ th_is_available <- function(path = "threadle") {
 #'
 #' @param x A single character name, or a Threadle structure object with `$name`.
 #' @return A length-1 character string giving the backend variable name.
-#' @keywords internal
+#' @noRd
 .th_name <- function(x) {
   if (is.null(x)) return(NULL)
   if (is.character(x) && length(x) == 1) return(x)
@@ -43,7 +43,7 @@ th_is_available <- function(path = "threadle") {
 #' @param env An environment, usually `environment()` from the wrapper.
 #' @param drop Character vector of argument names to drop.
 #' @return A named list of arguments suitable for `.th_json_cmd()`.
-#' @keywords internal
+#' @noRd
 .th_args <- function(env, drop = character()) {
   fmls <- names(formals(sys.function(sys.parent())))
   keep <- setdiff(fmls, drop)
@@ -76,7 +76,7 @@ th_is_available <- function(path = "threadle") {
 #' @param args Named list of arguments, or `NULL`.
 #' @param assign Optional backend variable name to assign output to, or `NULL`.
 #' @return A JSON string.
-#' @keywords internal
+#' @noRd
 .th_json_cmd <- function(command, args = NULL, assign = NULL) {
   mode <- getOption("threadle.command", default = "json")
 
@@ -106,10 +106,10 @@ th_is_available <- function(path = "threadle") {
 #' @param a First value.
 #' @param b Fallback value.
 #' @return `a` if non-`NULL`, else `b`.
-#' @keywords internal
+#' @noRd
 NULL
 
-#' @rdname op-null-coalesce
+#' @noRd
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #' Stop if backend response indicates failure
@@ -119,7 +119,7 @@ NULL
 #'
 #' @param resp Parsed JSON response (a list) from `.send_command()`.
 #' @return Invisibly returns `resp` when successful.
-#' @keywords internal
+#' @noRd
 .th_stop_if_fail <- function(resp) {
   mode <- getOption("threadle.command", "json")
 
@@ -142,7 +142,7 @@ NULL
 #'
 #' @param cmd A JSON command string to send to the Threadle CLI process.
 #' @return A parsed JSON response as a list.
-#' @keywords internal
+#' @noRd
 .send_command <- function(cmd) {
   if (length(cmd) == 0 || !nzchar(cmd)) return(NULL)
 
@@ -230,7 +230,7 @@ NULL
 #' @param return What to return: `"payload"` (default) or `"response"`.
 #' @param .print_message Logical; if `TRUE`, print `resp$Message` when present.
 #' @return If `return = "payload"`, returns `resp$Payload`; otherwise returns the full response.
-#' @keywords internal
+#' @noRd
 .th_call <- function(cmd,
                      args = NULL,
                      assign = NULL,
