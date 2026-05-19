@@ -4,7 +4,7 @@
 \alias{th_export}
 \title{Export a network to an external file format}
 \usage{
-th_export(network, format = "gexf", file, layername = NULL)
+th_export(network, format = "gexf", file, layername)
 }
 \arguments{
 \item{network}{A \code{threadle_network} object or a character string giving
@@ -14,8 +14,7 @@ the name of a network in the Threadle CLI environment.}
 
 \item{file}{Path to the output file.}
 
-\item{layername}{Optional name of a specific layer to export. If \code{NULL},
-all layers are included.}
+\item{layername}{Name of the specific layer to export.}
 }
 \value{
 \code{NULL}, invisibly.
@@ -33,7 +32,7 @@ net <- th_create_network("net", ns)
 th_add_layer(net, "l1", mode = 1, directed = FALSE, valuetype = "binary")
 th_add_edge(net, "l1", node1id = 1, node2id = 2)
 tmp <- tempfile(fileext = ".gexf")
-th_export(net, format = "gexf", file = tmp)
+th_export(net, format = "gexf", file = tmp, layername = "l1")
 th_stop_threadle()
 \dontshow{\}) # examplesIf}
 }

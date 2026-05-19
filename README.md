@@ -8,10 +8,10 @@
 [![R-CMD-check](https://github.com/YukunJiao/threadleR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/YukunJiao/threadleR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-threadleR is an R client for the Threadle CLI console. It allows you to
-control a running Threadle process directly from R, making it easy to
-load data, run commands, and build reproducible analysis workflows
-around Threadle.
+threadleR is an R client for the [Threadle](https://threadle.dev)
+command-line interface. It starts and manages a background Threadle
+process, sends commands from R, and returns results as ordinary R
+objects.
 
 ## Installation
 
@@ -29,118 +29,104 @@ pak::pak("YukunJiao/threadleR")
 
 ## Quick start
 
-First load the package and start a Threadle instance. If threadle is not
-on your PATH, provide the full path to the executable.
+Load the package and start a Threadle instance. If `threadle` is not on
+your PATH, provide the full path to the executable.
 
 ``` r
 library(threadleR)
 
-# Print commands sent to Threadle (useful for debugging)
-options(threadle.print_cmd = TRUE)
+th_is_available()
+th_start_threadle()
 
-# Start Threadle
-th_start_threadle("~/Documents/Threadle/Threadle.CLIconsole/bin/Debug/net8.0/threadle")
-
-# Synchronize Threadle working directory with R
-th_sync_wd()
+# If needed:
+# th_start_threadle("/full/path/to/threadle")
 ```
 
-Copy the example files shipped with threadleR into your current working
-directory and tell Threadle to use that folder:
+Load bundled example data. `th_load_examples()` sets Threadle’s working
+directory to the package example-data folder and creates handles such as
+`mynet` and `mynet_nodeset`.
 
 ``` r
-ex_dir <- th_stage_examples_to_wd()
-th_set_workdir(ex_dir)
-```
+th_load_examples("mynet")
 
-## Loading data
-
-Load a nodeset and a network into the Threadle backend:
-
-``` r
-lazega_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
-lazega         <- th_load_file("lazega", "lazega.tsv", type = "network")
-
-th_info(lazega_nodeset)
-th_info(lazega)
-```
-
-List all objects currently stored in Threadle:
-
-``` r
 th_i()
+th_info(mynet)
+th_info(mynet_nodeset)
 ```
 
-## Basic queries
-
-Get alters of a node on a given layer:
+Explore nodes, attributes, and layers:
 
 ``` r
-th_get_node_alters(lazega, 23, "friends", direction = "out")
+th_get_nbr_nodes(mynet)
+th_get_all_nodes(mynet, offset = 0, limit = 8)
+
+th_get_attr(mynet_nodeset, nodeid = 123, attrname = "gender")
+th_get_attr_summary(mynet_nodeset, attrname = "gender")
 ```
 
-Compute shortest paths:
+Run common network queries:
 
 ``` r
-th_shortest_path(lazega, 1, 23, "friends")
-th_shortest_path(lazega, 1, 23)
+th_get_edge(mynet, "trade", node1id = 123, node2id = 345)
+th_get_node_alters(mynet, nodeid = 345, layernames = "trade", direction = "both")
+th_get_degree(mynet, nodeid = 345, layernames = "trade", direction = "both")
+th_density(mynet, "kinship")
 ```
 
-Get the number of nodes:
+Compute derived measures:
 
 ``` r
-nbr_nodes <- th_get_nbr_nodes(lazega)
-nbr_nodes
+th_components(mynet, "kinship", attrname = "kinship_component")
+th_degree(mynet, "kinship", attrname = "kinship_degree", direction = "both")
+th_shortest_path(mynet, node1id = 123, node2id = 567, layernames = "kinship")
 ```
 
-## Modifying networks
-
-Add a new layer and insert an edge:
+Work with the two-mode `work` layer:
 
 ``` r
-th_add_layer(lazega, "testlayer", mode = 1)
-th_add_edge(lazega, "testlayer", 1, 100)
+th_get_all_hyperedges(mynet, "work", offset = 0, limit = 10)
+th_get_hyperedge_nodes(mynet, "work", hypername = "ias")
+th_get_node_hyperedges(mynet, "work", nodeid = 123)
 ```
 
-Remove an edge:
+Create and edit a small scratch network:
 
 ``` r
-th_remove_edge(lazega, "testlayer", 1, 100)
+scratch_nodes <- th_create_nodeset("scratch_nodes", createnodes = 5)
+scratch_net <- th_create_network("scratch_net", scratch_nodes)
+
+th_add_layer(scratch_net, "friendship", mode = 1, directed = FALSE)
+th_add_edge(scratch_net, "friendship", node1id = 1, node2id = 2)
+th_check_edge(scratch_net, "friendship", node1id = 1, node2id = 2)
 ```
 
-## Saving and loading
-
-Save structures to disk:
+Save and load Threadle structures:
 
 ``` r
-th_save_file(lazega)
-th_save_file(lazega, file = "lazega.tsv.gz")
+tmp <- tempfile(fileext = ".tsv")
+th_save_file(scratch_nodes, file = tmp)
+
+scratch_nodes_copy <- th_load_file("scratch_nodes_copy", file = tmp, type = "nodeset")
+th_get_nbr_nodes(scratch_nodes_copy)
 ```
-
-Reload them later:
-
-``` r
-lazega <- th_load_file("lazega", "lazega.tsv.gz", type = "network")
-```
-
-## Working directory
-
-Check the working directory used by Threadle:
-
-``` r
-th_get_workdir()
-```
-
-Change it:
-
-``` r
-th_set_workdir("~/my_threadle_workspace")
-```
-
-## Shutting down Threadle
 
 When you are done, stop the running Threadle process:
 
 ``` r
+th_delete_all()
 th_stop_threadle()
 ```
+
+For the longer walkthrough, install with vignettes enabled:
+
+``` r
+remotes::install_github(
+  "YukunJiao/threadleR",
+  build_vignettes = TRUE,
+  dependencies = TRUE
+)
+
+vignette("threadleR", package = "threadleR")
+```
+
+You can also read the source vignette in `vignettes/threadleR.Rmd`.
