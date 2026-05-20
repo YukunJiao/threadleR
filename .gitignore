@@ -3,6 +3,7 @@
 .Rproj.user
 .Renviron
 threadle_examples/
+threadle_outputs/
 /inst/extdata/net100M.bin.gz
 /inst/extdata/nodes15M.bin.gz
 inst/doc
