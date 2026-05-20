@@ -12,7 +12,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     processx,
-    jsonlite
+    jsonlite,
+    data.table
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 3.5)
