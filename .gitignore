@@ -10,3 +10,8 @@ inst/doc
 /Meta/
 /.vs
 .positai
+threadle_script.txt
+import_edges.tsv
+mynet_saved.tsv
+mynet_kinship.gexf
+mynet_kinship_edges.tsv
