@@ -1847,8 +1847,8 @@ th_load_file <- function(name, file, type, pack = FALSE) {
 #' Load bundled example data
 #'
 #' `th_load_examples()` loads one or more example datasets shipped with
-#' \pkg{threadleR}. It sets Threadle's working directory to the package
-#' `extdata` folder, loads each dataset's nodeset and network, assigns the
+#' \pkg{threadleR}. It temporarily sets Threadle's working directory to the
+#' package `extdata` folder, loads each dataset's nodeset and network, assigns the
 #' resulting handles into the caller's environment by default, and returns them
 #' as a named list.
 #'
@@ -1857,8 +1857,8 @@ th_load_file <- function(name, file, type, pack = FALSE) {
 #'   Defaults to `c("mynet", "lazega")`.
 #' @param assign Logical; if `TRUE`, assign handles such as `mynet_nodeset` and
 #'   `mynet` into the caller's environment.
-#' @param set_workdir Logical; if `TRUE`, set Threadle's working directory to the
-#'   bundled `extdata` folder before loading.
+#' @param set_workdir Logical; if `TRUE`, temporarily set Threadle's working
+#'   directory to the bundled `extdata` folder while loading.
 #' @param envir Environment where handles are assigned when `assign = TRUE`.
 #' @return A named list of `threadle_nodeset` and `threadle_network` handles.
 #' @examplesIf th_is_available()
@@ -1913,6 +1913,8 @@ th_load_examples <- function(examples = c("mynet", "lazega"),
   }
 
   if (isTRUE(set_workdir)) {
+    old_workdir <- th_get_workdir()
+    on.exit(th_set_workdir(old_workdir), add = TRUE)
     th_set_workdir(ext)
   }
 
