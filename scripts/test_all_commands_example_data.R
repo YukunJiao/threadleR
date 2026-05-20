@@ -13,14 +13,32 @@ options(
   threadle.timeout = 1800
 )
 
+root_dir <- getwd()
+example_dir <- file.path(root_dir, "threadle_examples")
+outputs_dir <- file.path(root_dir, "threadle_outpus")
+
+dir.create(example_dir, recursive = TRUE, showWarnings = FALSE)
+dir.create(outputs_dir, recursive = TRUE, showWarnings = FALSE)
+
+th_stage_examples_to_wd(example_dir, overwrite = TRUE)
+
 print(th_is_available())
 th_start_threadle()
 on.exit(th_stop_threadle(), add = TRUE)
 getwd()
 th_get_workdir()
-# Load bundled example data.
-example_data <- th_load_examples(c("mynet", "lazega"))
-example_data <- th_load_examples(c("mynet"))
+# Load bundled example data from the staged example folder.
+th_set_workdir(example_dir)
+mynet_nodeset <- th_load_file("mynet_nodeset", "mynet_nodesetfile.tsv", type = "nodeset")
+mynet <- th_load_file("mynet", "mynet.tsv", type = "network")
+lazega_nodeset <- th_load_file("lazega_nodeset", "lazega_nodes.tsv", type = "nodeset")
+lazega <- th_load_file("lazega", "lazega.tsv", type = "network")
+example_data <- list(
+  mynet_nodeset = mynet_nodeset,
+  mynet = mynet,
+  lazega_nodeset = lazega_nodeset,
+  lazega = lazega
+)
 print(names(example_data))
 print(th_get_workdir())
 print(th_dir())
@@ -191,7 +209,7 @@ th_random_seed(42L)
 th_sync_wd()
 
 # Export, save, import, and load a Threadle script.
-exports_dir <- getwd()
+exports_dir <- outputs_dir
 dir.create(exports_dir, recursive = TRUE, showWarnings = FALSE)
 
 kinship_edges_file <- file.path(exports_dir, "mynet_kinship_edges.tsv")
@@ -207,7 +225,7 @@ stopifnot(file.exists(mynet_saved_file))
 
 mynet_nodeset_copy <- th_load_file(
   "mynet_nodeset_copy",
-  file.path(system.file("extdata", package = "threadleR"), "mynet_nodesetfile.tsv"),
+  file.path(example_dir, "mynet_nodesetfile.tsv"),
   type = "nodeset"
 )
 print(th_info(mynet_nodeset_copy))
