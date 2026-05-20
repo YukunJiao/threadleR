@@ -16,7 +16,8 @@ options(
 print(th_is_available())
 th_start_threadle()
 on.exit(th_stop_threadle(), add = TRUE)
-
+getwd()
+th_get_workdir()
 # Load bundled example data.
 example_data <- th_load_examples(c("mynet", "lazega"))
 example_data <- th_load_examples(c("mynet"))
@@ -187,16 +188,10 @@ th_setting("verbose", FALSE)
 th_setting("nodecache", TRUE)
 th_setting("nodecache", FALSE)
 th_random_seed(42L)
-staged_examples <- th_stage_examples_to_wd(
-  file.path(tempdir(), "threadleR-staged-examples"),
-  overwrite = TRUE
-)
-print(staged_examples)
 th_sync_wd()
-th_set_workdir(system.file("extdata", package = "threadleR"))
 
 # Export, save, import, and load a Threadle script.
-exports_dir <- file.path(tempdir(), "threadleR-workflow-exports")
+exports_dir <- getwd()
 dir.create(exports_dir, recursive = TRUE, showWarnings = FALSE)
 
 kinship_edges_file <- file.path(exports_dir, "mynet_kinship_edges.tsv")
@@ -262,4 +257,3 @@ print(th_i())
 
 th_stop_threadle()
 cat("Workflow complete. Output directory: ", exports_dir, "\n", sep = "")
-
