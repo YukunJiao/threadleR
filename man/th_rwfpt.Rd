@@ -13,7 +13,8 @@ th_rwfpt(
   walkfactor = 1,
   minpairobs = 10L,
   balanced = FALSE,
-  weighted = FALSE
+  weighted = FALSE,
+  return_histograms = FALSE
 )
 }
 \arguments{
@@ -40,9 +41,16 @@ Defaults to \code{FALSE}.}
 
 \item{weighted}{Logical; if \code{TRUE}, uses edge weights to bias walk steps.
 Defaults to \code{FALSE}.}
+
+\item{return_histograms}{Logical; if \code{TRUE}, also returns the full step-count
+histogram distributions as a \code{data.table} alongside the result network.
+Defaults to \code{FALSE}.}
 }
 \value{
-A \code{threadle_network} object containing result layers.
+When \code{return_histograms = FALSE} (default): a \code{threadle_network}
+object containing result layers. When \code{return_histograms = TRUE}: a named
+list with elements \code{network} (a \code{threadle_network}) and \code{histograms} (a
+\code{data.table} with columns \code{from}, \code{to}, \code{step}, \code{count}).
 }
 \description{
 \code{th_rwfpt()} estimates inter-categorical distances as mean first passage
