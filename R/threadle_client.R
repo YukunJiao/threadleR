@@ -963,31 +963,38 @@ th_export <- function(network, format = "gexf", file, layername) {
 }
 
 
-#' Save layer as edge list
+#' Save layer as edge list or matrix
 #'
-#' Write the ties of an existing layer in a network to a file in edge list format.
-#' Matrix export is not supported (exported files can be very large).
+#' Write the ties of an existing layer in a network to a file in edge list or
+#' matrix format.
+#'
 #' @details
-#' The layer can be either 1-mode or 2-mode. The output columns depend on the layer type.
+#' The layer can be either 1-mode or 2-mode. The output columns depend on the
+#' layer type and format.
 #'
-#' For binary 1-mode layers, the edgelist has two columns. Directional layers use the headers
-#' `from` and `to`, while symmetric layers use `node1` and `node2`.
+#' For binary 1-mode layers in edgelist format, the output has two columns.
+#' Directional layers use headers `from` and `to`; symmetric layers use
+#' `node1` and `node2`. Valued 1-mode layers add a third `value` column.
 #'
-#' For valued 1-mode layers, the edgelist has three columns, with an additional `value` column
-#' (header `value`).
+#' For 2-mode layers in edgelist format, the output has two columns with
+#' headers `node` and `affiliation`, where `affiliation` is the hyperedge name.
 #'
-#' For 2-mode layers, the edgelist has two columns with headers `node` and `affiliation`, where
-#' `affiliation` is the hyperedge name.
+#' When `format = "matrix"`, the output is a square adjacency matrix for
+#' 1-mode layers, or a node-by-hyperedge membership matrix for 2-mode layers.
+#' Only nodes (and hyperedges) present in the layer are included, sorted in
+#' ascending order.
 #'
-#' Fields are tab-separated by default, but you can change the separator via `sep`. A header row
-#' is included by default, but can be disabled via `header`.
+#' Fields are tab-separated by default, but you can change the separator via
+#' `sep`. A header row is included by default, but can be disabled via
+#' `header`.
 #'
 #' @param network A `threadle_network` object or a character string giving
 #'   the name of a network in the Threadle CLI environment.
 #' @param layername Layer name to export.
 #' @param file Output file path.
+#' @param format Export format: `"edgelist"` (default) or `"matrix"`.
 #' @param header Logical; whether to write a header row. Defaults to `TRUE`.
-#' @param sep Field separator as a **single character**. Defaults to tab (`"\\t"`).
+#' @param sep Field separator as a **single character**. Defaults to tab (`"\t"`).
 #'
 #' @return `NULL`, invisibly.
 #' @examplesIf th_is_available()
@@ -1005,7 +1012,10 @@ th_export <- function(network, format = "gexf", file, layername) {
 #'
 #' th_stop_threadle()
 #' @export
-th_export_layer <- function(network, layername, file, header = TRUE, sep = "\t") {
+th_export_layer <- function(network, layername, file,
+                            format = "edgelist",
+                            header = TRUE,
+                            sep = "\t") {
   args <- .th_args(environment())
   cmd <- "exportlayer"
   assign <- NULL
