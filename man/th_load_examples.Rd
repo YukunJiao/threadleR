@@ -19,8 +19,8 @@ Defaults to \code{c("mynet", "lazega")}.}
 \item{assign}{Logical; if \code{TRUE}, assign handles such as \code{mynet_nodeset} and
 \code{mynet} into the caller's environment.}
 
-\item{set_workdir}{Logical; if \code{TRUE}, set Threadle's working directory to the
-bundled \code{extdata} folder before loading.}
+\item{set_workdir}{Logical; if \code{TRUE}, temporarily set Threadle's working
+directory to the bundled \code{extdata} folder while loading.}
 
 \item{envir}{Environment where handles are assigned when \code{assign = TRUE}.}
 }
@@ -29,8 +29,8 @@ A named list of \code{threadle_nodeset} and \code{threadle_network} handles.
 }
 \description{
 \code{th_load_examples()} loads one or more example datasets shipped with
-\pkg{threadleR}. It sets Threadle's working directory to the package
-\code{extdata} folder, loads each dataset's nodeset and network, assigns the
+\pkg{threadleR}. It temporarily sets Threadle's working directory to the
+package \code{extdata} folder, loads each dataset's nodeset and network, assigns the
 resulting handles into the caller's environment by default, and returns them
 as a named list.
 }

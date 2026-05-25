@@ -2,9 +2,16 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_export_layer}
 \alias{th_export_layer}
-\title{Save layer as edge list}
+\title{Save layer as edge list or matrix}
 \usage{
-th_export_layer(network, layername, file, header = TRUE, sep = "\\t")
+th_export_layer(
+  network,
+  layername,
+  file,
+  format = "edgelist",
+  header = TRUE,
+  sep = "\\t"
+)
 }
 \arguments{
 \item{network}{A \code{threadle_network} object or a character string giving
@@ -14,31 +21,38 @@ the name of a network in the Threadle CLI environment.}
 
 \item{file}{Output file path.}
 
+\item{format}{Export format: \code{"edgelist"} (default) or \code{"matrix"}.}
+
 \item{header}{Logical; whether to write a header row. Defaults to \code{TRUE}.}
 
-\item{sep}{Field separator as a \strong{single character}. Defaults to tab (\code{"\\\\t"}).}
+\item{sep}{Field separator as a \strong{single character}. Defaults to tab (\code{"\\t"}).}
 }
 \value{
 \code{NULL}, invisibly.
 }
 \description{
-Write the ties of an existing layer in a network to a file in edge list format.
-Matrix export is not supported (exported files can be very large).
+Write the ties of an existing layer in a network to a file in edge list or
+matrix format.
 }
 \details{
-The layer can be either 1-mode or 2-mode. The output columns depend on the layer type.
+The layer can be either 1-mode or 2-mode. The output columns depend on the
+layer type and format.
 
-For binary 1-mode layers, the edgelist has two columns. Directional layers use the headers
-\code{from} and \code{to}, while symmetric layers use \code{node1} and \code{node2}.
+For binary 1-mode layers in edgelist format, the output has two columns.
+Directional layers use headers \code{from} and \code{to}; symmetric layers use
+\code{node1} and \code{node2}. Valued 1-mode layers add a third \code{value} column.
 
-For valued 1-mode layers, the edgelist has three columns, with an additional \code{value} column
-(header \code{value}).
+For 2-mode layers in edgelist format, the output has two columns with
+headers \code{node} and \code{affiliation}, where \code{affiliation} is the hyperedge name.
 
-For 2-mode layers, the edgelist has two columns with headers \code{node} and \code{affiliation}, where
-\code{affiliation} is the hyperedge name.
+When \code{format = "matrix"}, the output is a square adjacency matrix for
+1-mode layers, or a node-by-hyperedge membership matrix for 2-mode layers.
+Only nodes (and hyperedges) present in the layer are included, sorted in
+ascending order.
 
-Fields are tab-separated by default, but you can change the separator via \code{sep}. A header row
-is included by default, but can be disabled via \code{header}.
+Fields are tab-separated by default, but you can change the separator via
+\code{sep}. A header row is included by default, but can be disabled via
+\code{header}.
 }
 \examples{
 \dontshow{if (th_is_available()) withAutoprint(\{ # examplesIf}
