@@ -2319,9 +2319,10 @@ th_rwdistances <- function(name, network, attrname, maxsteps,
 #'   histogram distributions as a `data.table` alongside the result network.
 #'   Defaults to `FALSE`.
 #' @return When `return_histograms = FALSE` (default): a `threadle_network`
-#'   object containing result layers. When `return_histograms = TRUE`: a named
-#'   list with elements `network` (a `threadle_network`) and `histograms` (a
-#'   `data.table` with columns `from`, `to`, `step`, `count`).
+#'   object containing result layers, including a `threadle_nodeset`. When
+#' `return_histograms = TRUE`: a named
+#'   list with elements `network` (a `threadle_network`), a `threadle_nodeset`,
+#' and `histograms` (a `data.table` with columns `from`, `to`, `step`, `count`).
 #' @examplesIf th_is_available()
 #' th_start_threadle()
 #'
@@ -2357,9 +2358,18 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
   cmd <- "rwfpt"
   assign <- name
   payload <- .th_call(cmd = cmd, args = args, assign = assign)
-  net_obj <- structure(list(name = name), class = "threadle_network")
+  
+  envir   <- parent.frame()
+  ns_name <- paste0(name, "_nodeset")
+  ns_obj  <- structure(list(name = ns_name), class = "threadle_nodeset")
+  net_obj <- structure(list(name = name),    class = "threadle_network")
+  attr(net_obj, "nodeset") <- ns_obj
+  assign(name,    net_obj, envir)
+  assign(ns_name, ns_obj,  envir)
+  
   if (isTRUE(return_histograms) && !is.null(payload))
-    return(list(network = net_obj, histograms = data.table::as.data.table(payload)))
+    assign(paste0(name, "_histograms"), data.table::as.data.table(payload), envir)
+  
   net_obj
 }
 
