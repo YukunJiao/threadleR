@@ -1709,6 +1709,23 @@ th_import_layer <- function(network, layername, file,
   .th_call(cmd = cmd, args = args, assign = NULL)
 }
 
+#' Import node attributes from a tab-separated file into the nodeset of a network or nodeset variable.
+#' The file must have a header row where the first cell is ignored (node id column) and each subsequent
+#' cell is an attribute name with an optional type annotation (e.g. "age:Int", "city:String").
+#' Supported types: Int, Float, String, Bool, Char. If no type is given, String is assumed.
+#' Each data row starts with a node id followed by attribute values. Rows whose node id is not found
+#' in the nodeset are skipped by default (left join); set addmissingnodes = TRUE to add them instead.
+#'
+#' @param structure A threadle_nodeset or threadle_network object.
+#' @param file Path to the attribute file.
+#' @param addmissingnodes If TRUE, node ids not present in the nodeset are added. Default FALSE.
+#' @param sep Column separator character. Default is tab.
+th_import_node_attributes <- function(structure, file, addmissingnodes = FALSE, sep = "\t") {
+  args <- .th_args(environment())
+  cmd <- "importnodeattributes"
+  .th_call(cmd = cmd, args = args, assign = NULL)
+}
+
 #' Get structure metadata
 #'
 #' `th_info()` gets metadata about a nodeset or network.
