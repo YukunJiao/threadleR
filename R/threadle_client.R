@@ -424,6 +424,33 @@ th_cmd <- function(cmd, args = list(), assign = NULL, type = NULL) {
   }
 }
 
+#' Returns version and metadata about the running Threadle instance.
+#'
+#' `th_about()` returns metadata about Threadle and threadleR
+#'
+#' Prints a formatted summary to the console and invisibly returns the
+#' information as a named list with fields: CliVersion, CoreVersion,
+#' Author, Institute, ThreadleRBy, Website, Funding, License. Also adds
+#' the creator of threadleR here
+th_about <- function() {
+  args <- .th_args(environment())
+  result <- .th_call(cmd = "about", args = args, assign = NULL)
+  if (!is.null(result)) {
+    result$ThreadleRBy <- "Yukun Jiao"
+    result$ThreadleRVersion <- as.character(packageVersion("threadleR"))
+    cat("Threadle CLI:   ", result$CliVersion,  "\n")
+    cat("Threadle Core:  ", result$CoreVersion, "\n")
+    cat("threadleR:      ", result$ThreadleRVersion, "\n")
+    cat("Author:         ", result$Author,      "\n")
+    cat("Institute:      ", result$Institute,   "\n")
+    cat("threadleR by:   ", result$ThreadleRBy, "\n")
+    cat("Website:        ", result$Website,     "\n")
+    cat("Funding:        ", result$Funding,     "\n")
+    cat("License:        ", result$License,     "\n")
+  }
+  invisible(result)
+}
+
 #' Add an affiliation to a two-mode layer
 #'
 #' `th_add_aff()` adds an affiliation (hyperedge membership) between a node and a hyperedge in a two-mode layer.
