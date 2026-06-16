@@ -1,6 +1,6 @@
 Package: threadleR
 Title: R wrapper for 'Threadle' Command-Line Interface
-Version: 0.5.0
+Version: 0.5.1
 Description: Provides an R wrapper to the 'Threadle' <https://threadle.dev/> command-line interface (CLI). The package starts and manages a persistent 'Threadle' console process, sends commands using a JSON protocol, parses responses, and exposes high-level R wrappers for common operations on networks and node sets (e.g., loading data, inspecting metadata, editing ties and attributes, and running basic measures).
 Authors@R: c(
     person("Yukun", "Jiao", email = "jiaoyukun1999@gmail.com",
