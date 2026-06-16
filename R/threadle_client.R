@@ -64,7 +64,7 @@ th_is_available <- function(path = "threadle") {
     x
   }
   )
-  args
+  if (length(args) == 0) NULL else args
 }
 
 #' Build a JSON command DTO for the Threadle CLI backend
@@ -2402,7 +2402,7 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
   cmd <- "rwfpt"
   assign <- name
   payload <- .th_call(cmd = cmd, args = args, assign = assign)
-  
+
   envir   <- parent.frame()
   ns_name <- paste0(name, "_nodeset")
   ns_obj  <- structure(list(name = ns_name), class = "threadle_nodeset")
@@ -2410,10 +2410,10 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
   attr(net_obj, "nodeset") <- ns_obj
   assign(name,    net_obj, envir)
   assign(ns_name, ns_obj,  envir)
-  
+
   if (isTRUE(return_histograms) && !is.null(payload))
     assign(paste0(name, "_histograms"), data.table::as.data.table(payload), envir)
-  
+
   net_obj
 }
 
