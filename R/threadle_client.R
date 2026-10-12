@@ -87,7 +87,7 @@ th_is_available <- function(path = "threadle") {
     Args    = NULL
   )
 
-  if (!is.null(args)) {
+  if (!is.null(args) && length(args) > 0) {
     args <- lapply(args, function(x) {
       if (is.null(x)) "" else as.character(x)
     })
@@ -2417,6 +2417,99 @@ th_rwfpt <- function(name, network, attrname, maxsteps,
   net_obj
 }
 
+#' Random walker exposure distances
+#'
+#' `th_rwed()` estimates inter-categorical exposure distances using random
+#' walkers, based on a node attribute defining category membership. It
+#' generalizes `th_rwfpt()`: instead of recording only the first-passage
+#' time to each attribute category (and stopping once every category has
+#' been seen), it records the first-passage time to every individual node a
+#' walk discovers, bucketed by that node's category. A single walk can
+#' therefore contribute several observations to the same (source category,
+#' target category) pair, giving a fuller exposure/penetration distribution
+#' rather than just the nearest-instance distance `th_rwfpt()` reports. The
+#' first observation for a given pair within a walk is equivalent to the
+#' `th_rwfpt()` statistic; later ones add information about further/repeated
+#' exposure. Coverage is tracked separately from the distance distribution,
+#' so a walk discovering several nodes of the same target category still
+#' only counts as one covered walk. Unlike `th_rwfpt()`, walks always run
+#' the full `maxsteps` budget (no early exit). Returns a network containing
+#' result layers with exposure distance estimates, standard deviations,
+#' observation counts, and coverage.
+#'
+#' @param name Name of the variable to assign the result network to.
+#' @param network A `threadle_network` object or a character string giving
+#'   the name of a network in the Threadle CLI environment.
+#' @param attrname Name of the node attribute defining category membership.
+#' @param maxsteps Maximum number of steps per walk.
+#' @param layernames Optional character vector of layer names to walk on.
+#'   If `NULL`, all layers are used.
+#' @param walkfactor Multiplier controlling the number of walks relative to
+#'   network size. Defaults to `1.0`.
+#' @param minpairobs Minimum number of observations required per category pair
+#'   to report a result. Defaults to `10`.
+#' @param balanced Logical; if `TRUE`, balances walk starts across categories.
+#'   Defaults to `FALSE`.
+#' @param weighted Logical; if `TRUE`, uses edge weights to bias walk steps.
+#'   Defaults to `FALSE`.
+#' @param return_histograms Logical; if `TRUE`, also returns the full step-count
+#'   histogram distributions as a `data.table` alongside the result network.
+#'   Defaults to `FALSE`.
+#' @return When `return_histograms = FALSE` (default): a `threadle_network`
+#'   object containing result layers, including a `threadle_nodeset`. When
+#' `return_histograms = TRUE`: a named
+#'   list with elements `network` (a `threadle_network`), a `threadle_nodeset`,
+#' and `histograms` (a `data.table` with columns `from`, `to`, `step`, `count`).
+#' @examplesIf th_is_available()
+#' th_start_threadle()
+#'
+#' ns <- th_create_nodeset("ns", createnodes = 6)
+#' net <- th_create_network("net", ns)
+#' th_add_layer(net, "l1", mode = 1, directed = FALSE, valuetype = "binary")
+#' th_add_edge(net, "l1", node1id = 1, node2id = 2)
+#' th_add_edge(net, "l1", node1id = 2, node2id = 3)
+#' th_add_edge(net, "l1", node1id = 3, node2id = 4)
+#' th_add_edge(net, "l1", node1id = 4, node2id = 5)
+#' th_define_attr(net, "grp", "int")
+#' th_set_attr(net, nodeid = 1, attrname = "grp", attrvalue = 1)
+#' th_set_attr(net, nodeid = 2, attrname = "grp", attrvalue = 1)
+#' th_set_attr(net, nodeid = 3, attrname = "grp", attrvalue = 2)
+#' th_set_attr(net, nodeid = 4, attrname = "grp", attrvalue = 2)
+#' th_set_attr(net, nodeid = 5, attrname = "grp", attrvalue = 1)
+#' net <- th_rwed("net", net, attrname = "grp", maxsteps = 100L, minpairobs = 5L)
+#' th_stop_threadle()
+#' @export
+th_rwed <- function(name, network, attrname, maxsteps,
+                     layernames = NULL,
+                     walkfactor = 1.0,
+                     minpairobs = 10L,
+                     balanced = FALSE,
+                     weighted = FALSE,
+                     return_histograms = FALSE) {
+  if (!is.null(layernames) && length(layernames) > 1L)
+    layernames <- paste(layernames, collapse = ";")
+  args <- .th_args(environment(), drop = "name")
+  args[["return_histograms"]] <- NULL
+  if (isTRUE(return_histograms))
+    args[["returnhistograms"]] <- "true"
+  cmd <- "rwed"
+  assign <- name
+  payload <- .th_call(cmd = cmd, args = args, assign = assign)
+
+  envir   <- parent.frame()
+  ns_name <- paste0(name, "_nodeset")
+  ns_obj  <- structure(list(name = ns_name), class = "threadle_nodeset")
+  net_obj <- structure(list(name = name),    class = "threadle_network")
+  attr(net_obj, "nodeset") <- ns_obj
+  assign(name,    net_obj, envir)
+  assign(ns_name, ns_obj,  envir)
+
+  if (isTRUE(return_histograms) && !is.null(payload))
+    assign(paste0(name, "_histograms"), data.table::as.data.table(payload), envir)
+
+  net_obj
+}
+                     
 #' Save a structure to file
 #'
 #' `th_save_file` saves a nodeset or network to disk using Threadle's internal file formats.
