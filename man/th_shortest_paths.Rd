@@ -2,48 +2,56 @@
 % Please edit documentation in R/threadle_client.R
 \name{th_shortest_paths}
 \alias{th_shortest_paths}
-\title{Calculate average shortest paths between node attribute categories}
+\title{Calculate exact shortest paths for a batch of node pairs}
 \usage{
-th_shortest_paths(name, network, attrname, layernames = NULL)
+th_shortest_paths(
+  network,
+  node1ids,
+  node2ids,
+  layernames = NULL,
+  returnpaths = FALSE
+)
 }
 \arguments{
-\item{name}{Character. Variable name for the resulting network in the Threadle
-session. A companion category nodeset is also registered as
-\code{<name>_nodeset}.}
+\item{network}{A \code{threadle_network} object or a character string giving
+the name of a network in the Threadle CLI environment.}
 
-\item{network}{A \code{threadle_network} object. The source network.}
+\item{node1ids}{Integer vector of "from" node IDs, one per pair.}
 
-\item{attrname}{Character. Name of the node attribute used for category
-grouping. Must be of type \code{char}, \code{int}, or \code{string}.}
+\item{node2ids}{Integer vector of "to" node IDs, one per pair, same length
+and order as \code{node1ids}.}
 
-\item{layernames}{Optional character vector of one or more layer names to
-include in the path calculation. If \code{NULL} (default), all layers are
-used. Multiple names are collapsed to a semicolon-separated string before
-being sent to the CLI.}
+\item{layernames}{Optional character vector of layer names to restrict the
+paths to. If \code{NULL}, all layers are used.}
+
+\item{returnpaths}{Logical; if \code{TRUE}, also return the sequence of node ids
+along each shortest path. Defaults to \code{FALSE}.}
 }
 \value{
-A \code{threadle_network} object named \code{name}. The result network
-contains three directed valued layers:
-\itemize{
-\item \code{<attrname>_sp_avg} — mean shortest path length between categories.
-\item \code{<attrname>_sp_se} — standard error of the mean.
-\item \code{<attrname>_sp_count} — number of reachable ordered node pairs.
-}
+A list/data frame with one row per pair, in the same order as
+given, with columns \code{node1id}, \code{node2id}, \code{distance} (\code{-1} if no path
+exists), and \code{path} (only when \code{returnpaths = TRUE}).
 }
 \description{
-Calculates the exact BFS shortest path between all ordered node pairs in the
-network, then aggregates the distances by the values of a specified node
-attribute. Unreachable pairs are excluded from all statistics. The result is a
-new network whose nodes represent the unique attribute values and whose directed
-valued edges hold the aggregated path lengths between categories. A companion
-nodeset with the category labels is also registered under \code{<name>_nodeset}.
+\code{th_shortest_paths()} calculates exact shortest paths (bidirectional BFS)
+for a batch of specific node pairs, run in parallel across up to
+\code{maxthreads} threads (see \code{\link[=th_setting]{th_setting()}}).
 }
-\note{
-This command runs BFS from every node — O(N x (N+E)) — and is only
-feasible for smaller networks.
+\examples{
+\dontshow{if (th_is_available()) withAutoprint(\{ # examplesIf}
+th_start_threadle()
+
+ns <- th_create_nodeset("ns", createnodes = 5)
+net <- th_create_network("net", ns)
+th_add_layer(net, "l1", mode = 1, directed = FALSE)
+th_add_edge(net, "l1", node1id = 1, node2id = 2)
+th_add_edge(net, "l1", node1id = 2, node2id = 3)
+th_shortest_paths(net, node1ids = c(1, 1), node2ids = c(3, 4))
+th_stop_threadle()
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link{th_shortest_path}} for the path between two specific
-nodes; \code{\link{th_rwdistances}} and \code{\link{th_rwfpt}} for
-stochastic alternatives suited to larger networks.
+\code{\link[=th_shortest_paths_attributes]{th_shortest_paths_attributes()}} for aggregating shortest paths
+between all node pairs by a node attribute category, rather than a
+specific batch of pairs.
 }
