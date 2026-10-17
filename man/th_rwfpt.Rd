@@ -48,9 +48,10 @@ Defaults to \code{FALSE}.}
 }
 \value{
 When \code{return_histograms = FALSE} (default): a \code{threadle_network}
-object containing result layers. When \code{return_histograms = TRUE}: a named
-list with elements \code{network} (a \code{threadle_network}) and \code{histograms} (a
-\code{data.table} with columns \code{from}, \code{to}, \code{step}, \code{count}).
+object containing result layers, including a \code{threadle_nodeset}. When
+\code{return_histograms = TRUE}: a named
+list with elements \code{network} (a \code{threadle_network}), a \code{threadle_nodeset},
+and \code{histograms} (a \code{data.table} with columns \code{from}, \code{to}, \code{step}, \code{count}).
 }
 \description{
 \code{th_rwfpt()} estimates inter-categorical distances as mean first passage
