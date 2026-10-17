@@ -23,6 +23,13 @@ Catches threadleR up with the Threadle 1.3 CLI.
 * **Breaking change**: `th_rwed()` and `th_rwdistances()` are removed. The CLI's `rwed`
   command was removed in Threadle 1.3; use `th_rwfpt()` instead. `th_rwdistances()`
   wrapped a CLI command that no longer exists either.
+* Arguments left as `NULL` are no longer sent to Threadle, so the backend applies its
+  own default. Previously they were sent as empty strings, which Threadle took as real
+  values: for example `th_dichotomize(net, "w")` created a layer named `""` instead of
+  `"w-dichotomized"`. Affected `newlayername` in `th_dichotomize()`, `th_symmetrize()`,
+  `th_project_two_mode()`, `th_rewire()`, `th_merge_layers()`, `th_binary_to_valued()`,
+  `th_symmetric_to_directed()` and `th_edge_betweenness_centrality()`, `name` in
+  `th_merge_networks()` and `th_merge_nodesets()`, and `th_set_attrs()`.
 
 # threadleR 0.5.1
 

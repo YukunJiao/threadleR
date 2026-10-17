@@ -73,7 +73,8 @@ th_is_available <- function(path = "threadle") {
 #' process.
 #'
 #' @param command Command name (character scalar).
-#' @param args Named list of arguments, or `NULL`.
+#' @param args Named list of arguments, or `NULL`. `NULL` elements are left
+#'   out, so the backend applies its own default for them.
 #' @param assign Optional backend variable name to assign output to, or `NULL`.
 #' @return A JSON string.
 #' @noRd
@@ -88,10 +89,11 @@ th_is_available <- function(path = "threadle") {
   )
 
   if (!is.null(args) && length(args) > 0) {
-    args <- lapply(args, function(x) {
-      if (is.null(x)) "" else as.character(x)
-    })
-    dto$Args <- args
+    # NULL means "not given": leave it out so the backend uses its own default.
+    # Sending "" instead would be taken as a real value (e.g. a layer named ""),
+    # and as.character(NULL) would serialize as [], which the backend rejects.
+    args <- args[!vapply(args, is.null, logical(1))]
+    if (length(args) > 0) dto$Args <- lapply(args, as.character)
   }
 
   jsonlite::toJSON(dto, auto_unbox = TRUE, null = "null")
