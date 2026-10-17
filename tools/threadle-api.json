@@ -1,0 +1,3254 @@
+{
+  "threadle_version": "1.3.0",
+  "core_version": "1.3.0",
+  "commands": [
+    {
+      "name": "about",
+      "returns": null,
+      "to_assign": false,
+      "params": [],
+      "syntax": "about()",
+      "description": "Displays version information and metadata about the running Threadle instance, including CLI and Core version numbers, author, project website, and license."
+    },
+    {
+      "name": "addaff",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "hypername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "addmissingnode",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        },
+        {
+          "name": "addmissinghyperedge",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        }
+      ],
+      "syntax": "addaff(network = [var:network], layername = [str], nodeid = [uint], hypername = [str], *addmissingnode = ['true'(default),'false'], *addmissinghyperedge = ['true'(default),'false'])",
+      "description": "Adds an affiliation between node 'nodeid' and the hyperedge named 'hypername' in layer 'layername' in network [var:network]. The specified layer must be 2-mode. If the node-hyperedge affiliation already exists, nothing happens. If the specified node id does not exist in the Nodeset, it is by default created and added, but by setting 'addmissingnode' to 'false' prevents this. If the specified hyperedge does not exist, it is by default created and added, but by setting 'addmissinghyperedge' to 'false' prevents this."
+    },
+    {
+      "name": "addedge",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "node1id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "node2id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "value",
+          "default": 1,
+          "type": "float",
+          "required": false
+        },
+        {
+          "name": "addmissingnodes",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        }
+      ],
+      "syntax": "addedge(network = [var:network], layername = [str], node1id = [uint], node2id = [uint], *value = [float(default:1)], *addmissingnodes = ['true'(default), 'false'])",
+      "description": "Creates and adds an edge between node1id and node2id in the specified layer 'layername' (which must be 1-mode) in network 'network'. If the layer is directional, node1id is the source (from) and node2id is the destination (to). The edge value 'value' is optional, defaulting to 1. If the specified node id's do not exist in the Nodeset, they are by default created and added, but by setting 'addmissingnodes' to 'false' prevents this."
+    },
+    {
+      "name": "addhyper",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "hypername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "semicolon-separated uints",
+          "required": false
+        },
+        {
+          "name": "addmissingnodes",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        }
+      ],
+      "syntax": "addhyper(network = [var:network], layername = [str], hypername = [str], *nodes = [semicolon-separated uints], *addmissingnodes = ['true'(default),'false'])",
+      "description": "Creates and adds a hyperedge (aka context or affiliation) called 'hypername' to layer 'layername' in the specified network. The layer must be 2-mode. This can then represent a particular school class or specific social event to which a set of nodes are affiliated. If there already is a hyperedge with the specified name, an error is returned: that must first be removed using 'removehyper()'. Can be provided with an optional list of nodes that are connected by this hyperedge. If the specified node id's do not exist in the Nodeset, they are by default created and added, but by setting 'addmissingnodes' to 'false' prevents this. Duplicate node id values are discarded."
+    },
+    {
+      "name": "addlayer",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "enum",
+          "choices": [
+            "1",
+            "2"
+          ],
+          "required": true
+        },
+        {
+          "name": "directed",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "valuetype",
+          "type": "enum",
+          "choices": [
+            "binary",
+            "valued"
+          ],
+          "default": "binary",
+          "required": false
+        },
+        {
+          "name": "selfties",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        }
+      ],
+      "syntax": "addlayer(network = [var:network], layername = [str], mode = ['1','2'], *directed = ['true','false'(default)], *valuetype = ['binary'(default),'valued'], *selfties=['true','false'(default)])",
+      "description": "Adds a relational layer for a network, which can be either 1-mode or 2-mode (with hyperedges). For 1-mode layers, there are additional settings for the type of ties that exist, specifying edge directionality, edge value type and whether selfties are allowed or not. For 2-mode layer, these settings do not matter: all ties are deemed binary. A network must have at least one layer defined, referred to when adding edges between nodes and nodes-affiliations as well as when importing edges from file to a layer."
+    },
+    {
+      "name": "addnode",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "addnode(structure = [var:structure], nodeid = [uint])",
+      "description": "Creates and adds a node with id [nodeid] and adds it to the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Note that the node id is what makes each node unique, and it must be an unsigned integer."
+    },
+    {
+      "name": "assortativity",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "assortativity(network=[var:network], layername=[str], attrname=[str])",
+      "description": "Computes attribute assortativity (homophily): the tendency of connected nodes to share similar values of a node attribute. For numeric attributes (Int, Float) uses Pearson correlation; for categorical attributes (Char, String, Bool) uses Newman's nominal mixing formula. Returns a value in [-1, 1]: positive = nodes prefer similar others, negative = nodes prefer dissimilar others. Nodes with missing attribute values are skipped. Reference: Newman (2003) doi:10.1103/PhysRevE.67.026126."
+    },
+    {
+      "name": "betweennesscentrality",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "betweennesscentrality(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *samplesize=[int], *traversal=['out'(default),'in','both'])",
+      "description": "Calculates betweenness centrality for each node using Brandes' algorithm and stores the result as a node attribute. Normalized by (n-1)(n-2), for both directed and undirected networks. When samplesize > 0, a random subset of source nodes is used and scores are scaled accordingly. The per-source BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()'). See Brandes (2001); sampling: Brandes & Pich (2007)."
+    },
+    {
+      "name": "binarytovalued",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "binarytovalued(network = [var:network], layername = [str], *newlayername = [str])",
+      "description": "Converts a binary 1-mode layer into a valued layer with the same directionality, where every existing tie is given the value 1. The original layer remains unchanged. The new layer will be named as the provided layer, with the addition '-valued', but the name can also be specified with the 'newlayername' argument."
+    },
+    {
+      "name": "checkedge",
+      "returns": "bool",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "node1id",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "node2id",
+          "type": "int",
+          "required": true
+        }
+      ],
+      "syntax": "[bool] = checkedge(network = [var:network], layername = [str], node1id = [int], node2id = [int])",
+      "description": "Checks if an edge exists between node1id (from) and node2id (to) in the specified layer 'layername', which can be either 1-mode or 2-mode. If the layer is 1-mode directional, node1Id is the source and node2Id is the destination. Returns the string 'true' if an edge is found, otherwise 'false'. For 2-mode layers, an edge exists if the two nodes share at least one affiliation (hyperedge)."
+    },
+    {
+      "name": "clearlayer",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "clearlayer(network = [var:network], layername = [str])",
+      "description": "Removes all edges in the specified layer for the specified network (but keeps the layer). For 2-mode layers, this therefore removes all hyperedges."
+    },
+    {
+      "name": "closenesscentrality",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "closenesscentrality(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *samplesize=[int], *traversal=['out'(default),'in','both'])",
+      "description": "Calculates closeness centrality for each node using Wasserman-Faust normalization, which handles disconnected components by incorporating the reachable proportion of nodes. Stores the result as a node attribute. When samplesize > 0, a random subset of source nodes is used. The per-source BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()'). See Freeman (1978); normalization for disconnected graphs: Wasserman & Faust (1994)."
+    },
+    {
+      "name": "clusteringcoefficient",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "method",
+          "type": "enum",
+          "choices": [
+            "auto",
+            "wattsstrogatz",
+            "fagiolo",
+            "barrat",
+            "onnela"
+          ],
+          "default": "auto",
+          "required": false
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "clusteringcoefficient(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *method=['auto'(default),'wattsstrogatz','fagiolo','barrat','onnela'], *samplesize=[int])",
+      "description": "Calculates the local clustering coefficient for each node in one or more 1-mode layers, storing results as a float node attribute. Formula is auto-selected based on layer type (Watts-Strogatz for binary undirected, Fagiolo for binary directed, Barrat for valued undirected) unless overridden. Accepts multiple 1-mode layers simultaneously (union adjacency). 2-mode layers are not supported — project them first with projecttwomodetoonemode(). The 'onnela' method is refused for any layer where selfties are allowed, even if it has none, since its normalization by the global maximum edge weight does not currently scan self-tie values — use 'barrat' instead for such layers. Optional samplesize limits computation to a random subset of nodes (same pattern as betweennesscentrality). Each node's coefficient is computed independently, in parallel across up to 'maxthreads' threads (see 'setting()'). References: Watts & Strogatz (1998) doi:10.1038/30918; Fagiolo (2007) doi:10.1103/PhysRevE.76.026107; Barrat et al. (2004) doi:10.1073/pnas.0400087101; Onnela et al. (2005) doi:10.1103/PhysRevE.71.065103."
+    },
+    {
+      "name": "communitydetection",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "choices": [
+            "louvain",
+            "leiden",
+            "lp",
+            "lpam",
+            "gn"
+          ],
+          "default": "louvain",
+          "required": false
+        },
+        {
+          "name": "resolution",
+          "type": "double",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "randomness",
+          "type": "double",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "maxiterations",
+          "type": "int",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "numrestarts",
+          "default": 1,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "communitydetection(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *type=['louvain'(default),'leiden','lp','lpam','gn'], +resolution=[double], +randomness=[double], +maxiterations=[int], *numrestarts=[int(default:1)])",
+      "description": "Detects communities for the specified 1-mode layer(s), storing the community index as an integer node attribute. Directed layers are symmetrized (arcs in both directions accumulate into an undirected weight) since community detection is inherently undirected; multiple layers combine via summed edge weight. Only 1-mode layers are accepted — project 2-mode layers first with projecttwomodetoonemode(). Five methods are available via 'type': 'louvain' (default) — modularity optimization; resolution (default 1.0) scales the null-model term, values above 1 favor more/smaller communities, values below 1 favor fewer/larger ones. 'leiden' — like 'louvain' but with a randomized refinement step before each aggregation that guarantees every resulting community is internally connected, fixing a known Louvain flaw; also takes resolution, plus randomness (default 0.01) controlling how much refinement deviates from a purely greedy choice (near 0 is effectively greedy, larger values explore more). 'lp' — plain (Raghavan-Albert-Kumara) label propagation: each node repeatedly adopts the most common label among its neighbors; maxiterations (default 100) caps the number of passes, since unlike Louvain/Leiden this method has no guaranteed convergence — prone to collapsing well-connected networks into one giant community. 'lpam' — modularity-constrained label propagation (Barber & Clark): same neighbor-label mechanism as 'lp', but a node only adopts a new label if doing so increases modularity, which avoids the monster-community collapse; runs a single level (no aggregation), so it typically finds more, smaller communities than Louvain/Leiden. 'gn' — Girvan-Newman: divisive rather than agglomerative, repeatedly removing the currently-highest-edge-betweenness edge and keeping whichever resulting partition scores highest on modularity (against the original graph); also takes resolution. Deterministic, and substantially more expensive than the other methods (a full edge-betweenness recomputation after every single edge removal, O(V*E^2) in the worst case) since it does not stop early, so best suited to smaller networks; numrestarts does not apply (it is always reported as 1). Arguments marked with (+) only apply to the corresponding type and are ignored otherwise. 'numrestarts' (default 1, applies to every type except 'gn') runs that many independent restarts — each with its own random node order/tie-breaks/refinement draws — in parallel across up to 'maxthreads' threads (see 'setting()') and keeps the highest-modularity result; a way to escape the local optima a single run can get stuck in (for 'lp', modularity is a secondary selection criterion since that method doesn't target it). Exact reproducibility via 'randomseed()' across restarts is only guaranteed when maxthreads is set to 1. Returns NbrCommunities, CommunitySizes (descending), the achieved Modularity score (for 'lp' this is reported, not optimized), and NumRestarts. References: Blondel, Guillaume, Lambiotte & Lefebvre (2008) doi:10.1088/1742-5468/2008/10/P10008; Traag, Waltman & van Eck (2019) doi:10.1038/s41598-019-41695-z; Raghavan, Albert & Kumara (2007) doi:10.1103/PhysRevE.76.036106; Barber & Clark (2009) doi:10.1103/PhysRevE.80.026129; Girvan & Newman (2002) doi:10.1073/pnas.122653799."
+    },
+    {
+      "name": "components",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "components(network = [var:network], layername = [str], *attrname = [str])",
+      "description": "Calculates the number of components for the specified layer and network, and storing the result as an integer node attribute representing which component it is part of. The node attribute is automatically named to the layername and 'components', but this can be overridden with the attrName parameter. To explore the number of components, use the getattrsummary() on this node attribute: the max value represents the number of components minus one. To calculate the size of a component: use the filter() command to create new nodesets for each value of this attribute and then use getnbrnodes() to get the size of the filtered nodesets. Not the smoothest right now, but it works!"
+    },
+    {
+      "name": "constraints",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "constraints(network=[var:network], *layernames=[semicolon-separated], *attrname=[str])",
+      "description": "Computes Burt's constraint for each node in the specified 1-mode layer(s) and stores the result as a float node attribute. Constraint C(i) = Σ_j (p_ij + Σ_q p_iq p_qj)² where p_ij is i's proportion of interaction with j. Ranges from ~0 (broker, many structural holes) to ~1 (fully embedded in dense clique). Weights are symmetrized across layers. Only 1-mode layers are accepted — project 2-mode layers first. Burt's formula has no defined treatment of a tie from a node to itself, so any layer where selfties are allowed is refused, even if it happens to have none. The per-node computation runs in parallel across up to 'maxthreads' threads (see 'setting()'). Reference: Burt (1992) Structural Holes; Burt (2004) doi:10.1086/421787."
+    },
+    {
+      "name": "convertattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrtype",
+          "type": "enum",
+          "choices": [
+            "int",
+            "char",
+            "float",
+            "bool",
+            "string"
+          ],
+          "required": true
+        }
+      ],
+      "syntax": "convertattr(structure = [var:structure], from = [str], to = [str], attrtype = ['int','char','float','bool','string'])",
+      "description": "Converts a node attribute to a new type, storing the result under a new name 'to' and leaving the original attribute 'from' untouched. Each node's value is converted independently - formatted as a string and re-parsed as the new type, the same way a string CLI argument is parsed for that type - so a value that doesn't convert (e.g. a non-numeric string to 'int', or a string longer than one character to 'char') is simply left unset on the new attribute for that node, rather than failing the whole command. Converting a string to 'float' or 'int' keeps the parser's native handling of 'NaN'/'Infinity' as real values, not as missing data. Fails without changing anything if 'from' doesn't exist, 'to' is already in use, or 'attrtype' isn't recognized."
+    },
+    {
+      "name": "coreness",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "coreness(network=[var:network], *layernames=[semicolon-separated], *attrname=[str])",
+      "description": "Computes the coreness (k-shell index) of each node via k-core decomposition, storing the result as an integer node attribute. A node's coreness is the highest k such that it belongs to the k-core — the maximal subgraph where every node has degree at least k. Edge weights and directionality are ignored (all edges treated as undirected binary). Only 1-mode layers are accepted — project 2-mode layers first with projecttwomodetoonemode(). Reference: Batagelj & Zaversnik (2003) arXiv:cs/0310049."
+    },
+    {
+      "name": "createnetwork",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "nodeset",
+          "type": "var:nodeset",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "[var:network] = createnetwork(nodeset = [var:nodeset], *name = [str])",
+      "description": "Creates a network using the provided [var:nodeset], giving the network the optional name 'name' and assigning it to the variable [var:network]."
+    },
+    {
+      "name": "createnodeset",
+      "returns": "var:nodeset",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "createnodes",
+          "default": 0,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[var:nodeset] = createnodeset(*name = [str], *createnodes = [int(default:0)])",
+      "description": "Creates an empty nodeset and stores it in the variable [var:nodeset]. An optional internal name 'name' can be provided. The Nodeset is by default empty, but nodes can also be created by specifying the number of nodes with the optional 'createnodes' integer value. The created nodes will then have id values starting from 0."
+    },
+    {
+      "name": "defineattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrtype",
+          "type": "enum",
+          "choices": [
+            "int",
+            "char",
+            "float",
+            "bool",
+            "string"
+          ],
+          "required": true
+        }
+      ],
+      "syntax": "defineattr(structure = [var:structure], attrname = [str], attrtype = ['int','char','float','bool','string'])",
+      "description": "Defines a Node attribute for the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. The name of the node attribute is 'attrname' and its data type is one of 'int' (integer), 'char' (single character), 'float' (floating point), 'bool' (boolean, true or false), or 'string'."
+    },
+    {
+      "name": "degree",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "direction",
+          "type": "enum",
+          "choices": [
+            "both",
+            "in",
+            "out"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "degree(network = [var:network], layername = [str], *attrname = [str], *direction = ['both','in','out'(default)])",
+      "description": "Calculates the degree centrality for the specified layer and network, and storing the result as a node attribute. The optional direction parameter decides whether the inbound or the outbound (default) ties should be counted, or - for layers with directional relations - if both in- and outbound ties should be counted. For symmetric layers (and 2-mode layers), this is a moot option. The node attribute is automatically named to the layername and the direction, but this can be overridden with the attrName parameter."
+    },
+    {
+      "name": "degreeassortativity",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "degreeassortativity(network=[var:network], layername=[str])",
+      "description": "Computes degree assortativity: the Pearson correlation between the degrees of connected node pairs. Positive values indicate that high-degree nodes tend to connect to other high-degree nodes (assortative mixing); negative values indicate hub-to-peripheral connections (disassortative mixing). For directed layers uses out-degree of the source and in-degree of the target; for undirected uses degree of both endpoints. Reference: Newman (2002) doi:10.1103/PhysRevLett.89.208701."
+    },
+    {
+      "name": "delete",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        }
+      ],
+      "syntax": "delete(structure = [var:structure])",
+      "description": "Deletes (removes) the structure with the variable name [var:structure]. A Nodeset can not be deleted if it is currently used by another structure: first delete those structures. If deleting a network, the nodeset that it uses will remain."
+    },
+    {
+      "name": "deleteall",
+      "returns": null,
+      "to_assign": false,
+      "params": [],
+      "syntax": "deleteall()",
+      "description": "Deletes (removes) all current structures stored in the variable space. Use with caution!"
+    },
+    {
+      "name": "density",
+      "returns": "double",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[double] = density(network = [var:network], layername = [str], *samplesize = [int])",
+      "description": "Calculates and returns the density of the layer 'layername' of the specified network. Treats all existing ties as binary ties. Works for both 1-mode and 2-mode networks: the 2-mode version uses a routine that might take a bit longer."
+    },
+    {
+      "name": "diameter",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "samplesize",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "numsweeps",
+          "default": 4,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "diameter(network=[var:network], layername=[str], *samplesize=[int(default:0)], *numsweeps=[int(default:4)], *traversal=['out'(default),'in','both'])",
+      "description": "Computes network diameter (the longest shortest path) and average path length for a single 1-mode layer, restricted to the largest weakly connected component — ComponentSize and TotalNodes are both reported for transparency. When samplesize is 0 (default), both are computed exactly via a full BFS from every node in that component, run in parallel across up to 'maxthreads' threads (see 'setting()'); the result carries Diameter, AvgDistance, PairsConsidered and Method = 'Exact'. When samplesize > 0, AvgDistance is instead estimated from that many random sources, with a StandardError and 95% confidence interval (normal approximation of a mean over each sampled source's own mean distance to its reachable nodes). Diameter cannot be estimated the same way, so instead a DiameterLowerBound is reported from 'numsweeps' parallel double-sweep trials (pick a random node, BFS to its farthest node, then BFS again from there — the largest distance seen across trials is a lower bound on the true diameter, often exact in practice but not guaranteed) — a lower bound rather than a confidence interval, since it is an extreme-value statistic, not a mean. For directed layers, 'traversal' controls which edge direction BFS follows; unreachable pairs are simply excluded from both statistics. When samplesize > 0, exact reproducibility via 'randomseed()' is only guaranteed when maxthreads is set to 1."
+    },
+    {
+      "name": "dichotomize",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "cond",
+          "type": "enum",
+          "choices": [
+            "eq",
+            "ne",
+            "gt",
+            "lt",
+            "ge",
+            "le"
+          ],
+          "default": "ge",
+          "required": false
+        },
+        {
+          "name": "threshold",
+          "default": 1,
+          "type": "float",
+          "required": false
+        },
+        {
+          "name": "truevalue",
+          "type": "enum",
+          "choices": [
+            "keep"
+          ],
+          "also_accepts": [
+            "float"
+          ],
+          "default": 1,
+          "required": false
+        },
+        {
+          "name": "falsevalue",
+          "type": "enum",
+          "choices": [
+            "keep"
+          ],
+          "also_accepts": [
+            "float"
+          ],
+          "default": 0,
+          "required": false
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "dichotomize(network = [var:network], layername = [str], *cond = ['eq','ne','gt','lt','ge'(default),'le'], *threshold = [float(default:1)], *truevalue = [float(default:1),'keep'], *falsevalue = [float(default:0),'keep'], *newlayername = [str])",
+      "description": "Takes a valued 1-mode layer (which it is only applicable for) and dichotomizes it, creating and storing this as a new layer. By default, all values equal to or greater to 1 will be converted to a binary tie and all other values represent a missing tie. Both the condition, the threshold value and the values resulting from a true vs. a false evaluation can be modified. If truevalue and falsevalue are kept at their default values, i.e. either containing 1 or 0, the resulting layer will be a binary network, otherwise the resulting layer will be valued. The directionality of the new layer will remain the same as the original layer. The new layer will be named as the provided layer, with the addition '-dichotomized', but the name of the new layer can also be specified with the 'newlayername' argument. Note that the conditions 'isnull' and 'notnull' are not valid here."
+    },
+    {
+      "name": "dir",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "path",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "dir(*path = [str])",
+      "description": "Gets the content of the current directory, or the directory specified by the optional 'dir' argument."
+    },
+    {
+      "name": "duplicate",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "choices": [
+            "layer",
+            "attribute"
+          ],
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "duplicate(structure = [var:structure], type = ['layer','attribute'], from = [str], to = [str])",
+      "description": "Duplicates either a layer or a node attribute under a new name, leaving the original untouched. When type is 'layer', 'structure' must be a Network variable, and 'from'/'to' are the existing layer's name and the new layer's name: all edges and layer properties (directionality, value type, selfties for 1-mode; hyperedges for 2-mode) are copied. When type is 'attribute', 'structure' is a Nodeset (or the Nodeset of the provided Network), and 'from'/'to' are the existing node attribute's name and the new attribute's name: the attribute's type and all currently set values are copied. Duplicating to a name already in use, or duplicating a layer/attribute that does not exist, fails without changing anything."
+    },
+    {
+      "name": "dyadcensus",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "dyadcensus(network=[var:network], layername=[str])",
+      "description": "Computes the MAN dyad census and reciprocity measures for a single 1-mode layer. Returns counts of Mutual (both arcs present), Asymmetric (one arc only) and Null (no arc) dyad pairs, plus ArcReciprocity (proportion of arcs that are reciprocated) and DyadicReciprocity (proportion of non-null dyads that are mutual). For undirected layers all non-null dyads are trivially Mutual. Reference: Holland & Leinhardt (1970) doi:10.1086/224727."
+    },
+    {
+      "name": "eccentricity",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "eccentricity(network=[var:network], layername=[str], *attrname=[str], *traversal=['out'(default),'in','both'])",
+      "description": "Calculates each node's eccentricity (the length of the longest shortest path to any node reachable from it) in the specified 1-mode layer, storing the result as an int node attribute (default name 'eccentricity'). Unlike diameter(), eccentricity is computed for every node individually, not restricted to the largest weakly connected component: a node in a smaller component gets its own component's eccentricity, and an isolated node gets 0. For directed layers, 'traversal' controls which direction BFS follows. The per-node BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()')."
+    },
+    {
+      "name": "edgebetweennesscentrality",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "samplesize",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "normalize",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        }
+      ],
+      "syntax": "edgebetweennesscentrality(network = [var:network], layername = [str], *newlayername = [str], *samplesize = [int(default:0)], *normalize = ['true'(default),'false'])",
+      "description": "Calculates edge betweenness centrality for every edge in the specified 1-mode layer using Brandes' algorithm, storing the result as a new valued layer with the same directionality as the source layer. When samplesize > 0, a random subset of source nodes is used and scores are scaled accordingly, same as betweennesscentrality(). When normalize is true (default), scores are divided by (n-1)(n-2), for both directed and undirected layers; set to false for raw path-count scores. The per-source BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()'). The new layer is named as the provided layer, with the addition '-edgebetweenness', but the name of the new layer can also be specified with the 'newlayername' argument. Kept as a separate command from betweennesscentrality() since edge identity, unlike node identity, has no clean mapping across combined layers — this only operates on a single named layer. See Brandes (2001); sampling: Brandes & Pich (2007)."
+    },
+    {
+      "name": "effectivesize",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "effectivesize(network=[var:network], *layernames=[semicolon-separated], *attrname=[str])",
+      "description": "Computes Burt's effective size for each node in the specified 1-mode layer(s) and stores the result as a float node attribute. Effective size = k - Σ_j Σ_{q≠j} p_ij p_qj, measuring the number of non-redundant contacts: higher values indicate more structural holes around the ego. Weights are symmetrized across layers. Only 1-mode layers are accepted — project 2-mode layers first. Burt's formula has no defined treatment of a tie from a node to itself, so any layer where selfties are allowed is refused, even if it happens to have none. The per-node computation runs in parallel across up to 'maxthreads' threads (see 'setting()'). Reference: Burt (1992) Structural Holes; Burt (2004) doi:10.1086/421787."
+    },
+    {
+      "name": "eigenvectorcentrality",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "both",
+            "in"
+          ],
+          "default": "out",
+          "required": false
+        },
+        {
+          "name": "maxiterations",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "tolerance",
+          "type": "double",
+          "required": false
+        }
+      ],
+      "syntax": "eigenvectorcentrality(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *traversal=['out'(default),'both','in'], *maxiterations=[int], *tolerance=[double])",
+      "description": "Calculates eigenvector centrality via power iteration and stores the result as a node attribute. Scores are L2-normalized. For 2-mode layers uses efficient per-hyperedge summation. Traversal for directed network is out-bound by default. Iterates until convergence within tolerance or maxiterations is reached. See Bonacich (1987)."
+    },
+    {
+      "name": "export",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "enum",
+          "choices": [
+            "gexf",
+            "graphml",
+            "pajek"
+          ],
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": false,
+          "conditional": true
+        }
+      ],
+      "syntax": "export(network = [var:network], format = ['gexf','graphml','pajek'], file = [str], +layername = [str])",
+      "description": "Exports a network to an external file format: 'gexf' (Gephi format), 'graphml' or 'pajek' (Pajek .net). As gexf is a single-layer format, the layer to export must be specified with the 'layername' argument. For graphml, all nodes, node attributes and layers are exported, unless 'layername' is given, in which case only that layer is exported. When exporting several layers to graphml, each edge gets a 'layer' attribute, and 1-mode layers are exported as edges and 2-mode layers as hyperedges. GraphML has no native Char attribute type, so a Char attribute is written as (and re-imported as) a string - its single-character value survives, but the attribute's type does not; re-define it as Char after import if needed. For pajek, the whole network is always exported ('layername' is ignored): every 1-mode layer becomes its own '*Arcs' (directed) or '*Edges' (undirected) section, named via a ':k \"name\"' suffix when there is more than one; 2-mode layers are skipped, since Pajek .net has no hyperedge concept. Pajek .net also has no general node-attribute mechanism, so only each node's own id is written, as its vertex label; nodes are renumbered to Pajek's required dense 1..N range for the file, with the original id kept visible in that label. Such a file can be imported back with 'importnetwork()'."
+    },
+    {
+      "name": "exportlayer",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "enum",
+          "choices": [
+            "edgelist",
+            "matrix"
+          ],
+          "default": "edgelist",
+          "required": false
+        },
+        {
+          "name": "header",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        },
+        {
+          "name": "sep",
+          "default": "\\t",
+          "type": "char",
+          "required": false
+        },
+        {
+          "name": "labelattr",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "exportlayer(network = [var:network], layername = [str], file = \"[str]\", *format = ['edgelist'(default),'matrix'], *header = ['true'(default),'false'], *sep = [char(default:'\\t')], *labelattr = [str])",
+      "description": "Exports data of an existing layer 'layername' in an existing network 'network' to file 'file'. The exported file is in edgelist or matrix format: edgelist is default but this can be set with the 'format' argument. The layer can either be a 1-mode or 2-mode layer. For binary 1-mode layers, the edgelist consists of two columns, where the column header is 'from'/'to' for directional layers, and 'node1'/'node2' for symmetric layers. For valued 1-mode layers, the edgelist has a third column where the column header is 'value'. For 2-mode layers, the first column is 'node' and the second column is 'affiliation' (i.e. hyperedge name). All values are separated with the tab character by default, but this can be set with the 'sep' argument. The header row is shown by default, but this can be disabled with the 'header' argument. Note: when exporting to matrix format, the matrices only contain the nodes (and hyperedges) that are included in this particular layer. Those nodes/hyperedges will then be sorted. By default, node identifiers are written as their numeric node id. The optional 'labelattr' argument names a node attribute (of any type) whose value is written instead, mirroring importlayer()'s 'labelattr'; a string type and unique values are preferable but not required or checked — a node lacking a value for the attribute falls back to its numeric id individually, and the command fails if 'labelattr' doesn't name an existing node attribute at all."
+    },
+    {
+      "name": "filter",
+      "returns": "var:nodeset",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "nodeset",
+          "type": "var:nodeset2",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "cond",
+          "type": "enum",
+          "choices": [
+            "eq",
+            "ne",
+            "gt",
+            "lt",
+            "ge",
+            "le",
+            "isnull",
+            "notnull"
+          ],
+          "required": true
+        },
+        {
+          "name": "attrvalue",
+          "type": "str",
+          "required": false,
+          "conditional": true
+        }
+      ],
+      "syntax": "[var:nodeset] = filter(nodeset = [var:nodeset2], attrname = [str], cond=['eq','ne','gt','lt','ge','le','isnull','notnull'], +attrvalue = [str])",
+      "description": "Creates and stores a new nodeset [var:nodeset] containing all the nodes in [var:nodeset2] that fulfills the specified condition 'cond' concerning the specified attribute 'attrname' and the reference value 'attrvalue'. The new nodeset and its nodes and attributes constitute a partial deep copy of the inbound nodeset, making them completely independent from each other. Note: when checking for 'isnull' or 'notnull', the 'attrvalue' argument can be ignored."
+    },
+    {
+      "name": "generate",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "choices": [
+            "er",
+            "ws",
+            "ba",
+            "2mode"
+          ],
+          "required": true
+        },
+        {
+          "name": "p",
+          "type": "double",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "k",
+          "type": "int",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "beta",
+          "type": "double",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "m",
+          "type": "int",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "h",
+          "type": "int",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "a",
+          "type": "int",
+          "required": false,
+          "conditional": true
+        }
+      ],
+      "syntax": "generate(network = [var:network], layername = [str], type = ['er','ws','ba','2mode'], +p = [double], +k = [int], +beta = [double], +m = [int], +h = [int], +a = [int])",
+      "description": "Creates a random network of the specified type in the specified layer of the specified network. The layer must already exist and be binary: any would-be ties that exist in that layer will first be removed. Erdös-Renyi (type to 'er'): layer can be either directional or symmetric, with or without selfties; set p to the edge probability (which is also the overall network density). For Watts-Strogatz (type to 'ws'): layer must be symmetric without selfties; set k to mean degree (must be even), and beta to rewiring probability (0-1 range). For Barabasi-Albert (type to 'ba'): layer must be symmetric without selfties; set m to the degree/attachment parameter (i.e. edges per new node). Note that the arguments marked with (+) are compulsory arguments for each type and must be named; arguments for types not used can be ignored. Also possible to generate random 2-mode data: layer must then be 2-mode; set h to the number of hyperedges that should be created, and a to the average number of affiliations each node should have (drawing from the poisson distribution)."
+    },
+    {
+      "name": "generateattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrtype",
+          "type": "enum",
+          "choices": [
+            "int",
+            "float",
+            "bool",
+            "char",
+            "string"
+          ],
+          "default": "int",
+          "required": false
+        },
+        {
+          "name": "min",
+          "default": 0,
+          "type": [
+            "int",
+            "float"
+          ],
+          "required": false
+        },
+        {
+          "name": "max",
+          "default": 100,
+          "type": [
+            "int",
+            "float"
+          ],
+          "required": false
+        },
+        {
+          "name": "p",
+          "default": 0.5,
+          "type": "double",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "chars",
+          "default": "m;f;o",
+          "type": "str",
+          "required": false,
+          "conditional": true
+        },
+        {
+          "name": "values",
+          "type": "str",
+          "required": false,
+          "conditional": true
+        }
+      ],
+      "syntax": "generateattr(structure = [var:structure], attrname = [str], *attrtype = ['int'(default),'float','bool','char','string'], *min = [int(default:0)|float(default:0.0)], *max = [int(default:100)|float(default:1.0)], +p = [double(default:0.5)], +chars = [str(default:\"m;f;o\")], +values=[str])",
+      "description": "Creates a new node attribute with the given name and type for the specific nodeset, and sets a random attribute value to each node in this nodeset according to the provided parameters. The 'min' and 'max' arguments apply to the int and float variable types: they are optional, where the default 'min' value is 0 and the default 'max' value is, respectively, 100 for int types and 1 for float types. The 'p' argument applies to the bool variable type: this is the probability of the value being 'true'. The 'chars' argument applies to the char variable type: this consists of a string of semi-colon-separated characters, e.g. \"a;c;f;g;z\" from which the values will be uniformly picked from. The 'values' argument applies to the string variable type: this consists of a string of semi-colon-separated strings, e.g. \"lawyer;carpenter;nurse\" from which the values will be uniformly picked from."
+    },
+    {
+      "name": "getalledges",
+      "returns": "array:str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "default": 1000,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[array:str] = getalledges(network = [var:network], layername = [str], *offset = [int(default:0)], *limit = [int(default:1000)])",
+      "description": "Returns a JSON-ready array/vector of the edges that exist in the specified 1-mode layer and network. Will return maximum 1000 by default, but this can be changed with the 'limit' argument. Starts with the first one (index zero) by default, but this can be adjusted with 'offset'. Thus, if there are more than 1000 edges in the layer, all can be obtained either by using 'offset' for pagination and/or increasing the 'limit'."
+    },
+    {
+      "name": "getallhyperedges",
+      "returns": "array:str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "default": 1000,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[array:str] = getallhyperedges(network = [var:network], layername = [str], *offset = [int(default:0)], *limit = [int(default:1000)])",
+      "description": "Returns a JSON-ready array/vector of the hyperedge names that exist in the specified 2-mode layer and network. Will return maximum 1000 by default, but this can be changed with the 'limit' argument. Starts with the first one (index zero) by default, but this can be adjusted with 'offset'. Thus, if there are more than 1000 hyperedges, all can be obtained either by using 'offset' for pagination and/or increasing the 'limit'."
+    },
+    {
+      "name": "getallnodes",
+      "returns": "array:str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "default": 1000,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[array:str] = getallnodes(structure = [var:structure], *offset = [int(default:0)], *limit = [int(default:1000)])",
+      "description": "Returns a JSON-ready vector of the node ids of all nodes in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Will return maximum 1000 by default, but this can be changed with the 'limit' argument. Starts with the first node (index zero) by default, but this can be adjusted with 'offset'. Thus, if there are more than 1000 edges in the layer, all can be obtained either by using 'offset' for pagination and/or increasing the 'limit'. Do note that the node order reflects the order in which they were added, which thus may or may not be the same as their node ids. Also note that node attributes are not returned with this command."
+    },
+    {
+      "name": "getalterdetails",
+      "returns": "table",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "semicolon-separated uints",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated layer names",
+          "required": false
+        },
+        {
+          "name": "direction",
+          "type": "enum",
+          "choices": [
+            "both",
+            "in",
+            "out"
+          ],
+          "default": "out",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "cond",
+          "type": "enum",
+          "choices": [
+            "eq",
+            "ne",
+            "gt",
+            "lt",
+            "ge",
+            "le",
+            "isnull",
+            "notnull"
+          ],
+          "required": false
+        },
+        {
+          "name": "attrvalue",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "[table] = getalterdetails(network = [var:network], nodes = [semicolon-separated uints], *layernames = [semicolon-separated layer names], *direction = ['both','in','out'(default)], *attrname = [str], *cond = ['eq','ne','gt','lt','ge','le','isnull','notnull'], *attrvalue = [str])",
+      "description": "Returns a table with one row per ego, alter, layer and shared affiliation, for all ego nodes in 'nodes' (separated by semicolons) in the Network with the variable name [var:network]. The table has the columns 'ego' (the queried node), 'alter' (the alter node), 'layer' (the layer name), 'hyperedge' (the shared affiliation in a 2-mode layer; null for 1-mode layers) and 'hypersize' (the number of nodes in that affiliation; 0 for 1-mode layers). In JSON output, the payload has one array per column. Alters are taken from the layers in 'layernames' (separated by semicolons), or from all layers if not specified. Nothing is deduplicated: an alter appears once per ego, layer and shared affiliation. In 2-mode layers, ego is excluded from its own alters, and 'direction' does not apply. In 1-mode layers, alters are obtained as in getnodealters(): only outbound edges are included by default, which can be adjusted with 'direction', but packed (CSR) layers only provide outbound edges. Optionally, alters can be restricted to those fulfilling a condition on an attribute, with the same semantics as filter(): 'attrname' is the attribute, 'cond' the condition (required if 'attrname' is set), and 'attrvalue' the reference value (ignored for 'isnull' and 'notnull'). The condition applies to alters only, not to egos."
+    },
+    {
+      "name": "getattr",
+      "returns": "str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "[str] = getattr(structure = [var:structure], nodeid = [uint], attrname = [str])",
+      "description": "Gets the value of the attribute 'attrname' for node 'nodeid' in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Note that the node attribute must first have been defined. Returns an empty string if the node has no value for this attribute."
+    },
+    {
+      "name": "getattrs",
+      "returns": "array:str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "semicolon-separated uints",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "[array:str] = getattrs(structure = [var:structure], nodes = [semicolon-separated uints], attrname = [str])",
+      "description": "Gets the values of the attribute 'attrname' for the node ids that is provided in the semi-colon separated list. Returns a string-object dictionary. If an attribute lacks this attribute, a null value is returned."
+    },
+    {
+      "name": "getattrstable",
+      "returns": "table",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "semicolon-separated uints",
+          "required": false
+        },
+        {
+          "name": "attrnames",
+          "type": "semicolon-separated str",
+          "required": false
+        },
+        {
+          "name": "offset",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "limit",
+          "default": 1000,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[table] = getattrstable(structure = [var:structure], *nodes = [semicolon-separated uints], *attrnames = [semicolon-separated str], *offset = [int(default:0)], *limit = [int(default:1000)])",
+      "description": "Returns a table with one row per node and one column per node attribute - the bulk-export counterpart to importnodeattributes(). The first column is 'node' (the node id); the remaining columns are named after the requested attributes. 'nodes' selects which nodes to include (semicolon-separated); if omitted, nodes are taken from the Nodeset itself, paginated with 'offset'/'limit' exactly like getallnodes(). 'attrnames' selects which attributes to include as columns (semicolon-separated); if omitted, all currently defined node attributes are included. A node that is not in the Nodeset, or that lacks a value for a given attribute, gets a null entry for that attribute rather than failing the whole call - a left join, same spirit as importnodeattributes(). In JSON output, the payload has one array per column, directly usable as an R data frame."
+    },
+    {
+      "name": "getattrsummary",
+      "returns": "str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "[str] = getattrsummary(structure = [var:structure], attrname = [str])",
+      "description": "Calculates and returns summary statistics for the specified node attribute in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Statistics vary by attribute type: (int/float) Mean, Median, StdDev, Min, Max, Q1, Q3; (Bool) Count_true, Count_false, Ratio_true; (Char/String) Frequency distribution (top 50), Mode, Unique_values. All types include Count, Missing, and PercentageWithValue."
+    },
+    {
+      "name": "getdegree",
+      "returns": "uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated layer names",
+          "required": false
+        },
+        {
+          "name": "direction",
+          "type": "enum",
+          "choices": [
+            "both",
+            "in",
+            "out"
+          ],
+          "default": "out",
+          "required": false
+        },
+        {
+          "name": "unique",
+          "type": "enum",
+          "choices": [
+            false
+          ],
+          "also_accepts": [
+            "true"
+          ],
+          "required": false
+        }
+      ],
+      "syntax": "[uint] = getdegree(network = [var:network], nodeid = [uint], *layernames = [semicolon-separated layer names], *direction = ['both','in','out'(default)], *unique = [false,true(default)])",
+      "description": "Calculates the degree centrality for the specified node in the network, either for the specified layer, layers or all layers (if layernames is omitted). By default outdegree is calculated, but this can be changed. When having multiple layers, the same alter is by default counted only once, but this can be changed with the unique parameter."
+    },
+    {
+      "name": "getedge",
+      "returns": "float",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "node1id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "node2id",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "[float] = getedge(network = [var:network], layername = [str], node1id = [uint], node2id = [uint])",
+      "description": "Returns the edge value between node1id (from) and node2id (to) in the specified layer 'layername', which can be either 1-mode or 2-mode. If the layer is 1-mode directional, node1id is the source and node2id is the destination. If no edge is found, returns zero. For 2-mode layers, the value represents the number of affiliations that the two nodes share in this particular layer, i.e. the value that typically emerge when using the classical matrix-multiplcation-approach for projecting 2-mode data to 1-mode."
+    },
+    {
+      "name": "gethyperedgenodes",
+      "returns": "array:uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "hypername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "[array:uint] = gethyperedgenodes(network = [var:network], layername = [str], hypername = [str])",
+      "description": "Returns a JSON-ready array/vector of the node ids that are affiliated to the hyperedge with name 'hypername' in the specified layer and network. Note that the layer must be 2-mode."
+    },
+    {
+      "name": "getlayerstats",
+      "returns": "str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "[str] = getlayerstats(network = [var:network], layername = [str])",
+      "description": "Calculates and returns summary statistics (Mean, Median, StdDev, Min, Max, Q1, Q3, EdgeCount) over the edge values of a valued 1-mode layer, using the same statistics machinery as getattrsummary(). Requires a valued layer — binary layers have no varying values to summarize, and 2-mode layers are not supported. For symmetric (undirected) layers, each edge is counted once, not once per endpoint."
+    },
+    {
+      "name": "getnbrnodes",
+      "returns": "uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        }
+      ],
+      "syntax": "[uint] = getnbrnodes(structure = [var:structure])",
+      "description": "Get the number of nodes in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]."
+    },
+    {
+      "name": "getnodealters",
+      "returns": "array:uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated layer names",
+          "required": false
+        },
+        {
+          "name": "direction",
+          "type": "enum",
+          "choices": [
+            "both",
+            "in",
+            "out"
+          ],
+          "default": "out",
+          "required": false
+        },
+        {
+          "name": "unique",
+          "type": "enum",
+          "choices": [
+            false
+          ],
+          "also_accepts": [
+            "true"
+          ],
+          "required": false
+        }
+      ],
+      "syntax": "[array:uint] = getnodealters(network = [var:network], nodeid = [uint], *layernames = [semicolon-separated layer names], *direction = ['both','in','out'(default)], *unique = [false,true(default)])",
+      "description": "Get the id of the alters to a specific node in the Network with the variable name [var:network]. Will either return the node alters for one or more specified layers (as given by layernames) or return alters in all layers. When specifying multiple layers, separate their names with a semicolon (;). Output is in standard JSON array format. For directional layers, only outbound edges are included in the set of alters by default, but this can be adjusted with the optional direction argument. However, if the layer is packed (CSR), only outbound can be provided. When obtaining alters from multiple (or all) layers, the same alter node might appear in several layers. By default, such alter nodes will not appear multiple times in the returned array. However, by setting 'unique' to false, an alter node id will appear the number of times that it appears in different layers. (As a necessary side-effect of deduplication, the list will also be sorted, which it is not otherwise by design). Note: there is nothing stopping you from naming the same layer multiple times in the layernames string."
+    },
+    {
+      "name": "getnodehyperedges",
+      "returns": "array:str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "[array:str] = getnodehyperedges(network = [var:network], layername = [str], nodeid = [uint])",
+      "description": "Returns a JSON-ready array/vector of the hyperedge names that a specified node is affiliated to in the specified layer and network. Note that the layer must be 2-mode."
+    },
+    {
+      "name": "getnodeidbyindex",
+      "returns": "uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "[uint] = getnodeidbyindex(structure = [var:structure], index = [uint])",
+      "description": "Get the node id of the node with the specified index position in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Note that the index positions could change as nodes and node attributes are added and removed. Also note that nodes with attributes come first in the index, followed by nodes without attributes."
+    },
+    {
+      "name": "getrandomalter",
+      "returns": "uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated layer names",
+          "required": false
+        },
+        {
+          "name": "direction",
+          "type": "enum",
+          "choices": [
+            "both",
+            "in",
+            "out"
+          ],
+          "default": "both",
+          "required": false
+        },
+        {
+          "name": "balanced",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "weighted",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "layerweights",
+          "type": "semicolon-separated floats",
+          "required": false
+        }
+      ],
+      "syntax": "[uint] = getrandomalter(network = [var:network], nodeid = [uint], *layernames = [semicolon-separated layer names], *direction = ['both'(default),'in','out'], *balanced = ['true','false'(default)], *weighted = ['false'(default),'true'], *layerweights = [semicolon-separated floats])",
+      "description": "Get the node id of a random alter to the specified node. By default, both in- and outbound ties are considered, but this can be adjusted. By default, the pick is randomly picked among all layers, but one or more layers to use can be specified with the 'layernames' argument. If more than one layer is included, the 'balanced' argument specifies how the pick should be done. If balanced is set to 'true', a randomly picked layer takes place first, followed by a random pick of an alter in the specific layer that was picked. If set to 'false', alters in all layers are first pooled together (with the possibility of an alter appearing multiple times) and a random pick is then done among this complete set of alters across layers. If 'weighted' is set to 'true', edge weights are used as transition probabilities; for binary layers each alter is treated as having weight 1.0f. 'layerweights' only applies when 'balanced' is true and more than one layer is used: it gives the relative probability of picking each layer first, in the same order as 'layernames' (which must then be given explicitly), normalized automatically (e.g. 8 and 16 means the second layer is picked twice as often as the first) - useful for e.g. modeling how much time a node spends in each context/domain. Without it, layer-picking is uniform. It is ignored when 'balanced' is false."
+    },
+    {
+      "name": "getrandomedge",
+      "returns": "int,int,float",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "maxattempts",
+          "default": 100,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "[int,int,float] = getrandomedge(network = [var:network], layername = [str], *maxattempts=[int(default:100)])",
+      "description": "Returns a random edge from the specified network and layer. While this is easy to do for 1-mode layers, the 2-mode layers samples random (pseudo-projected) node-to-node edges a bit differenlty. It first tries an approach where it randomly picks two nodes and checks if there is an edge between these two (i.e. if they share at least one affiliation). If this has been tried 100 times (adjusted with 'maxattempts') without finding an edge, the 2-mode heuristic then switches to a different kind of search that is slightly biased. First, it picks a random hyperedge based on their estimated projected weights, this being the size of the total graph that this hyperedge would generate if projected. Then it picks two random nodes from this hyperedge. The bias from this latter approach is that it is more likely to pick edges between nodes that share many affiliations."
+    },
+    {
+      "name": "getrandomnode",
+      "returns": "uint",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        }
+      ],
+      "syntax": "[uint] = getrandomnode(structure = [var:structure])",
+      "description": "Get a random node id from the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]."
+    },
+    {
+      "name": "getwd",
+      "returns": "str",
+      "to_assign": true,
+      "params": [],
+      "syntax": "[str] = getwd()",
+      "description": "Returns the working directory that Threadle is currently using."
+    },
+    {
+      "name": "harmoniccentrality",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "normalize",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": true,
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "harmoniccentrality(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *samplesize=[int], *normalize=['true'(default),'false'], *traversal=['out'(default),'in','both'])",
+      "description": "Calculates harmonic centrality (sum of inverse distances to all reachable nodes) for each node and stores the result as a node attribute. When normalize=true, divides by (n-1). Handles disconnected graphs naturally. When samplesize > 0, a random subset of source nodes is used. The per-source BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()'). See Rochat (2009); Marchiori & Latora (2000)."
+    },
+    {
+      "name": "help",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": null,
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "file",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "help(*[str], *file = [str])",
+      "description": "Provides information about all available CLI commands, or detailed information about a specific command if the first nameless argument is a command. If the named command 'file' is used and a filename is specified, this will instead save all help data (syntax, assignments, descriptions) to the specified file. Note that this will then only save in the current working directory: any path given in the file argument will be pruned away."
+    },
+    {
+      "name": "i",
+      "returns": "str",
+      "to_assign": true,
+      "params": [],
+      "syntax": "[str] = i()",
+      "description": "Provides an inventory of the currently stored data objects. Note that the brackets can be ignored. (This command is in honor of all 1970's text adventure games, where 'i' was used to check what you were carrying)."
+    },
+    {
+      "name": "importlayer",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "enum",
+          "choices": [
+            "edgelist",
+            "matrix"
+          ],
+          "required": true
+        },
+        {
+          "name": "node1col",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "node2col",
+          "default": 1,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "valuecol",
+          "default": 2,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "nodecol",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "affcol",
+          "default": 1,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "header",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "sep",
+          "default": "\\t",
+          "type": "char",
+          "required": false
+        },
+        {
+          "name": "addmissingnodes",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "labelattr",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "filtercol",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "filtervalue",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "importlayer(network = [var:network], layername = [str], file = \"[str]\", format = ['edgelist','matrix'], *node1col = [int(default:0)], *node2col = [int(default:1)], *valuecol = [int(default:2)], *nodecol = [int(default:0)], *affcol = [int(default:1)], *header = ['true','false'(default)], *sep = [char(default:'\\t')], *addmissingnodes = ['true','false'(default)], *labelattr = [str], *filtercol = [int], *filtervalue = [str])",
+      "description": "Imports data to an existing layer 'layername' in an existing network 'network' from file 'file'. The imported file is either in edgelist or matrix/table format, with the optional value-separating character given by 'sep' (defaults to tab). The 'addmissingnodes' boolean instructs what to do if encountering node id's that are not in the Nodeset: if set to true, these will be created and added to the Nodeset, if set to false, the relation will be ignored. Edgelists are assumed to be without headers but that can be adjusted with the 'header' argument. However, if a line can't be parsed as nodes and affiliations (as a header is), that's ok: it will just ignore. The matrix format assumes that the first row and first column are headers: this is compulsory in order to identify node ids (and affiliation names). For 1-mode layers and edgelist format, the first two column must contain node id's (for directional data, the first column is source node, and the second column is destination node). If the layer is for valued edges, a third column is expected that holds the value of ties. These columns can be adjusted with the 'node1col' and 'node2col' and, when applicable, the 'valuecol' arguments, where one can specify the column indexes to use (note that these start with 0). For 1-mode layers and matrix format, both rows and columns must contain node id's and the matrix must be square-shaped. For 2-mode layers and edgelist format, the first column contains the node id and the second column contains hyperedge labels (i.e. affiliations). This can be adjusted with the 'nodecol' and 'affcol' arguments (again, the first column has index 0). For 2-mode layers and matrix/table format, the first column (i.e. row headers) contain node ids, and the first row (i.e. column headers) contain hyperedge labels (i.e. affiliations). Importing 2-mode data will always add hyperedges when missing. By default, node identifiers in the file must be unsigned integers that are used as node ids. If the node identifiers are instead strings (e.g. names), the 'labelattr' argument can be given the name of a string node attribute (e.g. 'label'): node identifiers are then treated as labels that are looked up in this attribute. Labels not found in the Nodeset are, if 'addmissingnodes' is true, given new node ids (continuing after the highest existing node id) with their labels stored in this attribute. The attribute is created if it doesn't exist. As existing labels are reused, several layers can be imported in sequence using the same 'labelattr'. For edgelists, the 'filtercol' and 'filtervalue' arguments can be used to only import lines where column 'filtercol' has the value 'filtervalue' (e.g. when an edgelist has a column specifying the type of relation, making it possible to import each relation to its own layer)."
+    },
+    {
+      "name": "importnetwork",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "enum",
+          "choices": [
+            "graphml",
+            "pajek"
+          ],
+          "required": true
+        },
+        {
+          "name": "layerattr",
+          "default": "layer",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "weightattr",
+          "default": "weight",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "idattr",
+          "default": "id",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "labelattr",
+          "default": "label",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "pack",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        }
+      ],
+      "syntax": "[var:network] = importnetwork(file = \"[str]\", format = ['graphml','pajek'], *layerattr = [str(default:'layer')], *weightattr = [str(default:'weight')], *idattr = [str(default:'id')], *labelattr = [str(default:'label')], *pack = ['true','false'(default)])",
+      "description": "Imports a network from file 'file' in an external file format ('graphml' or 'pajek'), creating a new network and a new nodeset. The network is assigned to the variable, and the nodeset to the variable name with the suffix '_nodeset'. For 'graphml': nodes and their attributes are imported (int/long become int, float/double become float, boolean becomes bool, string becomes string); if all node ids in the file are unsigned integers these are used as node ids, otherwise nodes get new node ids (0, 1, 2, ...) with the original ids stored in the string node attribute given by 'idattr'. Edges go to 1-mode layers: if edges have the attribute given by 'layerattr', there is one layer per distinct value of it (edges without it end up in a layer named after the graph id), otherwise all edges go to one layer named after the graph id (or 'edges' if there is none); a layer is directed if its edges are directed, valued if its edges have the attribute given by 'weightattr', and allows selfties if it has self-loops. GraphML hyperedges become 2-mode layers. For 'pajek': vertex ids are always a dense sequence and are used directly as node ids; each vertex's label, if present, is stored in the string node attribute given by 'labelattr' (empty: labels are discarded). Each '*Arcs' section becomes a directed 1-mode layer and each '*Edges' section an undirected one (named from the section's ':k \"name\"' suffix if present, or after the file if it is the only such section); a layer is valued if any of its edges carries a weight column. Pajek .net has no hyperedge concept, so there is no 2-mode layer equivalent, and 'layerattr'/'weightattr'/'idattr' are ignored. Files exported with 'export(...,format=graphml)' or 'export(...,format=pajek)' are imported back into the same layers. The optional 'pack' argument specifies whether layers should be packed after import."
+    },
+    {
+      "name": "importnodeattributes",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "addmissingnodes",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "sep",
+          "default": "\\t",
+          "type": "char",
+          "required": false
+        }
+      ],
+      "syntax": "importnodeattributes(structure=[var:structure], file=\"[str]\", *addmissingnodes=['false'(default),'true'], *sep=[char(default:'\\t')])",
+      "description": "Imports node attributes from a tab-separated file into the Nodeset associated with 'structure' (which can be a Nodeset or a Network). The file format mirrors a nodeset.tsv file: the first row is a header where the first cell is ignored and each subsequent cell defines an attribute name with an optional type annotation (e.g. 'age:Int', 'city:String'). Supported types are Int, Float, String, Bool, and Char; if no type annotation is given, String is assumed. Each subsequent row starts with a node id followed by the attribute values. By default, rows whose node id does not exist in the nodeset are skipped (left join). Set 'addmissingnodes=true' to add missing nodes instead."
+    },
+    {
+      "name": "info",
+      "returns": "str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        }
+      ],
+      "syntax": "[str] = info(structure = [var:structure])",
+      "description": "Displays metadata about the structure, which is either a Nodeset or a Network. Name and Filepath are included for both structures. Network structures also provide data on existing relational layers, their properties and number of edges. Nodeset structures also provide data on number of nodes, and existing node attributes and their types."
+    },
+    {
+      "name": "loadfile",
+      "returns": "var:structure",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "choices": [
+            "nodeset",
+            "network"
+          ],
+          "required": true
+        },
+        {
+          "name": "pack",
+          "type": "enum",
+          "choices": [
+            true,
+            false
+          ],
+          "default": false,
+          "required": false
+        }
+      ],
+      "syntax": "[var:structure] = loadfile(file = \"[str]\", type = ['nodeset','network'], *pack = ['true','false'(default)])",
+      "description": "Loads a structure from file 'file', using the internal text-based file format. The type of structure is given by the 'type' argument, which can be either 'nodeset' or 'network'. When loading a network file that refers to a nodeset file, the nodeset is also loaded. If the filepath has the ending .tsv, it is loaded in the standard internal text-based format, if the .tsv.gz is used, it is loading a gzipped version of this. If the filepath has the ending .bin, it is loaded as a Threadle-style binary file, if the .bin.gz is used, it is loading a gzipped version of this. Note that the .bin and .bin.gz format are very compact and not human-readable. Also: when loading a network file that refers to a nodeset file, the nodeset is also loaded. The optional 'pack' argument specifies whether network layers should be packed, i.e. stored in the more compact but immutable format (true), or whether the layers should be stored in the more memory-demanding mutable default format (false). Note that individual layers can subsequently be converted between these two types separately."
+    },
+    {
+      "name": "loadscript",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "loadscript(file = \"[str]\")",
+      "description": "Loads and executes a script containing text CLI commands. Will abort if encountering an error."
+    },
+    {
+      "name": "mergelayers",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layer1",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "layer2",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "enum",
+          "choices": [
+            "and",
+            "or",
+            "xor",
+            "sum",
+            "average",
+            "max",
+            "min",
+            "product"
+          ],
+          "required": false
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "mergelayers(network = [var:network], layer1 = [str], layer2 = [str], *method = ['and','or','xor','sum','average','max','min','product'], *newlayername = [str])",
+      "description": "Merges two layers of the same mode into a new layer of that mode by the provided method: the original layers remain unchanged. A 1-mode layer cannot be merged with a 2-mode layer. Merging two 1-mode layers results in a new 1-mode layer. Both layers must have the same directionality (both directed or both undirected): symmetrize the directed one first with symmetrize() if they don't match. All methods can be used (default 'max'), and the method fully determines the resulting layer's edge type: 'and'/'or'/'xor' always produce a binary layer (does a tie exist, ignoring its strength); 'sum'/'average' always produce a valued layer; 'max'/'min'/'product' produce a binary layer only if both source layers are binary, valued otherwise. For binary layers, 'and' is equivalent to 'product' and 'or' is equivalent to 'max'; 'xor' (true only if exactly one layer has the tie) has no equivalent among the others. Merging two 2-mode layers results in a new 2-mode layer, where hyperedges are matched by name. Only 'or' (default) and 'and' can be used: 'or' takes the union, i.e. all hyperedges that exist in either layer, where a hyperedge that exists in both layers gets the nodes it has in either layer; 'and' takes the intersection, i.e. only hyperedges that exist in both layers, each with the nodes it has in both layers. An optional name for the new layer can be specified: otherwise, it will be automatically named."
+    },
+    {
+      "name": "mergenetworks",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network1",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "network2",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "onvalueconflict",
+          "type": "enum",
+          "choices": [
+            "fail",
+            "keepfirst",
+            "keeplast"
+          ],
+          "default": "fail",
+          "required": false
+        }
+      ],
+      "syntax": "[var:network] = mergenetworks(network1 = [var:network], network2 = [var:network], *name = [str], *onvalueconflict = ['fail'(default),'keepfirst','keeplast'])",
+      "description": "Merges two networks into a new one, stored in [var:network]: their nodesets are merged exactly as mergenodesets() does (see that command for how attribute definitions and values are resolved, including the 'onvalueconflict' argument), and every layer from both networks is copied into the merged network over that unified nodeset. A layer name occurring in both networks is kept side-by-side rather than combined: the one from the second network is suffixed with its source network's name (e.g. 'kinship_net2024') so both survive distinctly, allowing year-over-year comparison afterward. Consider renaming a layer with a more meaningful period/source label (see rename()) before merging rather than relying on this automatic suffix - the same convention recommended for per-period node attributes before merging nodesets."
+    },
+    {
+      "name": "mergenodesets",
+      "returns": "var:nodeset",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "nodeset1",
+          "type": "var:nodeset",
+          "required": true
+        },
+        {
+          "name": "nodeset2",
+          "type": "var:nodeset",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "onvalueconflict",
+          "type": "enum",
+          "choices": [
+            "fail",
+            "keepfirst",
+            "keeplast"
+          ],
+          "default": "fail",
+          "required": false
+        }
+      ],
+      "syntax": "[var:nodeset] = mergenodesets(nodeset1 = [var:nodeset], nodeset2 = [var:nodeset], *name = [str], *onvalueconflict = ['fail'(default),'keepfirst','keeplast'])",
+      "description": "Merges two nodesets into a new one, stored in [var:nodeset]: the union of their node ids, and the union of their defined node attributes. An attribute name defined in both with a different type always fails the merge - that signals two genuinely different attributes sharing a name by accident. For each node and attribute: if only one source has a value set, that value is used; if both have a value set and they agree, that value is used; if both have a value set and disagree, 'onvalueconflict' decides ('fail' by default, or 'keepfirst'/'keeplast' to prefer nodeset1/nodeset2). A value missing in one source is never treated as a conflict - only two different values for the same node and attribute are. Attributes expected to vary between the two sources (e.g. a per-period measure like income) should be renamed with their period beforehand (see rename()), so that only genuinely static attributes (e.g. gender, birthyear) remain under a shared name and risk a value conflict."
+    },
+    {
+      "name": "pack",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "pack(network = [var:network], *layername = [str])",
+      "description": "Takes a mutable (unpacked, dynamic) 1-mode or 2-mode layer and converts it into a corresponding immutable(packed, static) layer. A packed layer takes less RAM memory but it is not possible to add or remove edges to such a layer. Use the 'unpack(...)' command to convert an immutable (packed, static) layer to a mutable (unpacked, dynamic) version."
+    },
+    {
+      "name": "pagerank",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "dampingfactor",
+          "type": "double",
+          "required": false
+        },
+        {
+          "name": "maxiterations",
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "tolerance",
+          "type": "double",
+          "required": false
+        }
+      ],
+      "syntax": "pagerank(network=[var:network], *layernames=[semicolon-separated], *attrname=[str], *dampingfactor=[double], *maxiterations=[int], *tolerance=[double])",
+      "description": "Calculates PageRank scores for each node and stores the result as a node attribute. Uses directed out-edges (projected adjacency for 2-mode layers). Dangling nodes (no out-edges) redistribute their mass uniformly. Default damping factor 0.85. Iterates until convergence within tolerance or maxiterations is reached. See Page, Brin, Motwani, Winograd (1999)."
+    },
+    {
+      "name": "preview",
+      "returns": "str",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        }
+      ],
+      "syntax": "[str] = preview(structure = [var:structure])",
+      "description": "Previews the content of the structure with the variable name [var:structure]. Caps the number of outputted lines: max 10 nodes (with attributes) for nodesets, max 10 edges per 1-mode layer, and max 10 node-hyperedge affiliations per 2-mode layer."
+    },
+    {
+      "name": "projecttwomode",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "enum",
+          "choices": [
+            "count",
+            "newman",
+            "binary"
+          ],
+          "default": "count",
+          "required": false
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "projecttwomode(network = [var:network], layername = [str], *method = ['count'(default),'newman','binary'], *newlayername = [str])",
+      "description": "Projects the specified 2-mode layer in the specified network. The layer must be 2-mode. Projection method is by default 'count', which results in valued symmetric edges between nodes representing how many affiliations pairs of nodes share. The 'binary' projection method builds on 'count', but dichotomzies the results into binary ties (and thus also a binary layer). The 'newman' projection method normalizes the contribution of each hyperedge by its size (see Newman 2001. Scientific collaboration networks. Physical Review E). A new symmetrized 1-mode layer is created: the original 2-mode layer will remain as it is. An optional name for the new layer can be specified: otherwise, it will be automatically named."
+    },
+    {
+      "name": "randomseed",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "seed",
+          "default": 6031769,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "randomseed(*seed = [int(default:6031769)])",
+      "description": "Sets the random seed to the optionally specified integer value (defaults to 6031769). Used for reproducability."
+    },
+    {
+      "name": "removeaff",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "hypername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "removeaff(network = [var:network], layername = [str], nodeid = [uint], hypername = [str])",
+      "description": "Removes the affiliation (if one exists) between node 'nodeid' and the hyperedge named 'hypername' in the specified layer 'layername' in network [var:network]. The specified layer must be 2-mode. Gives a warning if the node-hyperedge affiliation does not exist."
+    },
+    {
+      "name": "removeattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "removeattr(structure = [var:structure], nodeid = [uint], attrname = [str])",
+      "description": "Remove the attribute 'attrname' from the node with the id 'nodeid' in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Note that the node attribute must first have been defined. If the attribute is defined but not set for this node, this will return success though noting that the attribute was not set for this node."
+    },
+    {
+      "name": "removeedge",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "node1id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "node2id",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "removeedge(network = [var:network], layername = [str], node1id = [uint], node2id = [uint])",
+      "description": "Removes the edge (if one exists) between node1id and node2id in the specified layer 'layername' (which must be 1-mode) in network [var:network]. If the layer is directional, node1id is the source (from) and node2id is the destination (to). Gives a warning message if any of the nodes are missing, or if the edge does not exist."
+    },
+    {
+      "name": "removehyper",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "hypername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "removehyper(network = [var:network], layername = [str], hypername = [str])",
+      "description": "Removes the hyperedge 'hypername' from layer 'layername' in the specified network [var:network]."
+    },
+    {
+      "name": "removelayer",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "removelayer(network = [var:network], layername = [str])",
+      "description": "Removes the relational layer 'layername' and all edges in that layer for the specified network."
+    },
+    {
+      "name": "removenode",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        }
+      ],
+      "syntax": "removenode(structure = [var:structure], nodeid = [uint])",
+      "description": "Removes the specified node from the the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. This CLI command will also iterate through all stored Network structures, removing related edges for the networks that use this Nodeset."
+    },
+    {
+      "name": "rename",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "enum",
+          "choices": [
+            "layer",
+            "attribute"
+          ],
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "rename(structure = [var:structure], type = ['layer','attribute'], from = [str], to = [str])",
+      "description": "Renames either a layer or a node attribute, without affecting anything else about it. When type is 'layer', 'structure' must be a Network variable, and 'from'/'to' are the layer's current and new name. When type is 'attribute', 'structure' is a Nodeset (or the Nodeset of the provided Network), and 'from'/'to' are the node attribute's current and new name: the attribute's internal index and all currently set values are unaffected, only the name it is looked up by changes. Renaming to a name already in use, or renaming a layer/attribute that does not exist, fails without changing anything."
+    },
+    {
+      "name": "rewire",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        },
+        {
+          "name": "numswaps",
+          "default": 0,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "swaptype",
+          "type": "enum",
+          "choices": [
+            "2edge",
+            "3edge"
+          ],
+          "default": "2edge",
+          "required": false
+        },
+        {
+          "name": "maxtries",
+          "default": 0,
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "rewire(network = [var:network], layername = [str], *newlayername = [str], *numswaps = [int(default:0)], *swaptype = ['2edge'(default),'3edge'], *maxtries = [int(default:0)])",
+      "description": "Randomizes a 1-mode layer via repeated degree-preserving edge swaps (Markov chain switching), storing the result as a new layer with the same directionality, edge type and selfties setting as the original (left unmodified). Every node's degree (in- and out-degree separately, for directed layers) is preserved exactly. Edge values travel with the edge being repositioned: for directed layers each edge's original tail stays fixed as its head is reassigned; for symmetric layers, which endpoint of each edge is treated as fixed is chosen independently at random for every swap, since an undirected edge has no real direction to anchor a value to. 'swaptype' selects the swap mechanics for directed layers: '2edge' (default, matches igraph's convention) picks two arcs (a,b) and (c,d) and reconnects them as (a,d) and (c,b); '3edge' instead swaps along a 3-arc path a->b->c->d to a->c->b->d, matching networkx's directed_edge_swap, needed because '2edge' is not guaranteed to reach every digraph with the same in/out-degree sequence (though '3edge' never disturbs existing self-loops, since it only operates on 4-distinct-node paths). For symmetric layers, which have no such subtlety, 'swaptype' is ignored and '2edge' is always used. 'numswaps' is the target number of successful swaps (0, the default, uses 10 times the layer's edge count); 'maxtries' caps the total number of attempts, successful or not, so a layer too dense or structured to find enough valid swaps does not loop unboundedly (0, the default, uses 10 times numswaps). The new layer is named as the provided layer with the addition '-rewired', unless 'newlayername' is given. Reference: Maslov & Sneppen (2002) doi:10.1126/science.1065103."
+    },
+    {
+      "name": "rwfpt",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "maxsteps",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "walkfactor",
+          "default": 1.0,
+          "type": "float",
+          "required": false
+        },
+        {
+          "name": "minpairobs",
+          "default": 10,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "balanced",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "weighted",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "returnhistograms",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        },
+        {
+          "name": "layerweights",
+          "type": "semicolon-separated floats",
+          "required": false
+        }
+      ],
+      "syntax": "[var:network] = rwfpt(network = [var:network], attrname = [str], maxsteps = [int], *layernames = [semicolon-separated], *walkfactor = [float(default:1.0)], *minpairobs = [int(default:10)], *balanced = ['false'(default),'true'], *weighted = ['false'(default),'true'], *returnhistograms = ['false'(default),'true'], *layerweights = [semicolon-separated floats])",
+      "description": "Initializes and executes a first-passage-time-based distance-measuring random walker (experimental). The initial sampling pass runs in parallel across up to 'maxthreads' threads (see 'setting()'); exact reproducibility via 'randomseed()' is only guaranteed when maxthreads is set to 1. 'layerweights' only applies when 'balanced' is true and more than one layer is used: it gives the relative probability of picking each layer first at each step, in the same order as 'layernames' (which must then be given explicitly), normalized automatically (e.g. 8 and 16 means the second layer is picked twice as often as the first) - useful for e.g. modeling how much time a node spends in each context/domain. Without it, layer-picking is uniform, and it is ignored entirely when 'balanced' is false."
+    },
+    {
+      "name": "savefile",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "file",
+          "quoted": true,
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "savefile(structure = [var:structure], *file = \"[str]\")",
+      "description": "Saves the structure [var:structure] to file. By default, the Filepath of the structure is used to save to, but if the 'file' argument is provided, it will instead be saved to this, which will replace Filepath. If the Filepath property is not set (i.e. it hasn't been saved before, or loaded from file) and no 'file' is provided, an error will be returned. If the structure is a Network, this will also save the Nodeset to its file if it has been modified. However, if the Nodeset has not been saved before (or loaded from file), i.e. it has a null Filepath property, that will result in an error: you must then first save the Nodeset as a file before saving the Network. If the filename ends with .tsv, the structure is saved in tab-separated value format. With .tsv.gz, it is saved in tsv with additional Gzipped. If the file ending is .bin, the structure is saved in Threadle's own binary format, which is a compact, non-human-readable format. If the file ending is .bin.gz, it is the Gzipped version of the .bin format, which is typically quite compact and small."
+    },
+    {
+      "name": "setattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodeid",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "attrvalue",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "setattr(structure = [var:structure], nodeid = [uint], attrname = [str], attrvalue = [str])",
+      "description": "Sets the value of the attribute 'attrname' to 'attrvalue' for the node with the id 'nodeid' in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Note that the node attribute must first have been defined, and that the value of the attribute must be in accordance with the specific data type for which it was defined."
+    },
+    {
+      "name": "setattrs",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "semicolon-separated uints",
+          "required": false
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "one_of": [
+            {
+              "name": "attrvalue",
+              "type": "str",
+              "required": true
+            },
+            {
+              "name": "attrvalues",
+              "type": "semicolon-separated strs",
+              "required": true
+            }
+          ],
+          "required": true
+        }
+      ],
+      "syntax": "setattrs(structure = [var:structure], *nodes = [semicolon-separated uints], attrname = [str], attrvalue = [str] | attrvalues = [semicolon-separated strs])",
+      "description": "Sets the value of the attribute 'attrname' for the nodes in 'nodes' (separated by semicolons) in the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. Either sets all of them to one common value with 'attrvalue', or sets one value per node with 'attrvalues' (separated by semicolons, same length and order as 'nodes'). Exactly one of 'attrvalue' and 'attrvalues' must be provided. If 'nodes' is omitted, 'attrvalue' is set for all nodes in the nodeset (e.g. to reset an attribute between simulation runs); 'attrvalues' always requires 'nodes'. If a node appears more than once in 'nodes', its last value is used. Values in 'attrvalues' cannot contain semicolons: use setattr() for such values. As with setattr(), the attribute must first have been defined, and the values must be in accordance with its data type. All or nothing: all nodes and values are checked before anything is set, so any error leaves all attribute values unchanged. Returns a message with the number of nodes updated."
+    },
+    {
+      "name": "setting",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "name",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "enum",
+          "choices": [
+            true
+          ],
+          "required": true
+        }
+      ],
+      "syntax": "setting(name = [str], value = ['true','false'] or [int])",
+      "description": "Changes the setting 'name' to 'value'. Boolean settings are 'nodecache' (use node cache, lazy initialized), 'blockmultiedges' (prohibits the creation of multiple edges with identical connections and directions), 'onlyoutboundedges' (only stores outbound edges, i.e. no inbound edges, all to save memory for walker-only applications), and 'verbose'. The integer setting 'maxthreads' caps the number of threads parallelized methods (e.g. betweennesscentrality) may use concurrently; -1 is unconstrained, i.e. .NET decides based on available cores. It cannot exceed the number of available processor cores, nor the limit set by 'maxthreadslimit' in the optional appconfig.json file next to the Threadle executable (where -1 then means that limit). Its value at startup is -1, unless set by 'defaultmaxthreads' in appconfig.json (see 'systeminfo()')."
+    },
+    {
+      "name": "setwd",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "dir",
+          "quoted": true,
+          "type": "enum",
+          "choices": [
+            "str",
+            "~",
+            "~documents"
+          ],
+          "required": true
+        }
+      ],
+      "syntax": "setwd(dir = \"[str,'~','~documents']\")",
+      "description": "Sets the current working directory for Threadle to the relative or absolute path specified by 'dir'. There are three special options for this argument, options that work for all architectures. If set to '~', i.e. just the tilde character, the working directory will be set to the root user directory/folder. If set to '~documents', the working directory will be set to the user's documents folder (like the 'My Documents' folder in Windows). If a folder does not exist, an error is given."
+    },
+    {
+      "name": "shortestpath",
+      "returns": "int/dict",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "node1id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "node2id",
+          "type": "uint",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "returnpath",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        }
+      ],
+      "syntax": "[int/dict] = shortestpath(network = [var:network], node1id = [uint], node2id = [uint], *layernames = [semicolon-separated], *returnpath = ['false'(default),'true'])",
+      "description": "Calculates the shortest path from node1id to node2id in a network. Uses all layers unless specific layers are specified as a semicolon-separated list. Note that shortest path measures are directional: for directional layers, the shortest path may indeed be different in the other direction. For symmetric layers, this is however moot. Returns -1 if no path exists. Set returnpath=true to also return the sequence of node ids along the shortest path. See Pohl (1971) for the bi-directional BFS implemented here."
+    },
+    {
+      "name": "shortestpaths",
+      "returns": "list",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "pairs",
+          "type": "semicolon-separated 'from:to' pairs",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        },
+        {
+          "name": "returnpaths",
+          "type": "enum",
+          "choices": [
+            false,
+            true
+          ],
+          "default": false,
+          "required": false
+        }
+      ],
+      "syntax": "[list] = shortestpaths(network = [var:network], pairs = [semicolon-separated 'from:to' pairs], *layernames = [semicolon-separated], *returnpaths = ['false'(default),'true'])",
+      "description": "Calculates exact shortest paths (bidirectional BFS) for a batch of node pairs, e.g. pairs='1:2;3:4;5:6' (colon between the two node ids of a pair, semicolon between pairs — not commas, which are the CLI's own argument separator). Runs in parallel across up to 'maxthreads' threads (see 'setting()' and 'system()'). Uses all layers unless specific layers are specified as a semicolon-separated list. Returns a list of {node1id, node2id, distance, [path]} for each pair, in the same order as given. Distance is -1 if no path exists. Set returnpaths=true to also return the sequence of node ids along each shortest path. For aggregating shortest paths by node attribute category instead, see 'shortestpathsattributes()'."
+    },
+    {
+      "name": "shortestpathsattributes",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        }
+      ],
+      "syntax": "[var:network] = shortestpathsattributes(network = [var:network], attrname = [str], *layernames = [semicolon-separated])",
+      "description": "Calculates the exact shortest path (BFS) between all node pairs and aggregates by node attribute category. Returns a result network whose nodes are the unique attribute values and whose layers hold mean path length ({attrname}_sp_avg), standard error ({attrname}_sp_se), and reachable pair count ({attrname}_sp_count). Unreachable pairs are excluded. Note: runs in O(N×(N+E)) time — only feasible for smaller networks; the per-source BFS passes run in parallel across up to 'maxthreads' threads (see 'setting()'). For larger networks, sample specific node pairs and use 'shortestpaths()' instead."
+    },
+    {
+      "name": "smallworldcoefficient",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "nulltrials",
+          "default": 10,
+          "type": "int",
+          "required": false
+        },
+        {
+          "name": "traversal",
+          "type": "enum",
+          "choices": [
+            "out",
+            "in",
+            "both"
+          ],
+          "default": "out",
+          "required": false
+        }
+      ],
+      "syntax": "smallworldcoefficient(network=[var:network], layername=[str], *nulltrials=[int(default:10)], *traversal=['out'(default),'in','both'])",
+      "description": "Computes the small-world coefficient sigma (Humphries & Gurney 2008) for a single 1-mode layer: (observed clustering / random clustering) / (observed average path length / random average path length). sigma > 1 indicates small-world structure — markedly more clustered than a comparable random graph, without a correspondingly longer average path length. The random reference is the mean over 'nulltrials' independent degree-preserving rewirings of the layer (same mechanism as rewire(), default 2-edge swap; each trial is discarded after measuring, never added to the network). Clustering uses whichever formula clusteringcoefficient() would auto-select for the layer's type; average path length is diameter()'s AvgDistance, restricted to the largest weakly connected component in both the observed and each random-reference network for a like-for-like comparison. For directed layers, 'traversal' controls which direction BFS follows for the path-length measurements. Returns Sigma, ObservedClustering, ObservedAvgDistance, RandomClustering, RandomAvgDistance and NullTrials. Reports only sigma, not Telesford et al. (2011)'s omega, which additionally needs a ring-lattice reference Threadle does not currently generate. References: Watts & Strogatz (1998) doi:10.1038/30918; Humphries & Gurney (2008) doi:10.1371/journal.pone.0002051."
+    },
+    {
+      "name": "subnet",
+      "returns": "var:network",
+      "to_assign": true,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network2",
+          "required": true
+        },
+        {
+          "name": "nodeset",
+          "type": "var:nodeset",
+          "required": true
+        }
+      ],
+      "syntax": "[var:network] = subnet(network = [var:network2], nodeset = [var:nodeset])",
+      "description": "Creates and stores a new network [var:network] that based on the provided network [var:network2] but only including the nodes in the provided nodeset [var:nodeset]. For instance, if a subset of a Nodeset has first been created using 'filter()', one can then use this command to create a subset of a network that is using the original Nodeset."
+    },
+    {
+      "name": "symmetrictodirected",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "symmetrictodirected(network = [var:network], layername = [str], *newlayername = [str])",
+      "description": "Converts a symmetric (undirected) 1-mode layer into a directed layer, turning each undirected tie into two independent directed arcs (one in each direction) carrying the same value. The resulting layer keeps the original's edge value type (binary stays binary, valued stays valued). The original layer remains unchanged. The new layer will be named as the provided layer, with the addition '-directed', but the name can also be specified with the 'newlayername' argument."
+    },
+    {
+      "name": "symmetrize",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "enum",
+          "choices": [
+            "max",
+            "min",
+            "minnonzero",
+            "average",
+            "sum",
+            "product"
+          ],
+          "default": "max",
+          "required": false
+        },
+        {
+          "name": "newlayername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "symmetrize(network = [var:network], layername = [str], *method = ['max'(default),'min','minnonzero','average','sum','product'], *newlayername = [str])",
+      "description": "Symmetrize the specified layer in the specific network. The layer must be 1-mode and preferably directional. A new, symmetrized version of the layer will be created: the original layer will remain as it is. An optional name for the new layer can be specified: otherwise, it will be automatically named."
+    },
+    {
+      "name": "systeminfo",
+      "returns": null,
+      "to_assign": false,
+      "params": [],
+      "syntax": "systeminfo()",
+      "description": "Displays details about the system Threadle is running on, including the number of available processor cores, OS and process architecture, .NET runtime version, the current 'maxthreads' setting, and the highest value it can be set to (the number of cores, or lower if limited by 'maxthreadslimit' in the appconfig.json file next to the Threadle executable). Useful for deciding what value to give the 'maxthreads' setting (see 'setting()')."
+    },
+    {
+      "name": "transitivity",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layernames",
+          "type": "semicolon-separated",
+          "required": false
+        }
+      ],
+      "syntax": "transitivity(network=[var:network], *layernames=[semicolon-separated])",
+      "description": "Calculates the global clustering coefficient (transitivity) of the specified 1-mode layer(s): ratio of closed triangles to all connected triples, treating edges as undirected. Equals 3T / Σ C(k,2) where T is the number of distinct triangles. Returns a single scalar value. Only 1-mode layers are accepted — project 2-mode layers first. Reference: Watts & Strogatz (1998) doi:10.1038/30918.."
+    },
+    {
+      "name": "triadiccensus",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": true
+        },
+        {
+          "name": "samplesize",
+          "type": "int",
+          "required": false
+        }
+      ],
+      "syntax": "triadiccensus(network=[var:network], layername=[str], *samplesize=[int])",
+      "description": "Computes the Holland-Leinhardt triadic census for a single 1-mode layer: counts of the 16 isomorphism classes of directed triads (003, 012, 102, 021D, 021U, 021C, 111D, 111U, 030T, 030C, 201, 120D, 120U, 120C, 210, 300), plus the total number of triples and a Method field ('Exact' or 'Sampled'). For undirected layers every present dyad is mutual, so only 003/102/201/300 can be non-zero. When samplesize is 0 (default), computes the exact census: this runs in parallel across up to 'maxthreads' threads (see 'setting()'). When samplesize > 0, classifies that many random node triples instead and extrapolates, adding SampleSize plus per-type StandardErrors, ConfidenceIntervalLower and ConfidenceIntervalUpper (95% Wilson score interval, which stays non-degenerate even when a rare type is observed zero times in the sample) — useful when the network is too large for exact computation. Reference: Holland & Leinhardt (1970) doi:10.1086/224727."
+    },
+    {
+      "name": "undefineattr",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "structure",
+          "type": "var:structure",
+          "required": true
+        },
+        {
+          "name": "attrname",
+          "type": "str",
+          "required": true
+        }
+      ],
+      "syntax": "undefineattr(structure = [var:structure], attrname = [str])",
+      "description": "Removes the definition of a node attribute for the Nodeset (or the nodeset of the provided Network) that has the variable name [var:structure]. This will also iterate through all nodes with attributes, removing the attributes for those that have it."
+    },
+    {
+      "name": "unpack",
+      "returns": null,
+      "to_assign": false,
+      "params": [
+        {
+          "name": "network",
+          "type": "var:network",
+          "required": true
+        },
+        {
+          "name": "layername",
+          "type": "str",
+          "required": false
+        }
+      ],
+      "syntax": "unpack(network = [var:network], *layername = [str])",
+      "description": "Takes an immutable (packed, static) 1-mode or 2-mode layer and converts it into a corresponding mutable (unpacked, dynamic) layer. An unpacked layer takes more RAM memory but it is then possible to add and remove edges to such a layer. Use the 'pack(...)' command to convert a mutable (unpacked, dynamic) layer to an immmutable (packed, static) version."
+    }
+  ]
+}

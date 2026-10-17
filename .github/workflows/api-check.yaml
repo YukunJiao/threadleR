@@ -1,0 +1,33 @@
+# Checks threadleR's wrapper functions against the Threadle backend API snapshot
+# in tools/threadle-api.json. See tools/README.md.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: api-check.yaml
+
+permissions: read-all
+
+jobs:
+  api-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install dependencies
+        run: Rscript -e 'install.packages(c("jsonlite", "yaml"))'
+
+      - name: Check wrappers against the backend API
+        run: Rscript tools/check_api.R --report api-coverage.md
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-coverage
+          path: api-coverage.md

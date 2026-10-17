@@ -1,0 +1,18 @@
+# Hand-maintained part of the threadleR <-> Threadle backend mapping.
+#
+# Most of the mapping is read from the code itself by tools/check_api.R:
+# each wrapper's backend command comes from `cmd <- "..."` (or `.th_call(cmd = "...")`),
+# and its arguments are sent under their R names via `.th_args()`.
+# Only record here what the code cannot tell.
+
+# Backend commands that intentionally have no R wrapper, with the reason.
+not_wrapped:
+  help: R users get documentation through R's own help system (?th_degree etc.).
+
+# Backend commands that should get a wrapper later, with a note.
+planned: {}
+
+# Arguments of a wrapper that are sent to the backend but are not backend
+# parameters, by R function name ("*" applies to all wrappers). Arguments removed
+# with `.th_args(drop = ...)` or `args$x <- NULL` are detected automatically.
+r_only_args: {}

@@ -10,3 +10,4 @@
 ^scripts$
 ^\.positai$
 ^\.claude$
+^tools$
