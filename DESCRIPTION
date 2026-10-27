@@ -6,7 +6,10 @@ Authors@R: c(
     person("Yukun", "Jiao", email = "jiaoyukun1999@gmail.com",
            role = c("aut", "cre", "cph"), comment = c(ORCID = "0009-0009-4826-4682")),
     person("Carl", "Nordlund", email = "carl.nordlund@liu.se",
-           role = "aut", comment = c(ORCID = "0000-0001-5057-1985"))
+           role = "aut", comment = c(ORCID = "0000-0001-5057-1985")),
+    person(given = "Swedish Research Council", 
+           role = "fnd", 
+           comment = "The Complete Network of Sweden, grant number 2024-01861")
   )
 License: MIT + file LICENSE
 Encoding: UTF-8
